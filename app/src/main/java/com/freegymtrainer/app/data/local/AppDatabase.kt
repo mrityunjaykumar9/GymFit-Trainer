@@ -26,7 +26,7 @@ import com.freegymtrainer.app.data.local.entity.*
         MealLogEntry::class,
         ReminderSettings::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -53,7 +53,13 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
-                ).build().also { INSTANCE = it }
+                )
+                    // Pre-release app with no cloud backup of local data - destructive
+                    // migration just wipes and reseeds (SeedRepository.seedIfNeeded runs on
+                    // every launch) rather than requiring hand-written Migration objects for
+                    // every schema bump during active development.
+                    .fallbackToDestructiveMigration()
+                    .build().also { INSTANCE = it }
             }
     }
 }

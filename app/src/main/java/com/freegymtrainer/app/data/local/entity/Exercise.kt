@@ -19,5 +19,9 @@ data class Exercise(
     val goalTags: List<String>,       // Muscle gain / Strength / Fat loss / Endurance / Mobility
     val instructions: List<String>,
     val commonMistakes: List<String>,
-    val safetyNotes: String
+    val safetyNotes: String,
+    // Null until a real demonstration clip is hosted somewhere and wired up per exercise -
+    // the UI falls back to a muscle-group icon placeholder when this is null. See
+    // ExerciseMediaPlayer and README -> "Adding exercise animations".
+    val mediaUrl: String? = null
 )

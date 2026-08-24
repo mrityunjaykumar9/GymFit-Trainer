@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.ExerciseMediaPlayer
 import com.freegymtrainer.app.presentation.components.LoadingState
-import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 
 @Composable
 fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -> Unit) {
@@ -47,25 +47,11 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // Placeholder for the animation/video asset called for in the full spec - the MVP
-            // ships without bundled video to keep the APK small; wire a WebView/ExoPlayer here
-            // pointed at a hosted clip later (see README -> "Adding exercise animations").
             ElevatedCard(
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth().height(160.dp)
+                modifier = Modifier.fillMaxWidth().height(200.dp)
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-                        Icon(
-                            muscleGroupIcon(ex.primaryMuscle),
-                            contentDescription = ex.primaryMuscle,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text("${ex.primaryMuscle} demonstration", style = MaterialTheme.typography.titleMedium)
-                    }
-                }
+                ExerciseMediaPlayer(mediaUrl = ex.mediaUrl, primaryMuscle = ex.primaryMuscle, modifier = Modifier.fillMaxSize())
             }
 
             Spacer(Modifier.height(16.dp))

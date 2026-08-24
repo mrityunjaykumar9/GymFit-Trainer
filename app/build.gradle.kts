@@ -116,6 +116,11 @@ dependencies {
     // AdMob (ads-based free monetization)
     implementation("com.google.android.gms:play-services-ads:23.2.0")
 
+    // ExoPlayer (media3) - plays exercise demonstration clips once mediaUrl is populated;
+    // falls back to the icon placeholder when an exercise has no clip yet.
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+
     // WorkManager (background reminder scheduling)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
 

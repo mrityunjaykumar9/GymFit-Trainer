@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -24,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.ErrorState
+import com.freegymtrainer.app.presentation.components.ExerciseMediaPlayer
 import com.freegymtrainer.app.presentation.components.LoadingState
 
 @Composable
@@ -52,6 +55,8 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
     val currentExercise = state.exercises.getOrNull(state.currentExerciseIndex)
     val currentSet = currentExercise?.sets?.getOrNull(state.currentSetIndex)
 
+    val showActionBar = currentExercise != null && currentSet != null && !state.isResting
+
     Scaffold(
         topBar = {
             Column {
@@ -67,6 +72,28 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                     progress = { (state.currentExerciseIndex + 1) / state.exercises.size.toFloat() },
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+        },
+        bottomBar = {
+            if (showActionBar) {
+                Surface(shadowElevation = 8.dp) {
+                    Column(Modifier.padding(20.dp)) {
+                        Button(
+                            onClick = { viewModel.completeCurrentSet() },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Icon(Icons.Filled.Check, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("COMPLETE SET", style = MaterialTheme.typography.titleMedium)
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(onClick = { viewModel.goToPrevious() }, modifier = Modifier.weight(1f)) { Text("Previous") }
+                            TextButton(onClick = { viewModel.skipCurrentSet() }, modifier = Modifier.weight(1f)) { Text("Skip Set") }
+                        }
+                    }
+                }
             }
         }
     ) { padding ->
@@ -84,7 +111,25 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
             return@Scaffold
         }
 
-        Column(Modifier.fillMaxSize().padding(padding).padding(20.dp)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+        ) {
+            ElevatedCard(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth().height(180.dp)
+            ) {
+                ExerciseMediaPlayer(
+                    mediaUrl = currentExercise.exercise.mediaUrl,
+                    primaryMuscle = currentExercise.exercise.primaryMuscle,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+
             Text(
                 "EXERCISE ${state.currentExerciseIndex + 1} OF ${state.exercises.size}",
                 style = MaterialTheme.typography.labelLarge,
@@ -144,23 +189,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                     }
                 }
             }
-
-            Spacer(Modifier.weight(1f))
-
-            Button(
-                onClick = { viewModel.completeCurrentSet() },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("COMPLETE SET", style = MaterialTheme.typography.titleMedium)
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { viewModel.goToPrevious() }, modifier = Modifier.weight(1f)) { Text("Previous") }
-                TextButton(onClick = { viewModel.skipCurrentSet() }, modifier = Modifier.weight(1f)) { Text("Skip Set") }
-            }
+            Spacer(Modifier.height(20.dp))
         }
     }
 

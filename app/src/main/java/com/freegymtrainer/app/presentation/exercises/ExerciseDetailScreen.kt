@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.LoadingState
+import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 
 @Composable
 fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -> Unit) {
@@ -54,7 +55,16 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
                 modifier = Modifier.fillMaxWidth().height(160.dp)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                    Text("${ex.primaryMuscle} demonstration", style = MaterialTheme.typography.titleMedium)
+                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                        Icon(
+                            muscleGroupIcon(ex.primaryMuscle),
+                            contentDescription = ex.primaryMuscle,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("${ex.primaryMuscle} demonstration", style = MaterialTheme.typography.titleMedium)
+                    }
                 }
             }
 

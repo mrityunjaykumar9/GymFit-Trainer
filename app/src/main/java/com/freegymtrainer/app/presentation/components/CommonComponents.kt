@@ -3,12 +3,21 @@ package com.freegymtrainer.app.presentation.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Accessibility
+import androidx.compose.material.icons.filled.AccessibilityNew
+import androidx.compose.material.icons.filled.DirectionsRun
+import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.PanTool
+import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 /** A dashboard stat tile - e.g. "12 Day Streak", "4 Workouts". */
@@ -75,4 +84,25 @@ fun ErrorState(message: String, onRetry: (() -> Unit)? = null, modifier: Modifie
 @Composable
 fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit) {
     FilterChip(selected = selected, onClick = onClick, label = { Text(label) })
+}
+
+/**
+ * A bundled Material icon standing in for a photo of someone performing the movement.
+ * Avoids shipping real people's likenesses / third-party photos in the APK (Play Store
+ * licensing risk) while still being more recognizable than a two-letter initials badge.
+ */
+fun muscleGroupIcon(primaryMuscle: String): ImageVector = when (primaryMuscle) {
+    "Chest" -> Icons.Filled.FitnessCenter
+    "Back" -> Icons.Filled.SelfImprovement
+    "Shoulders" -> Icons.Filled.AccessibilityNew
+    "Biceps" -> Icons.Filled.FitnessCenter
+    "Triceps" -> Icons.Filled.FitnessCenter
+    "Legs" -> Icons.Filled.DirectionsRun
+    "Abs" -> Icons.Filled.Accessibility
+    "Glutes" -> Icons.Filled.DirectionsWalk
+    "Forearms" -> Icons.Filled.PanTool
+    "Traps" -> Icons.Filled.AccessibilityNew
+    "Full Body" -> Icons.Filled.SelfImprovement
+    "Cardio" -> Icons.Filled.Whatshot
+    else -> Icons.Filled.FitnessCenter
 }

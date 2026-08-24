@@ -18,6 +18,7 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.FilterChipItem
+import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 
 @Composable
 fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) {
@@ -40,6 +41,13 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp)
             ) {
+                item {
+                    FilterChipItem(
+                        label = "All",
+                        selected = filter.muscle == null,
+                        onClick = { viewModel.setMuscle(null) }
+                    )
+                }
                 items(viewModel.muscleGroups) { muscle ->
                     FilterChipItem(
                         label = muscle,
@@ -79,7 +87,11 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
                                         .background(MaterialTheme.colorScheme.primaryContainer),
                                     contentAlignment = androidx.compose.ui.Alignment.Center
                                 ) {
-                                    Text(exercise.primaryMuscle.take(2).uppercase(), style = MaterialTheme.typography.labelLarge)
+                                    Icon(
+                                        muscleGroupIcon(exercise.primaryMuscle),
+                                        contentDescription = exercise.primaryMuscle,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
                                 }
                                 Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {

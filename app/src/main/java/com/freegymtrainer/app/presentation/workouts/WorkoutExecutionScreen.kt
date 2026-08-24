@@ -1,11 +1,21 @@
 package com.freegymtrainer.app.presentation.workouts
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -20,6 +30,7 @@ import com.freegymtrainer.app.presentation.components.LoadingState
 fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () -> Unit) {
     val viewModel: WorkoutExecutionViewModel = viewModel(factory = GenericViewModelFactory { WorkoutExecutionViewModel(container, dayId) })
     val state by viewModel.uiState.collectAsState()
+    var showExitConfirm by remember { mutableStateOf(false) }
 
     if (state.loading) {
         LoadingState()
@@ -43,9 +54,20 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text("${state.dayTitle}  •  Exercise ${state.currentExerciseIndex + 1}/${state.exercises.size}")
-            })
+            Column {
+                TopAppBar(
+                    title = { Text(state.dayTitle) },
+                    navigationIcon = {
+                        IconButton(onClick = { showExitConfirm = true }) {
+                            Icon(Icons.Filled.Close, contentDescription = "Exit workout")
+                        }
+                    }
+                )
+                LinearProgressIndicator(
+                    progress = { (state.currentExerciseIndex + 1) / state.exercises.size.toFloat() },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     ) { padding ->
         if (currentExercise == null || currentSet == null) {
@@ -63,61 +85,128 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
         }
 
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp)) {
+            Text(
+                "EXERCISE ${state.currentExerciseIndex + 1} OF ${state.exercises.size}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(4.dp))
             Text(currentExercise.exercise.name, style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(4.dp))
             Text(
-                "Set ${state.currentSetIndex + 1} of ${currentExercise.sets.size}  •  Target: ${currentExercise.templateExercise.reps} reps",
+                "Target: ${currentExercise.templateExercise.reps} reps  •  ${currentExercise.templateExercise.sets} sets",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(Modifier.height(32.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                OutlinedTextField(
-                    value = if (currentSet.actualReps == 0) "" else currentSet.actualReps.toString(),
-                    onValueChange = { viewModel.updateCurrentSetReps(it.filter { c -> c.isDigit() }.toIntOrNull() ?: 0) },
-                    label = { Text("Reps") },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = if (currentSet.weightKg == 0.0) "" else currentSet.weightKg.toString(),
-                    onValueChange = { viewModel.updateCurrentSetWeight(it.toDoubleOrNull() ?: 0.0) },
-                    label = { Text("Weight (kg)") },
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f)
-                )
+            Spacer(Modifier.height(24.dp))
+            Text("Sets", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                currentExercise.sets.forEachIndexed { index, set ->
+                    SetChip(
+                        number = index + 1,
+                        completed = set.completed,
+                        current = index == state.currentSetIndex,
+                        onClick = { viewModel.goToSet(index) }
+                    )
+                }
             }
 
             Spacer(Modifier.height(24.dp))
-            // Quick set-status row so the user can see progress across the whole exercise.
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                currentExercise.sets.forEachIndexed { index, set ->
-                    val isCurrent = index == state.currentSetIndex
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = when {
-                            set.completed -> MaterialTheme.colorScheme.primary
-                            isCurrent -> MaterialTheme.colorScheme.primaryContainer
-                            else -> MaterialTheme.colorScheme.surfaceVariant
-                        },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) { Text("${index + 1}") }
+            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(
+                        "Set ${state.currentSetIndex + 1}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        OutlinedTextField(
+                            value = if (currentSet.actualReps == 0) "" else currentSet.actualReps.toString(),
+                            onValueChange = { viewModel.updateCurrentSetReps(it.filter { c -> c.isDigit() }.take(3).toIntOrNull() ?: 0) },
+                            label = { Text("Reps") },
+                            placeholder = { Text(currentExercise.templateExercise.reps) },
+                            leadingIcon = { Icon(Icons.Filled.Repeat, contentDescription = null) },
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = if (currentSet.weightKg == 0.0) "" else currentSet.weightKg.toString(),
+                            onValueChange = { viewModel.updateCurrentSetWeight(it.filter { c -> c.isDigit() || c == '.' }.toDoubleOrNull() ?: 0.0) },
+                            label = { Text("Weight (kg)") },
+                            leadingIcon = { Icon(Icons.Filled.FitnessCenter, contentDescription = null) },
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
 
             Spacer(Modifier.weight(1f))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { viewModel.goToPrevious() }, modifier = Modifier.weight(1f)) { Text("Previous") }
-                OutlinedButton(onClick = { viewModel.skipCurrentSet() }, modifier = Modifier.weight(1f)) { Text("Skip") }
-            }
-            Spacer(Modifier.height(8.dp))
+
             Button(
                 onClick = { viewModel.completeCurrentSet() },
-                modifier = Modifier.fillMaxWidth().height(52.dp)
-            ) { Text("COMPLETE SET") }
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("COMPLETE SET", style = MaterialTheme.typography.titleMedium)
+            }
+            Spacer(Modifier.height(10.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = { viewModel.goToPrevious() }, modifier = Modifier.weight(1f)) { Text("Previous") }
+                TextButton(onClick = { viewModel.skipCurrentSet() }, modifier = Modifier.weight(1f)) { Text("Skip Set") }
+            }
+        }
+    }
+
+    if (showExitConfirm) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirm = false },
+            title = { Text("Exit workout?") },
+            text = { Text("Sets you haven't completed yet won't be saved. Completed sets are already logged.") },
+            confirmButton = {
+                TextButton(onClick = { showExitConfirm = false; onFinished() }) { Text("Exit") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirm = false }) { Text("Keep Going") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SetChip(number: Int, completed: Boolean, current: Boolean, onClick: () -> Unit) {
+    val containerColor = when {
+        completed -> MaterialTheme.colorScheme.primary
+        current -> MaterialTheme.colorScheme.primaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val contentColor = when {
+        completed -> MaterialTheme.colorScheme.onPrimary
+        current -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Box(
+        Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .background(containerColor)
+            .then(
+                if (current && !completed) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                else Modifier
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (completed) {
+            Icon(Icons.Filled.Check, contentDescription = "Set $number completed", tint = contentColor, modifier = Modifier.size(20.dp))
+        } else {
+            Text("$number", color = contentColor, style = MaterialTheme.typography.titleMedium)
         }
     }
 }

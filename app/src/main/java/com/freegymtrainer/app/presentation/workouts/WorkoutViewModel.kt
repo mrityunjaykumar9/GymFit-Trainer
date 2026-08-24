@@ -178,6 +178,15 @@ class WorkoutExecutionViewModel(private val container: AppContainer, private val
         }
     }
 
+    /** Jumps directly to a set within the current exercise - used by the tappable set chips. */
+    fun goToSet(index: Int) {
+        val state = _uiState.value
+        val currentExercise = state.exercises.getOrNull(state.currentExerciseIndex) ?: return
+        if (index !in currentExercise.sets.indices) return
+        restJob?.cancel()
+        _uiState.value = state.copy(currentSetIndex = index, isResting = false, restSecondsRemaining = 0)
+    }
+
     fun goToPrevious() {
         val state = _uiState.value
         if (state.currentSetIndex > 0) {

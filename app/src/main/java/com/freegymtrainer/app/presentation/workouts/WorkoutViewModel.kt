@@ -43,12 +43,12 @@ class WorkoutDayDetailViewModel(private val container: AppContainer, private val
 
 // ---------------- Execution screen ----------------
 
-data class SetProgress(var actualReps: Int, var weightKg: Double, var completed: Boolean)
+data class SetProgress(val actualReps: Int, val weightKg: Double, val completed: Boolean)
 
 data class ExecutionExerciseState(
     val exercise: Exercise,
     val templateExercise: WorkoutTemplateExercise,
-    val sets: MutableList<SetProgress>
+    val sets: List<SetProgress>
 )
 
 data class WorkoutExecutionUiState(
@@ -92,7 +92,7 @@ class WorkoutExecutionViewModel(private val container: AppContainer, private val
                 return@launch
             }
             val exerciseStates = detail.exercises.map { (te, ex) ->
-                val sets = (1..te.sets).map { SetProgress(actualReps = 0, weightKg = 0.0, completed = false) }.toMutableList()
+                val sets = (1..te.sets).map { SetProgress(actualReps = 0, weightKg = 0.0, completed = false) }
                 ExecutionExerciseState(ex, te, sets)
             }
             startTimeMillis = System.currentTimeMillis()
@@ -105,23 +105,39 @@ class WorkoutExecutionViewModel(private val container: AppContainer, private val
         }
     }
 
-    fun updateCurrentSetReps(reps: Int) = updateCurrentSet { it.actualReps = reps }
-    fun updateCurrentSetWeight(weight: Double) = updateCurrentSet { it.weightKg = weight }
+    fun updateCurrentSetReps(reps: Int) = updateCurrentSet { it.copy(actualReps = reps) }
+    fun updateCurrentSetWeight(weight: Double) = updateCurrentSet { it.copy(weightKg = weight) }
 
-    private fun updateCurrentSet(mutation: (SetProgress) -> Unit) {
+    /**
+     * Rebuilds a fresh set/exercise/exercises chain rather than mutating in place. SetProgress
+     * used to have `var` fields mutated directly, but since the outer lists were only shallow-
+     * copied, the "old" and "new" WorkoutExecutionUiState ended up structurally equal (they
+     * shared the same mutated leaf object) - StateFlow conflates equal values and silently
+     * dropped the update, so typed reps/weight never reached the screen.
+     */
+    private fun updateCurrentSet(mutation: (SetProgress) -> SetProgress) {
         val state = _uiState.value
-        val exercises = state.exercises.toMutableList()
-        val currentExercise = exercises.getOrNull(state.currentExerciseIndex) ?: return
+        val currentExercise = state.exercises.getOrNull(state.currentExerciseIndex) ?: return
         val set = currentExercise.sets.getOrNull(state.currentSetIndex) ?: return
-        mutation(set)
-        _uiState.value = state.copy(exercises = exercises)
+
+        val updatedSets = currentExercise.sets.toMutableList().apply { this[state.currentSetIndex] = mutation(set) }
+        val updatedExercises = state.exercises.toMutableList().apply {
+            this[state.currentExerciseIndex] = currentExercise.copy(sets = updatedSets)
+        }
+        _uiState.value = state.copy(exercises = updatedExercises)
     }
 
     fun completeCurrentSet() {
         val state = _uiState.value
         val currentExercise = state.exercises.getOrNull(state.currentExerciseIndex) ?: return
         val set = currentExercise.sets.getOrNull(state.currentSetIndex) ?: return
-        set.completed = true
+        val completedSet = set.copy(completed = true)
+
+        val updatedSets = currentExercise.sets.toMutableList().apply { this[state.currentSetIndex] = completedSet }
+        val updatedExercises = state.exercises.toMutableList().apply {
+            this[state.currentExerciseIndex] = currentExercise.copy(sets = updatedSets)
+        }
+        _uiState.value = state.copy(exercises = updatedExercises)
 
         viewModelScope.launch {
             container.workoutRepository.logSet(
@@ -131,8 +147,8 @@ class WorkoutExecutionViewModel(private val container: AppContainer, private val
                     exerciseName = currentExercise.exercise.name,
                     setIndex = state.currentSetIndex + 1,
                     targetReps = currentExercise.templateExercise.reps,
-                    actualReps = set.actualReps,
-                    weightKg = set.weightKg,
+                    actualReps = completedSet.actualReps,
+                    weightKg = completedSet.weightKg,
                     completed = true
                 )
             )

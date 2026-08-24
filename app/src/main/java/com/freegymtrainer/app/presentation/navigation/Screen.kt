@@ -19,6 +19,9 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
 
     companion object {
-        val bottomNavItems = listOf(Home, Exercises, Workouts, Nutrition, Progress)
+        // Lazy avoids a JVM class-init-order NPE (KT-25289): this list references sibling
+        // `object` singletons of this sealed class, which can still be null if evaluated
+        // eagerly while `Screen` itself is mid-initialization.
+        val bottomNavItems by lazy { listOf(Home, Exercises, Workouts, Nutrition, Progress) }
     }
 }

@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeMode by settingsStore.themeMode.collectAsState(initial = "system")
             FreeGymTrainerTheme(themeMode = themeMode) {
-                AppRoot(container = app.container, settings = settingsStore)
+                AppRoot(container = app.container, settings = settingsStore, seedingReady = app.seedingReady)
             }
         }
     }
@@ -59,10 +59,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AppRoot(container: AppContainer, settings: SettingsDataStore) {
+private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedingReady: kotlinx.coroutines.Deferred<Unit>) {
     var startDestination by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
+        // Must wait for first-launch seeding (exercises/workout templates) to finish before
+        // reading the profile/showing any screen - otherwise onboarding can complete before
+        // workout templates exist, leaving the weekly plan permanently empty.
+        seedingReady.await()
         val profile = container.userRepository.getProfile()
         startDestination = if (profile?.onboardingComplete == true) Screen.Home.route else Screen.Onboarding.route
     }

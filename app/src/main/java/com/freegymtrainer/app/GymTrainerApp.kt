@@ -8,13 +8,25 @@ import com.freegymtrainer.app.notifications.NotificationHelper
 import com.freegymtrainer.app.notifications.ReminderScheduler
 import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class GymTrainerApp : Application() {
 
     lateinit var container: AppContainer
+        private set
+
+    /**
+     * Awaitable handle on first-launch DB seeding (exercises/foods/workout templates).
+     * Screens that read seeded data before showing the UI (see MainActivity.AppRoot) must
+     * await this first - without it, a user who races through onboarding before seeding
+     * finishes can end up with an empty weekly plan and a Home screen stuck on "Rest Day"
+     * forever, since seeding only ever runs once per install.
+     */
+    lateinit var seedingReady: Deferred<Unit>
         private set
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -28,9 +40,7 @@ class GymTrainerApp : Application() {
             // AdMob SDK ready - banners created after this point will serve ads.
         }
 
-        // Seed the exercise library, food database, and workout templates on first launch
-        // so the app is fully usable offline immediately - no network/backend required.
-        applicationScope.launch {
+        seedingReady = applicationScope.async {
             container.seedRepository.seedIfNeeded()
         }
     }

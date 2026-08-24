@@ -60,7 +60,8 @@ data class WorkoutExecutionUiState(
     val isResting: Boolean = false,
     val restSecondsRemaining: Int = 0,
     val isFinished: Boolean = false,
-    val summary: WorkoutSummary? = null
+    val summary: WorkoutSummary? = null,
+    val error: String? = null
 )
 
 data class WorkoutSummary(
@@ -83,8 +84,11 @@ class WorkoutExecutionViewModel(private val container: AppContainer, private val
     init {
         viewModelScope.launch {
             val detail = container.workoutRepository.getTemplateDayDetail(dayId)
-            if (detail == null) {
-                _uiState.value = _uiState.value.copy(loading = false)
+            if (detail == null || detail.exercises.isEmpty()) {
+                _uiState.value = _uiState.value.copy(
+                    loading = false,
+                    error = "This workout couldn't be loaded. Please go back and try again."
+                )
                 return@launch
             }
             val exerciseStates = detail.exercises.map { (te, ex) ->

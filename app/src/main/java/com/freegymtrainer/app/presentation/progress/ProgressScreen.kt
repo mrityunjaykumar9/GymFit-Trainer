@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,8 +38,8 @@ fun ProgressScreen(container: AppContainer) {
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatCard("Day Streak", "🔥 ${state.workoutStreak}", "🔥", modifier = Modifier.weight(1f))
-                StatCard("This Week", "${state.weeklyConsistency} workouts", "📅", modifier = Modifier.weight(1f))
+                StatCard("Day Streak", "${state.workoutStreak} days", Icons.Filled.LocalFireDepartment, modifier = Modifier.weight(1f))
+                StatCard("This Week", "${state.weeklyConsistency} workouts", Icons.Filled.CalendarMonth, modifier = Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(20.dp))

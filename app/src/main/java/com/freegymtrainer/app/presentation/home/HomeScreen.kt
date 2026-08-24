@@ -1,24 +1,39 @@
 package com.freegymtrainer.app.presentation.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.DinnerDining
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.LoadingState
+import com.freegymtrainer.app.presentation.components.SectionHeader
 import com.freegymtrainer.app.presentation.components.StatCard
+import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 
 @Composable
 fun HomeScreen(
@@ -52,72 +67,81 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
         ) {
             Text(
                 "Good day, ${state.profile?.name?.ifBlank { "Athlete" } ?: "Athlete"} 👋",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(Modifier.height(16.dp))
 
-            // Today's workout card
-            ElevatedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(20.dp)) {
-                    Text("TODAY'S WORKOUT", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.height(4.dp))
-                    Text(state.todayDayTitle.uppercase(), style = MaterialTheme.typography.headlineMedium)
-                    if (!state.isRestDay) {
-                        Text(state.todayMuscleGroups, style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(8.dp))
-                        Text("${state.todayExerciseCount} exercises  •  ~${state.todayEstimatedMinutes} minutes", style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(16.dp))
-                        Button(
-                            onClick = { state.todayTemplateDayId?.let(onStartWorkout) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("START WORKOUT") }
-                    } else {
-                        Spacer(Modifier.height(8.dp))
-                        Text("Enjoy your rest day - recovery is part of the plan too.", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-            }
+            TodayWorkoutHero(state = state, onStartWorkout = onStartWorkout)
 
-            Spacer(Modifier.height(20.dp))
-            Text("Today's Progress", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(24.dp))
+            SectionHeader("Today's Progress")
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatCard("Day Streak", "🔥 ${state.workoutStreak}", "🔥", modifier = Modifier.weight(1f))
-                StatCard("Workouts", "${state.workoutsThisWeek} this wk", "🏋", modifier = Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                StatCard("Day Streak", "${state.workoutStreak} days", Icons.Filled.LocalFireDepartment, modifier = Modifier.weight(1f))
+                StatCard("Workouts", "${state.workoutsThisWeek} this wk", Icons.Filled.FitnessCenter, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(12.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatCard("Water", "${"%.1f".format(state.waterTodayMl / 1000f)} / ${"%.1f".format(state.waterTargetMl / 1000f)} L", "💧", modifier = Modifier.weight(1f))
-                StatCard("Protein", "${state.proteinTodayG} / ${state.proteinTargetG} g", "🥩", modifier = Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                StatCard(
+                    "Water",
+                    "${"%.1f".format(state.waterTodayMl / 1000f)} / ${"%.1f".format(state.waterTargetMl / 1000f)} L",
+                    Icons.Filled.WaterDrop,
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    "Protein",
+                    "${state.proteinTodayG} / ${state.proteinTargetG} g",
+                    Icons.Filled.DinnerDining,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(Modifier.height(20.dp))
-            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                 Row(Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Column {
-                        Text("Weight", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(
-                            state.latestWeightKg?.let { "%.1f kg".format(it) } ?: "Not logged yet",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        state.weightTrendKg?.let { trend ->
-                            val arrow = if (trend <= 0) "↓" else "↑"
-                            Text("$arrow ${"%.1f".format(kotlin.math.abs(trend))} kg this month", style = MaterialTheme.typography.bodyMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.MonitorWeight, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text("Weight", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                state.latestWeightKg?.let { "%.1f kg".format(it) } ?: "Not logged yet",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                    state.weightTrendKg?.let { trend ->
+                        val isDown = trend <= 0
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                if (isDown) Icons.Filled.TrendingDown else Icons.Filled.TrendingUp,
+                                contentDescription = null,
+                                tint = if (isDown) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text("${"%.1f".format(kotlin.math.abs(trend))} kg this month", style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
             }
 
             if (state.recommendedExercises.isNotEmpty()) {
-                Spacer(Modifier.height(20.dp))
-                Text("Recommended", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Spacer(Modifier.height(24.dp))
+                SectionHeader("Recommended")
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
                     items(state.recommendedExercises) { exercise ->
                         ElevatedCard(
                             onClick = { onOpenExercise(exercise.id) },
@@ -125,6 +149,18 @@ fun HomeScreen(
                             modifier = Modifier.width(160.dp)
                         ) {
                             Column(Modifier.padding(12.dp)) {
+                                Box(
+                                    Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        muscleGroupIcon(exercise.primaryMuscle),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(Modifier.height(8.dp))
                                 Text(exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 2)
                                 Spacer(Modifier.height(4.dp))
                                 Text(exercise.primaryMuscle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -134,10 +170,19 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
-            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Nutrition", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(24.dp))
+            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                Row(Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.tertiaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Filled.Restaurant, contentDescription = null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text("Nutrition", style = MaterialTheme.typography.titleMedium)
+                    }
                     Text("${state.calorieTarget} kcal target", style = MaterialTheme.typography.bodyMedium)
                 }
             }
@@ -145,6 +190,73 @@ fun HomeScreen(
             Spacer(Modifier.height(20.dp))
             AdBanner()
             Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Gradient hero banner for today's workout - stands in for a "hero photo" using a color
+ * gradient + a large watermark icon instead of a bundled/stock photo of a person (avoids
+ * Play Store licensing risk around third-party or scraped images of real people).
+ */
+@Composable
+private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit) {
+    // Both stops are kept mid-to-dark so a single light text color stays legible across the
+    // whole gradient (a pastel "container" tone at either end would wash the text out).
+    val gradient = if (state.isRestDay) {
+        Brush.linearGradient(listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.secondary))
+    } else {
+        Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
+    }
+    val onGradient = MaterialTheme.colorScheme.onPrimary
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+            .background(gradient)
+    ) {
+        Icon(
+            if (state.isRestDay) Icons.Filled.SelfImprovement else Icons.Filled.FitnessCenter,
+            contentDescription = null,
+            tint = onGradient.copy(alpha = 0.15f),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 4.dp, end = 4.dp)
+                .size(130.dp)
+        )
+
+        Column(Modifier.padding(20.dp).padding(bottom = 24.dp)) {
+            Text("TODAY'S WORKOUT", style = MaterialTheme.typography.labelLarge, color = onGradient.copy(alpha = 0.85f))
+            Spacer(Modifier.height(4.dp))
+            Text(state.todayDayTitle.uppercase(), style = MaterialTheme.typography.headlineMedium, color = onGradient)
+
+            if (!state.isRestDay) {
+                Spacer(Modifier.height(4.dp))
+                Text(state.todayMuscleGroups, style = MaterialTheme.typography.bodyMedium, color = onGradient.copy(alpha = 0.9f))
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "${state.todayExerciseCount} exercises  •  ~${state.todayEstimatedMinutes} minutes",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onGradient.copy(alpha = 0.9f)
+                )
+                Spacer(Modifier.height(16.dp))
+                Button(
+                    onClick = { state.todayTemplateDayId?.let(onStartWorkout) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("START WORKOUT") }
+            } else {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Enjoy your rest day - recovery is part of the plan too.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onGradient.copy(alpha = 0.9f)
+                )
+            }
         }
     }
 }

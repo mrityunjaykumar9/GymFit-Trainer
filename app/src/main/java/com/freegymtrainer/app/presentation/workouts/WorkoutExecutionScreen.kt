@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.ErrorState
 import com.freegymtrainer.app.presentation.components.LoadingState
 
 @Composable
@@ -22,6 +23,13 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
 
     if (state.loading) {
         LoadingState()
+        return
+    }
+
+    if (state.error != null) {
+        Scaffold(topBar = { TopAppBar(title = { Text("Workout") }) }) { padding ->
+            ErrorState(state.error!!, onRetry = onFinished, retryLabel = "Go Back", modifier = Modifier.padding(padding))
+        }
         return
     }
 

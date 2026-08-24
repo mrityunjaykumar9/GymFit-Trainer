@@ -1,0 +1,34 @@
+package com.freegymtrainer.app.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "workout_templates")
+data class WorkoutTemplate(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,               // "Push Pull Legs", "Beginner Full Body"...
+    val description: String,
+    val daysPerWeek: Int,
+    val level: String,              // Beginner / Intermediate / Advanced
+    val goalTag: String             // Muscle gain / Fat loss / Strength / General fitness
+)
+
+@Entity(tableName = "workout_template_days")
+data class WorkoutTemplateDay(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val templateId: Long,
+    val orderIndex: Int,            // 1..N within the template's cycle
+    val title: String,              // "Push Day", "Leg Day"
+    val muscleGroupsSummary: String // "Chest, Shoulders, Triceps"
+)
+
+@Entity(tableName = "workout_template_exercises")
+data class WorkoutTemplateExercise(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val templateDayId: Long,
+    val exerciseId: Long,
+    val orderIndex: Int,
+    val sets: Int,
+    val reps: String,               // "8-10" or "12" - kept as string for range support
+    val restSeconds: Int
+)

@@ -51,7 +51,7 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().height(200.dp)
             ) {
-                ExerciseMediaPlayer(mediaUrl = ex.mediaUrl, primaryMuscle = ex.primaryMuscle, modifier = Modifier.fillMaxSize())
+                ExerciseMediaPlayer(mediaUrl = ex.mediaUrl, category = ex.category, modifier = Modifier.fillMaxSize())
             }
 
             Spacer(Modifier.height(16.dp))

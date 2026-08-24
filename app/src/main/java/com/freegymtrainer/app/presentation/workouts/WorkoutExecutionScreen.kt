@@ -124,7 +124,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
             ) {
                 ExerciseMediaPlayer(
                     mediaUrl = currentExercise.exercise.mediaUrl,
-                    primaryMuscle = currentExercise.exercise.primaryMuscle,
+                    category = currentExercise.exercise.category,
                     modifier = Modifier.fillMaxSize()
                 )
             }

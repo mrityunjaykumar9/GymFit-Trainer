@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
-import com.freegymtrainer.app.presentation.components.ExerciseMediaPlayer
+import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
 
 @Composable
@@ -51,7 +51,7 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().height(200.dp)
             ) {
-                ExerciseMediaPlayer(mediaUrl = ex.mediaUrl, category = ex.category, modifier = Modifier.fillMaxSize())
+                ExerciseAutoMedia(exercise = ex, modifier = Modifier.fillMaxSize())
             }
 
             Spacer(Modifier.height(16.dp))

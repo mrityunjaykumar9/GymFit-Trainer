@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
@@ -34,6 +37,7 @@ import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SectionHeader
 import com.freegymtrainer.app.presentation.components.StatCard
 import com.freegymtrainer.app.presentation.components.muscleGroupIcon
+import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
 @Composable
 fun HomeScreen(
@@ -135,6 +139,9 @@ fun HomeScreen(
                 }
             }
 
+            Spacer(Modifier.height(24.dp))
+            GymPhotoBanner()
+
             if (state.recommendedExercises.isNotEmpty()) {
                 Spacer(Modifier.height(24.dp))
                 SectionHeader("Recommended")
@@ -195,38 +202,48 @@ fun HomeScreen(
 }
 
 /**
- * Gradient hero banner for today's workout - stands in for a "hero photo" using a color
- * gradient + a large watermark icon instead of a bundled/stock photo of a person (avoids
- * Play Store licensing risk around third-party or scraped images of real people).
+ * Hero banner for today's workout. Uses the gym photo you supplied
+ * (assets/gym_pics/gym_pic1.jpg) as the background with a color scrim over it for text
+ * legibility; falls back to a plain gradient (no watermark icon needed once a real photo is
+ * in place) if that asset is ever missing.
  */
 @Composable
 private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit) {
-    // Both stops are kept mid-to-dark so a single light text color stays legible across the
-    // whole gradient (a pastel "container" tone at either end would wash the text out).
-    val gradient = if (state.isRestDay) {
-        Brush.linearGradient(listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.secondary))
-    } else {
-        Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
-    }
+    val heroPhoto = rememberAssetImageBitmap("gym_pics/gym_pic1.jpg")
+
+    // Both scrim stops are kept mid-to-dark so a single light text color stays legible
+    // everywhere (a pastel "container" tone at either end would wash the text out).
+    val scrimTop = if (state.isRestDay) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    val scrimBottom = MaterialTheme.colorScheme.secondary
     val onGradient = MaterialTheme.colorScheme.onPrimary
 
     Box(
         Modifier
             .fillMaxWidth()
+            .height(260.dp)
             .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .background(gradient)
     ) {
-        Icon(
-            if (state.isRestDay) Icons.Filled.SelfImprovement else Icons.Filled.FitnessCenter,
-            contentDescription = null,
-            tint = onGradient.copy(alpha = 0.15f),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 4.dp, end = 4.dp)
-                .size(130.dp)
-        )
+        if (heroPhoto != null) {
+            Image(bitmap = heroPhoto, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Brush.verticalGradient(listOf(scrimTop.copy(alpha = 0.45f), scrimBottom.copy(alpha = 0.88f))))
+            )
+        } else {
+            Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(scrimTop, scrimBottom))))
+            Icon(
+                if (state.isRestDay) Icons.Filled.SelfImprovement else Icons.Filled.FitnessCenter,
+                contentDescription = null,
+                tint = onGradient.copy(alpha = 0.15f),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 4.dp, end = 4.dp)
+                    .size(130.dp)
+            )
+        }
 
-        Column(Modifier.padding(20.dp).padding(bottom = 24.dp)) {
+        Column(Modifier.align(Alignment.BottomStart).padding(20.dp)) {
             Text("TODAY'S WORKOUT", style = MaterialTheme.typography.labelLarge, color = onGradient.copy(alpha = 0.85f))
             Spacer(Modifier.height(4.dp))
             Text(state.todayDayTitle.uppercase(), style = MaterialTheme.typography.headlineMedium, color = onGradient)
@@ -258,5 +275,35 @@ private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit)
                 )
             }
         }
+    }
+}
+
+/**
+ * Small photo banner (assets/gym_pics/gym_pic2.jpg) breaking up the middle of the Home
+ * screen. Quietly omits itself if the asset is missing, rather than showing an empty card.
+ */
+@Composable
+private fun GymPhotoBanner() {
+    val photo = rememberAssetImageBitmap("gym_pics/gym_pic2.jpg") ?: return
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(130.dp)
+            .clip(RoundedCornerShape(20.dp))
+    ) {
+        Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Brush.horizontalGradient(listOf(Color.Black.copy(alpha = 0.6f), Color.Transparent)))
+        )
+        Text(
+            "Every rep counts. Keep pushing.",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 20.dp, end = 70.dp)
+        )
     }
 }

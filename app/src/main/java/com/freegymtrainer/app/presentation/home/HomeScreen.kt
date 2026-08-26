@@ -48,6 +48,7 @@ fun HomeScreen(
 ) {
     val viewModel: HomeViewModel = viewModel(factory = GenericViewModelFactory { HomeViewModel(container) })
     val state by viewModel.uiState.collectAsState()
+    var showWeightDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -123,17 +124,21 @@ fun HomeScreen(
                             )
                         }
                     }
-                    state.weightTrendKg?.let { trend ->
-                        val isDown = trend <= 0
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (isDown) Icons.Filled.TrendingDown else Icons.Filled.TrendingUp,
-                                contentDescription = null,
-                                tint = if (isDown) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Text("${"%.1f".format(kotlin.math.abs(trend))} kg this month", style = MaterialTheme.typography.bodyMedium)
+                    if (state.latestWeightKg == null) {
+                        TextButton(onClick = { showWeightDialog = true }) { Text("+ Log") }
+                    } else {
+                        state.weightTrendKg?.let { trend ->
+                            val isDown = trend <= 0
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    if (isDown) Icons.Filled.TrendingDown else Icons.Filled.TrendingUp,
+                                    contentDescription = null,
+                                    tint = if (isDown) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text("${"%.1f".format(kotlin.math.abs(trend))} kg this month", style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
                 }
@@ -199,6 +204,33 @@ fun HomeScreen(
             Spacer(Modifier.height(8.dp))
         }
     }
+
+    if (showWeightDialog) {
+        QuickWeightLogDialog(
+            onDismiss = { showWeightDialog = false },
+            onSave = { viewModel.addWeightEntry(it); showWeightDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun QuickWeightLogDialog(onDismiss: () -> Unit, onSave: (Float) -> Unit) {
+    var weight by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Log Weight") },
+        text = {
+            OutlinedTextField(
+                value = weight,
+                onValueChange = { weight = it.filter { c -> c.isDigit() || c == '.' } },
+                label = { Text("Weight (kg)") },
+                singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal)
+            )
+        },
+        confirmButton = { TextButton(onClick = { weight.toFloatOrNull()?.let(onSave) }) { Text("Save") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
 
 /**

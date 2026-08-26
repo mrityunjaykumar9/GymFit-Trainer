@@ -120,7 +120,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
         ) {
             ElevatedCard(
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth().height(180.dp)
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
             ) {
                 ExerciseAutoMedia(exercise = currentExercise.exercise, modifier = Modifier.fillMaxSize())
             }

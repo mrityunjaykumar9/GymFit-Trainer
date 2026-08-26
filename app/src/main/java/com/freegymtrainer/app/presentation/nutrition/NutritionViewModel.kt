@@ -131,3 +131,22 @@ class NutritionViewModel(private val container: AppContainer, private val settin
         viewModelScope.launch { container.nutritionRepository.logPlannedMeal(meal.mealType, meal.items) }
     }
 }
+
+data class FoodListUiState(
+    val loading: Boolean = true,
+    val foods: List<Food> = emptyList()
+)
+
+/** Backs the full Food Database screen - every seeded food, browsable and filterable. */
+class FoodListViewModel(container: AppContainer) : ViewModel() {
+    private val _uiState = MutableStateFlow(FoodListUiState())
+    val uiState: StateFlow<FoodListUiState> = _uiState
+
+    init {
+        viewModelScope.launch {
+            container.nutritionRepository.searchFoods(null).collect { foods ->
+                _uiState.value = FoodListUiState(loading = false, foods = foods)
+            }
+        }
+    }
+}

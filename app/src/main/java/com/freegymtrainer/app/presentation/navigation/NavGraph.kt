@@ -11,6 +11,7 @@ import com.freegymtrainer.app.di.SettingsDataStore
 import com.freegymtrainer.app.presentation.exercises.ExerciseDetailScreen
 import com.freegymtrainer.app.presentation.exercises.ExerciseListScreen
 import com.freegymtrainer.app.presentation.home.HomeScreen
+import com.freegymtrainer.app.presentation.nutrition.FoodListScreen
 import com.freegymtrainer.app.presentation.nutrition.NutritionScreen
 import com.freegymtrainer.app.presentation.onboarding.OnboardingScreen
 import com.freegymtrainer.app.presentation.progress.ProgressScreen
@@ -91,7 +92,15 @@ fun NavGraph(
         }
 
         composable(Screen.Nutrition.route) {
-            NutritionScreen(container = container, settings = settings)
+            NutritionScreen(
+                container = container,
+                settings = settings,
+                onOpenFoodList = { navController.navigate(Screen.FoodList.route) }
+            )
+        }
+
+        composable(Screen.FoodList.route) {
+            FoodListScreen(container = container, onBack = { navController.popBackStack() })
         }
 
         composable(Screen.Progress.route) {

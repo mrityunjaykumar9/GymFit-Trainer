@@ -8,8 +8,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +34,7 @@ private fun MealPlanMealDetail.totalProtein(): Float = items.sumOf { it.protein(
 private fun MealPlanMealDetail.totalCalories(): Float = items.sumOf { it.calories().toDouble() }.toFloat()
 
 @Composable
-fun NutritionScreen(container: AppContainer, settings: SettingsDataStore) {
+fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpenFoodList: () -> Unit) {
     val viewModel: NutritionViewModel = viewModel(factory = GenericViewModelFactory { NutritionViewModel(container, settings) })
     val state by viewModel.uiState.collectAsState()
     var showAddFoodSheet by remember { mutableStateOf(false) }
@@ -92,6 +94,33 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore) {
                             }
                         }
                     }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+            ElevatedCard(
+                onClick = onOpenFoodList,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    Modifier.padding(16.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text("Food Database", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Browse all foods with calories & protein per serving",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 

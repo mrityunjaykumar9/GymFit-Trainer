@@ -16,6 +16,9 @@ data class Food(
     val defaultServingGrams: Float
 )
 
+/** Every category except "Non-vegetarian" is vegetarian-safe in this food database. */
+fun Food.isVeg(): Boolean = category != "Non-vegetarian"
+
 @Entity(tableName = "meal_log_entries")
 data class MealLogEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

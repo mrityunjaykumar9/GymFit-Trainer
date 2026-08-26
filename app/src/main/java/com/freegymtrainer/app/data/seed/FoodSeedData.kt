@@ -48,6 +48,23 @@ object FoodSeedData {
         f("Tomato", "Vegetables", 18f, 0.9f, 3.9f, 0.2f, 1.2f, 100f),
         f("Watermelon", "Fruits", 30f, 0.6f, 8f, 0.2f, 0.4f, 200f),
         f("Green Peas (Boiled)", "Vegetables", 84f, 5.4f, 14f, 0.4f, 5.5f, 100f),
-        f("Quinoa (Cooked)", "Grains", 120f, 4.4f, 21f, 1.9f, 2.8f, 150f)
+        f("Quinoa (Cooked)", "Grains", 120f, 4.4f, 21f, 1.9f, 2.8f, 150f),
+
+        // Additional items
+        f("Cashews", "Nuts", 553f, 18f, 30f, 44f, 3.3f, 30f),
+        f("Dates (Dried)", "Fruits", 277f, 1.8f, 75f, 0.2f, 6.7f, 40f),
+        f("Pineapple", "Fruits", 50f, 0.5f, 13f, 0.1f, 1.4f, 150f),
+        f("Guava", "Fruits", 68f, 2.6f, 14f, 1f, 5.4f, 150f),
+        f("Pomegranate", "Fruits", 83f, 1.7f, 19f, 1.2f, 4f, 150f),
+        f("Carrot (Raw)", "Vegetables", 41f, 0.9f, 10f, 0.2f, 2.8f, 100f),
+        f("Beetroot (Boiled)", "Vegetables", 44f, 1.7f, 10f, 0.2f, 2f, 100f),
+        f("Corn (Boiled)", "Vegetables", 96f, 3.4f, 21f, 1.5f, 2.4f, 100f),
+        f("Butter", "Dairy", 717f, 0.9f, 0.1f, 81f, 0f, 10f),
+        f("Cheddar Cheese", "Dairy", 402f, 25f, 1.3f, 33f, 0f, 30f),
+        f("Moong Dal (Cooked)", "Legumes", 105f, 7.5f, 19f, 0.4f, 7.6f, 150f),
+        f("Brown Bread", "Grains", 247f, 13f, 41f, 3.4f, 7f, 60f),
+        f("Prawns (Cooked)", "Non-vegetarian", 99f, 24f, 0.2f, 0.3f, 0f, 100f),
+        f("Rohu Fish (Cooked)", "Non-vegetarian", 97f, 17f, 0f, 2.6f, 0f, 150f),
+        f("Turkey Breast (Cooked)", "Non-vegetarian", 135f, 30f, 0f, 0.7f, 0f, 150f)
     )
 }

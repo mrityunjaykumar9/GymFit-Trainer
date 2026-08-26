@@ -24,13 +24,20 @@ import com.freegymtrainer.app.data.local.entity.Exercise
 import kotlinx.coroutines.delay
 import java.io.IOException
 
+private val PHOTO_EXTENSIONS = setOf("jpg", "jpeg", "png", "webp")
+
 /**
- * Turns an exercise name into the folder/file name it's looked up by under `assets/`, e.g.
- * "Barbell Bench Press" -> "barbell_bench_press". Lowercase, non-alphanumeric runs become a
- * single underscore, no leading/trailing underscore.
+ * Turns an exercise name into the file/folder name it's looked up by under `assets/`, e.g.
+ * "Barbell Bench Press" -> "barbell_bench_press". Parenthesized suffixes and apostrophes are
+ * dropped first (so "Pec Deck (Machine Fly)" -> "pec_deck" and "Farmer's Carry" ->
+ * "farmers_carry" - matching how someone would naturally shorten the name for a filename),
+ * then it's lowercased with any other non-alphanumeric run collapsed to a single underscore.
  */
-fun exerciseSlug(name: String): String =
-    name.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+fun exerciseSlug(name: String): String {
+    val withoutParens = name.replace(Regex("\\([^)]*\\)"), "")
+    val withoutApostrophes = withoutParens.replace("'", "").replace("’", "")
+    return withoutApostrophes.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+}
 
 private fun listAssetsSafely(context: Context, path: String): List<String> =
     try {
@@ -39,21 +46,32 @@ private fun listAssetsSafely(context: Context, path: String): List<String> =
         emptyList()
     }
 
+private fun decodeAsset(context: Context, path: String): ImageBitmap? =
+    try {
+        context.assets.open(path).use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
+    } catch (e: IOException) {
+        null
+    }
+
 @Composable
 private fun rememberPhotoFrames(slug: String): List<ImageBitmap> {
     val context = LocalContext.current
     return remember(slug) {
+        // A single flat file (exercise_photos/<slug>.jpg) - the common case: one photo per
+        // exercise, named exactly like the exercise.
+        val flatFile = listAssetsSafely(context, "exercise_photos")
+            .firstOrNull { it.substringBeforeLast('.') == slug && it.substringAfterLast('.', "").lowercase() in PHOTO_EXTENSIONS }
+        if (flatFile != null) {
+            return@remember listOfNotNull(decodeAsset(context, "exercise_photos/$flatFile"))
+        }
+
+        // Or a numbered sequence in its own folder (exercise_photos/<slug>/1.jpg, 2.jpg, ...)
+        // for a multi-frame slideshow instead of a single still.
         val dir = "exercise_photos/$slug"
         listAssetsSafely(context, dir)
-            .filter { it.substringAfterLast('.', "").lowercase() in setOf("jpg", "jpeg", "png", "webp") }
+            .filter { it.substringAfterLast('.', "").lowercase() in PHOTO_EXTENSIONS }
             .sorted()
-            .mapNotNull { fileName ->
-                try {
-                    context.assets.open("$dir/$fileName").use { BitmapFactory.decodeStream(it)?.asImageBitmap() }
-                } catch (e: IOException) {
-                    null
-                }
-            }
+            .mapNotNull { fileName -> decodeAsset(context, "$dir/$fileName") }
     }
 }
 
@@ -94,11 +112,13 @@ private fun ExerciseVideoPlayback(uri: String, modifier: Modifier = Modifier) {
 /**
  * Shows demonstration media for [exercise], in priority order:
  * 1. [Exercise.mediaUrl] - a remote-hosted clip, if you've set one.
- * 2. `assets/exercise_photos/<slug>/1.jpg, 2.jpg, ...` - a numbered photo sequence you drop
- *    in yourself, auto-cycled as a slideshow. `<slug>` is [exerciseSlug] of the exercise name,
- *    e.g. "Barbell Bench Press" -> `assets/exercise_photos/barbell_bench_press/`.
- * 3. `assets/exercise_videos/<slug>.mp4` - a local video file, same slug convention.
- * 4. [AnimatedExerciseFigure] - the built-in animated placeholder, if none of the above exist.
+ * 2. `assets/exercise_photos/<slug>.jpg` - a single photo named exactly like the exercise.
+ *    `<slug>` is [exerciseSlug] of the exercise name, e.g. "Barbell Bench Press" ->
+ *    `assets/exercise_photos/barbell_bench_press.jpg`.
+ * 3. `assets/exercise_photos/<slug>/1.jpg, 2.jpg, ...` - or a numbered sequence in its own
+ *    folder instead of a single file, auto-cycled as a slideshow.
+ * 4. `assets/exercise_videos/<slug>.mp4` - a local video file, same slug convention.
+ * 5. [AnimatedExerciseFigure] - the built-in animated placeholder, if none of the above exist.
  *
  * Photos are recommended over bundling videos: a handful of small photos per exercise adds
  * only a few hundred KB each, while 50 exercises x a 10s video would add tens to a few hundred

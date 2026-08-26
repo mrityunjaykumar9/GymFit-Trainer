@@ -38,7 +38,7 @@ constitutes acceptance of the revised policy.
 
 ## Contact
 
-[YOUR EMAIL ADDRESS]
+mrityunjaykumar579@gmail.com
 
 ---
 

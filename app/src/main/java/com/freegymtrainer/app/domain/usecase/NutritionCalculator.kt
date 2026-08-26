@@ -50,13 +50,8 @@ object NutritionCalculator {
             else -> tdee
         }.coerceAtLeast(1200)
 
-        // Protein: ~1.8-2.2 g/kg for muscle gain/strength goals, ~2.0-2.4 g/kg during a fat-loss
-        // deficit to preserve muscle, ~1.6 g/kg for general maintenance. Configurable, not fixed.
-        val proteinPerKg = when (goal) {
-            "Build muscle", "Strength training" -> 2.0
-            "Lose fat", "Lose weight" -> 2.2
-            else -> 1.6
-        }
+        // Flat 1.5 g protein per kg of body weight, regardless of goal.
+        val proteinPerKg = 1.5
         val proteinGrams = (weightKg * proteinPerKg).roundToInt()
         val proteinCalories = proteinGrams * 4
 

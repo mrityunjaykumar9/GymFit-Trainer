@@ -15,12 +15,15 @@ class SettingsDataStore(private val context: Context) {
     private val themeKey = stringPreferencesKey("theme_mode")       // "system" | "light" | "dark"
     private val unitsKey = stringPreferencesKey("units")            // "metric" | "imperial"
     private val disclaimerSeenKey = booleanPreferencesKey("disclaimer_seen")
+    private val dietPreferenceKey = stringPreferencesKey("diet_preference") // "Veg" | "Non-Veg"
 
     val themeMode: Flow<String> = context.dataStore.data.map { it[themeKey] ?: "system" }
     val units: Flow<String> = context.dataStore.data.map { it[unitsKey] ?: "metric" }
     val disclaimerSeen: Flow<Boolean> = context.dataStore.data.map { it[disclaimerSeenKey] ?: false }
+    val dietPreference: Flow<String> = context.dataStore.data.map { it[dietPreferenceKey] ?: "Veg" }
 
     suspend fun setThemeMode(mode: String) { context.dataStore.edit { it[themeKey] = mode } }
     suspend fun setUnits(units: String) { context.dataStore.edit { it[unitsKey] = units } }
     suspend fun setDisclaimerSeen(seen: Boolean) { context.dataStore.edit { it[disclaimerSeenKey] = seen } }
+    suspend fun setDietPreference(preference: String) { context.dataStore.edit { it[dietPreferenceKey] = preference } }
 }

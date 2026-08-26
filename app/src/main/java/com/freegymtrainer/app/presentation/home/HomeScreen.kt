@@ -73,11 +73,36 @@ fun HomeScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                "Good day, ${state.profile?.name?.ifBlank { "Athlete" } ?: "Athlete"} 👋",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            val displayName = state.profile?.name?.ifBlank { "Athlete" } ?: "Athlete"
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier.size(52.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        displayName.trim().firstOrNull()?.uppercase() ?: "A",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(
+                        "${timeBasedGreeting()} 👋",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        displayName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
+            }
             Spacer(Modifier.height(16.dp))
 
             TodayWorkoutHero(state = state, onStartWorkout = onStartWorkout)
@@ -210,6 +235,15 @@ fun HomeScreen(
             onDismiss = { showWeightDialog = false },
             onSave = { viewModel.addWeightEntry(it); showWeightDialog = false }
         )
+    }
+}
+
+private fun timeBasedGreeting(): String {
+    val hour = java.time.LocalTime.now().hour
+    return when {
+        hour < 12 -> "Good Morning"
+        hour < 17 -> "Good Afternoon"
+        else -> "Good Evening"
     }
 }
 

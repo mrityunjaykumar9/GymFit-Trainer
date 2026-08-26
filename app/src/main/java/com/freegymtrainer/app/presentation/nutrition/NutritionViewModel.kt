@@ -4,11 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.MealLogEntry
+import com.freegymtrainer.app.data.repository.MealPlanDayDetail
+import com.freegymtrainer.app.data.repository.MealPlanMealDetail
 import com.freegymtrainer.app.di.AppContainer
+import com.freegymtrainer.app.di.SettingsDataStore
 import com.freegymtrainer.app.domain.usecase.NutritionCalculator
 import com.freegymtrainer.app.domain.usecase.NutritionTargets
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 data class NutritionUiState(
     val loading: Boolean = true,
@@ -20,12 +24,14 @@ data class NutritionUiState(
     val waterMl: Int = 0,
     val meals: List<MealLogEntry> = emptyList(),
     val foodSearchQuery: String = "",
-    val foodResults: List<Food> = emptyList()
+    val foodResults: List<Food> = emptyList(),
+    val dietPreference: String = "Veg",
+    val mealPlan: MealPlanDayDetail? = null
 )
 
 private val mealTypes = listOf("Breakfast", "Mid Morning", "Lunch", "Pre Workout", "Post Workout", "Dinner")
 
-class NutritionViewModel(private val container: AppContainer) : ViewModel() {
+class NutritionViewModel(private val container: AppContainer, private val settings: SettingsDataStore) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NutritionUiState())
     val uiState: StateFlow<NutritionUiState> = _uiState
@@ -56,6 +62,16 @@ class NutritionViewModel(private val container: AppContainer) : ViewModel() {
             container.progressRepository.getWaterForToday().collect { logs ->
                 _uiState.value = _uiState.value.copy(waterMl = logs.sumOf { it.amountMl })
             }
+        }
+        viewModelScope.launch {
+            val todayDow = LocalDate.now().dayOfWeek.value
+            settings.dietPreference
+                .flatMapLatest { pref ->
+                    flow { emit(pref to container.nutritionRepository.getMealPlanForDay(pref, todayDow)) }
+                }
+                .collect { (pref, plan) ->
+                    _uiState.value = _uiState.value.copy(dietPreference = pref, mealPlan = plan)
+                }
         }
     }
 
@@ -105,5 +121,13 @@ class NutritionViewModel(private val container: AppContainer) : ViewModel() {
 
     fun addWater(amountMl: Int) {
         viewModelScope.launch { container.progressRepository.addWater(amountMl) }
+    }
+
+    fun setDietPreference(preference: String) {
+        viewModelScope.launch { settings.setDietPreference(preference) }
+    }
+
+    fun logPlannedMeal(meal: MealPlanMealDetail) {
+        viewModelScope.launch { container.nutritionRepository.logPlannedMeal(meal.mealType, meal.items) }
     }
 }

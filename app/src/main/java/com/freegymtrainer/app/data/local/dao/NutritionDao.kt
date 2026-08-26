@@ -3,6 +3,8 @@ package com.freegymtrainer.app.data.local.dao
 import androidx.room.*
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.MealLogEntry
+import com.freegymtrainer.app.data.local.entity.MealPlanDay
+import com.freegymtrainer.app.data.local.entity.MealPlanItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,6 +20,9 @@ interface FoodDao {
 
     @Query("SELECT * FROM foods WHERE id = :id")
     suspend fun getById(id: Long): Food?
+
+    @Query("SELECT * FROM foods WHERE name IN (:names)")
+    suspend fun getByNames(names: List<String>): List<Food>
 }
 
 @Dao
@@ -25,9 +30,30 @@ interface MealLogDao {
     @Insert
     suspend fun insert(entry: MealLogEntry): Long
 
+    @Insert
+    suspend fun insertAll(entries: List<MealLogEntry>)
+
     @Delete
     suspend fun delete(entry: MealLogEntry)
 
     @Query("SELECT * FROM meal_log_entries WHERE dateEpochDay = :day ORDER BY id ASC")
     fun getForDay(day: Long): Flow<List<MealLogEntry>>
+}
+
+@Dao
+interface MealPlanDao {
+    @Query("SELECT COUNT(*) FROM meal_plan_days")
+    suspend fun countDays(): Int
+
+    @Insert
+    suspend fun insertDay(day: MealPlanDay): Long
+
+    @Insert
+    suspend fun insertItems(items: List<MealPlanItem>)
+
+    @Query("SELECT * FROM meal_plan_days WHERE dietType = :dietType AND dayOfWeek = :dayOfWeek LIMIT 1")
+    suspend fun getDay(dietType: String, dayOfWeek: Int): MealPlanDay?
+
+    @Query("SELECT * FROM meal_plan_items WHERE planDayId = :planDayId ORDER BY orderIndex ASC")
+    suspend fun getItemsForDay(planDayId: Long): List<MealPlanItem>
 }

@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Egg
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,13 +19,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.data.local.entity.Food
+import com.freegymtrainer.app.data.repository.MealPlanItemDetail
+import com.freegymtrainer.app.data.repository.MealPlanMealDetail
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.di.SettingsDataStore
 import com.freegymtrainer.app.presentation.components.LoadingState
 
+private fun MealPlanItemDetail.calories(): Float = food.caloriesPer100g * grams / 100f
+private fun MealPlanItemDetail.protein(): Float = food.proteinPer100g * grams / 100f
+private fun MealPlanMealDetail.totalProtein(): Float = items.sumOf { it.protein().toDouble() }.toFloat()
+private fun MealPlanMealDetail.totalCalories(): Float = items.sumOf { it.calories().toDouble() }.toFloat()
+
 @Composable
-fun NutritionScreen(container: AppContainer) {
-    val viewModel: NutritionViewModel = viewModel(factory = GenericViewModelFactory { NutritionViewModel(container) })
+fun NutritionScreen(container: AppContainer, settings: SettingsDataStore) {
+    val viewModel: NutritionViewModel = viewModel(factory = GenericViewModelFactory { NutritionViewModel(container, settings) })
     val state by viewModel.uiState.collectAsState()
     var showAddFoodSheet by remember { mutableStateOf(false) }
 
@@ -84,7 +95,10 @@ fun NutritionScreen(container: AppContainer) {
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
+            MealPlanSection(state = state, viewModel = viewModel)
+
+            Spacer(Modifier.height(24.dp))
             Text("Today's Meals", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             if (state.meals.isEmpty()) {
@@ -132,6 +146,106 @@ private fun MacroColumn(label: String, consumed: Int, target: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text("$consumed / $target g", style = MaterialTheme.typography.titleMedium)
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/**
+ * A suggested meal plan for the day - what to eat, one meal at a time, with each item's
+ * protein/calories computed live from the Food database (not hardcoded), plus a day total
+ * against the user's target. "Log this meal" copies the whole meal into the actual log in
+ * one tap instead of adding each item by hand.
+ */
+@Composable
+private fun MealPlanSection(state: NutritionUiState, viewModel: NutritionViewModel) {
+    Text("Meal Plan", style = MaterialTheme.typography.titleMedium)
+    Spacer(Modifier.height(8.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = state.dietPreference == "Veg",
+            onClick = { viewModel.setDietPreference("Veg") },
+            label = { Text("Veg") },
+            leadingIcon = { Icon(Icons.Filled.Eco, contentDescription = null, modifier = Modifier.size(18.dp)) }
+        )
+        FilterChip(
+            selected = state.dietPreference == "Non-Veg",
+            onClick = { viewModel.setDietPreference("Non-Veg") },
+            label = { Text("Non-Veg") },
+            leadingIcon = { Icon(Icons.Filled.Egg, contentDescription = null, modifier = Modifier.size(18.dp)) }
+        )
+    }
+
+    val plan = state.mealPlan
+    val targets = state.targets
+    if (plan == null) {
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "No meal plan available for today yet.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        return
+    }
+
+    Spacer(Modifier.height(12.dp))
+    plan.meals.forEach { meal ->
+        MealPlanCard(meal = meal, onLog = { viewModel.logPlannedMeal(meal) })
+        Spacer(Modifier.height(10.dp))
+    }
+
+    if (targets != null) {
+        val planProtein = plan.meals.sumOf { it.totalProtein().toDouble() }.toInt()
+        val planCalories = plan.meals.sumOf { it.totalCalories().toDouble() }.toInt()
+        ElevatedCard(shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(14.dp)) {
+                Text("Full day plan total", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "$planCalories kcal  •  $planProtein g protein",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    "Your target: ${targets.calorieTarget} kcal  •  ${targets.proteinGrams} g protein",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MealPlanCard(meal: MealPlanMealDetail, onLog: () -> Unit) {
+    ElevatedCard(shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(meal.mealType, style = MaterialTheme.typography.titleMedium)
+                TextButton(onClick = onLog) { Text("Log this meal") }
+            }
+            meal.items.forEach { item ->
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${item.food.name} (${item.grams.toInt()}g)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        "${item.protein().toInt()}g protein",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Subtotal: ${meal.totalCalories().toInt()} kcal  •  ${meal.totalProtein().toInt()} g protein",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

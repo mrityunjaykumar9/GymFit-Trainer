@@ -24,9 +24,11 @@ import com.freegymtrainer.app.data.local.entity.*
         WaterLog::class,
         Food::class,
         MealLogEntry::class,
+        MealPlanDay::class,
+        MealPlanItem::class,
         ReminderSettings::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -43,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun waterLogDao(): WaterLogDao
     abstract fun foodDao(): FoodDao
     abstract fun mealLogDao(): MealLogDao
+    abstract fun mealPlanDao(): MealPlanDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

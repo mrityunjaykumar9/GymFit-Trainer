@@ -91,7 +91,7 @@ fun NavGraph(
         }
 
         composable(Screen.Nutrition.route) {
-            NutritionScreen(container = container)
+            NutritionScreen(container = container, settings = settings)
         }
 
         composable(Screen.Progress.route) {

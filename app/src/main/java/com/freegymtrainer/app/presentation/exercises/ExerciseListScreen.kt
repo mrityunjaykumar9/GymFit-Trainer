@@ -1,6 +1,5 @@
 package com.freegymtrainer.app.presentation.exercises
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,8 +16,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.EmptyState
+import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.FilterChipItem
-import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 
 @Composable
 fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) {
@@ -82,16 +81,8 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
                             modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)
                         ) {
                             Row(Modifier.padding(14.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                Box(
-                                    Modifier.size(48.dp).clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.primaryContainer),
-                                    contentAlignment = androidx.compose.ui.Alignment.Center
-                                ) {
-                                    Icon(
-                                        muscleGroupIcon(exercise.primaryMuscle),
-                                        contentDescription = exercise.primaryMuscle,
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
+                                Box(Modifier.size(56.dp).clip(RoundedCornerShape(10.dp))) {
+                                    ExerciseAutoMedia(exercise = exercise, modifier = Modifier.fillMaxSize())
                                 }
                                 Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {

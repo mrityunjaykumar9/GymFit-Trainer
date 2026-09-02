@@ -33,10 +33,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SectionHeader
 import com.freegymtrainer.app.presentation.components.StatCard
-import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
 @Composable
@@ -185,22 +185,15 @@ fun HomeScreen(
                             shape = RoundedCornerShape(14.dp),
                             modifier = Modifier.width(160.dp)
                         ) {
-                            Column(Modifier.padding(12.dp)) {
-                                Box(
-                                    Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        muscleGroupIcon(exercise.primaryMuscle),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                            Column {
+                                Box(Modifier.fillMaxWidth().height(90.dp).clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))) {
+                                    ExerciseAutoMedia(exercise = exercise, modifier = Modifier.fillMaxSize())
                                 }
-                                Spacer(Modifier.height(8.dp))
-                                Text(exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 2)
-                                Spacer(Modifier.height(4.dp))
-                                Text(exercise.primaryMuscle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Column(Modifier.padding(12.dp)) {
+                                    Text(exercise.name, style = MaterialTheme.typography.titleMedium, maxLines = 2)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(exercise.primaryMuscle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                             }
                         }
                     }

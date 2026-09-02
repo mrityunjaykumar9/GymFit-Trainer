@@ -3,6 +3,10 @@ package com.freegymtrainer.app.presentation.components
 import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -85,7 +90,13 @@ private fun PhotoSlideshow(frames: List<ImageBitmap>, modifier: Modifier = Modif
             index = (index + 1) % frames.size
         }
     }
-    Image(bitmap = frames[index], contentDescription = null, modifier = modifier, contentScale = ContentScale.Crop)
+    // Fit (not Crop): the source photos are cropped to just one step of the exercise and
+    // aren't all the same aspect ratio (most are square, a few are wide strips) - Fit shows
+    // the whole frame with no risk of slicing off hands/feet, letterboxing into this
+    // background-filled Box on whichever axis doesn't match instead.
+    Box(modifier.background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+        Image(bitmap = frames[index], contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+    }
 }
 
 /** Plays a video from a remote URL or a local `asset:///...` uri, looping with no controls. */

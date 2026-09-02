@@ -21,6 +21,8 @@ class ReminderBroadcastReceiver : BroadcastReceiver() {
             }
             "nutrition" -> {
                 NotificationHelper.show(context, 3, "Nutrition check-in", "Your protein target may still be incomplete today.")
+                // Re-schedule for tomorrow, same as the workout/water cases above.
+                ReminderScheduler.scheduleNutritionReminder(context)
             }
         }
     }

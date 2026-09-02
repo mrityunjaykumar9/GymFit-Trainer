@@ -109,7 +109,19 @@ fun NavGraph(
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(container = container, settings = settings, onBack = { navController.popBackStack() })
+            SettingsScreen(
+                container = container,
+                settings = settings,
+                onBack = { navController.popBackStack() },
+                onDataCleared = {
+                    // Profile and weekly plan are gone after this - send the user back through
+                    // onboarding instead of Home, and clear the whole back stack so they can't
+                    // navigate "back" into screens that assume a profile exists.
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

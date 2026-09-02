@@ -18,7 +18,7 @@ import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.di.SettingsDataStore
 
 @Composable
-fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack: () -> Unit) {
+fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack: () -> Unit, onDataCleared: () -> Unit) {
     val context = LocalContext.current
     val viewModel: SettingsViewModel = viewModel(factory = GenericViewModelFactory { SettingsViewModel(container, settings) })
     val state by viewModel.uiState.collectAsState()
@@ -108,7 +108,7 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
             confirmButton = {
                 TextButton(onClick = {
                     showClearDataConfirm = false
-                    viewModel.clearAllLocalData(context) { onBack() }
+                    viewModel.clearAllLocalData(context) { onDataCleared() }
                 }) { Text("Delete Everything") }
             },
             dismissButton = { TextButton(onClick = { showClearDataConfirm = false }) { Text("Cancel") } }

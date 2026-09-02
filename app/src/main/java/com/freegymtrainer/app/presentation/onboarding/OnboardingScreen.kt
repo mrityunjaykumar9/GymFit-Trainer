@@ -7,10 +7,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.freegymtrainer.app.data.local.entity.ReminderSettings
 import com.freegymtrainer.app.data.local.entity.UserProfile
 import com.freegymtrainer.app.di.AppContainer
+import com.freegymtrainer.app.notifications.ReminderScheduler
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,7 @@ private val genders = listOf("Male", "Female", "Other")
 @Composable
 fun OnboardingScreen(container: AppContainer, onFinished: () -> Unit) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var step by remember { mutableIntStateOf(0) }
 
     var name by remember { mutableStateOf("") }
@@ -162,6 +166,25 @@ fun OnboardingScreen(container: AppContainer, onFinished: () -> Unit) {
                             val allTemplates = container.workoutRepository.getAllTemplates().first()
                             val chosen = allTemplates.firstOrNull { it.name == recommendedTemplateName } ?: allTemplates.firstOrNull()
                             chosen?.let { container.workoutRepository.initDefaultWeeklyPlanIfEmpty(it.id) }
+
+                            // ReminderSettings defaults to every reminder enabled, but nothing
+                            // schedules an actual alarm until this row exists and the scheduler
+                            // runs once - otherwise Settings shows reminders as "on" for a user
+                            // who never opens that screen, while none are actually scheduled.
+                            if (container.userRepository.getReminderSettings() == null) {
+                                val defaults = ReminderSettings()
+                                container.userRepository.saveReminderSettings(defaults)
+                                if (defaults.workoutReminderEnabled) {
+                                    ReminderScheduler.scheduleWorkoutReminder(context, defaults.workoutReminderHour, defaults.workoutReminderMinute)
+                                }
+                                if (defaults.waterReminderEnabled) {
+                                    ReminderScheduler.scheduleWaterReminder(context, defaults.waterReminderIntervalHours)
+                                }
+                                if (defaults.nutritionReminderEnabled) {
+                                    ReminderScheduler.scheduleNutritionReminder(context)
+                                }
+                            }
+
                             onFinished()
                         }
                     }

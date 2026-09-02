@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.workouts
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,11 +19,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.ErrorState
@@ -284,7 +287,19 @@ private fun WorkoutSummaryContent(state: WorkoutExecutionUiState, onFinished: ()
             }
 
             Spacer(Modifier.height(32.dp))
-            Button(onClick = onFinished, modifier = Modifier.fillMaxWidth()) { Text("Done") }
+            val activity = LocalContext.current as? Activity
+            Button(
+                onClick = {
+                    // A finished workout is a natural break point - never shown mid-session.
+                    // Falls straight through to onFinished if no ad happens to be ready yet.
+                    if (activity != null) {
+                        InterstitialAdManager.showIfReady(activity, onDismissed = onFinished)
+                    } else {
+                        onFinished()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Done") }
         }
     }
 }

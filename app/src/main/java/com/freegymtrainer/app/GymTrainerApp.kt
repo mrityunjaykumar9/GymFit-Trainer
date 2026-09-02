@@ -1,6 +1,7 @@
 package com.freegymtrainer.app
 
 import android.app.Application
+import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.data.local.AppDatabase
 import com.freegymtrainer.app.data.repository.SeedRepository
 import com.freegymtrainer.app.di.AppContainer
@@ -38,6 +39,7 @@ class GymTrainerApp : Application() {
         NotificationHelper.createChannel(this)
         MobileAds.initialize(this) {
             // AdMob SDK ready - banners created after this point will serve ads.
+            InterstitialAdManager.preload(this)
         }
 
         seedingReady = applicationScope.async {
@@ -57,6 +59,9 @@ class GymTrainerApp : Application() {
                 }
                 if (settings.waterReminderEnabled) {
                     ReminderScheduler.scheduleWaterReminder(context, settings.waterReminderIntervalHours)
+                }
+                if (settings.nutritionReminderEnabled) {
+                    ReminderScheduler.scheduleNutritionReminder(context)
                 }
             }
         }

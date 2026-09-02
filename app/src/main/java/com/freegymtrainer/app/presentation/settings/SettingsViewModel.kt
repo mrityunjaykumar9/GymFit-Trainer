@@ -65,6 +65,9 @@ class SettingsViewModel(
             if (settings.waterReminderEnabled) {
                 ReminderScheduler.scheduleWaterReminder(context, settings.waterReminderIntervalHours)
             }
+            if (settings.nutritionReminderEnabled) {
+                ReminderScheduler.scheduleNutritionReminder(context)
+            }
         }
     }
 

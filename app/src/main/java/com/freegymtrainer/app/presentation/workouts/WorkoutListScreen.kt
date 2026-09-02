@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.CalendarViewWeek
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,7 +31,7 @@ import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 import com.freegymtrainer.app.presentation.components.workoutTemplateIcon
 
 @Composable
-fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit) {
+fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenHistory: () -> Unit) {
     val viewModel: WorkoutListViewModel = viewModel(factory = GenericViewModelFactory { WorkoutListViewModel(container) })
     val templates by viewModel.templates.collectAsState()
 
@@ -47,9 +48,31 @@ fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit) {
         ) {
             item { WorkoutsHero(programCount = templates.size) }
 
+            item { HistoryQuickLink(onClick = onOpenHistory, modifier = Modifier.padding(horizontal = 16.dp)) }
+
             items(templates) { templateWithDays ->
                 TemplateCard(templateWithDays = templateWithDays, onOpenDay = onOpenDay, modifier = Modifier.padding(horizontal = 16.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun HistoryQuickLink(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ElevatedCard(onClick = onClick, shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth()) {
+        Row(Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.History, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Workout History", style = MaterialTheme.typography.titleMedium)
+                Text("See your past completed sessions", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

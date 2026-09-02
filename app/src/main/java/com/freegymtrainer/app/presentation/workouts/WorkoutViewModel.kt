@@ -8,8 +8,11 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.domain.usecase.CalorieEstimator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 // ---------------- List screen ----------------
@@ -34,14 +37,60 @@ class WorkoutListViewModel(private val container: AppContainer) : ViewModel() {
     }
 }
 
+// ---------------- History screen ----------------
+
+class WorkoutHistoryViewModel(container: AppContainer) : ViewModel() {
+    val sessions: StateFlow<List<WorkoutSession>> = container.workoutRepository.getAllSessions()
+        .map { list -> list.filter { it.completed } } // DAO already orders by startTimeMillis DESC
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+}
+
 // ---------------- Day detail screen ----------------
+
+data class SwapCandidate(val exercise: Exercise, val isAvailable: Boolean)
 
 class WorkoutDayDetailViewModel(private val container: AppContainer, private val dayId: Long) : ViewModel() {
     private val _detail = MutableStateFlow<TemplateDayDetail?>(null)
     val detail: StateFlow<TemplateDayDetail?> = _detail
 
+    private val _swapCandidates = MutableStateFlow<List<SwapCandidate>>(emptyList())
+    val swapCandidates: StateFlow<List<SwapCandidate>> = _swapCandidates
+
     init {
-        viewModelScope.launch { _detail.value = container.workoutRepository.getTemplateDayDetail(dayId) }
+        viewModelScope.launch { refresh() }
+    }
+
+    private suspend fun refresh() {
+        _detail.value = container.workoutRepository.getTemplateDayDetail(dayId)
+    }
+
+    /**
+     * Alternatives for one exercise slot: same primary muscle, not the exercise already there,
+     * with equipment the user actually has available sorted first and flagged so the sheet can
+     * show an "Available" badge.
+     */
+    fun loadSwapCandidates(currentExerciseId: Long, primaryMuscle: String) {
+        viewModelScope.launch {
+            val profile = container.userRepository.getProfile()
+            val owned = profile?.equipmentAvailable?.toSet() ?: emptySet()
+            val all = container.exerciseRepository.getAll().first()
+            _swapCandidates.value = all
+                .filter { it.id != currentExerciseId && it.primaryMuscle == primaryMuscle }
+                .map { SwapCandidate(it, it.equipment in owned) }
+                .sortedByDescending { it.isAvailable }
+        }
+    }
+
+    fun clearSwapCandidates() {
+        _swapCandidates.value = emptyList()
+    }
+
+    fun swapExercise(templateExerciseId: Long, newExerciseId: Long) {
+        viewModelScope.launch {
+            container.workoutRepository.swapExercise(templateExerciseId, newExerciseId)
+            refresh()
+            clearSwapCandidates()
+        }
     }
 }
 

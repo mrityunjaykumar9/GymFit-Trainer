@@ -26,9 +26,10 @@ import com.freegymtrainer.app.data.local.entity.*
         MealLogEntry::class,
         MealPlanDay::class,
         MealPlanItem::class,
-        ReminderSettings::class
+        ReminderSettings::class,
+        DailyOverride::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -46,6 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun foodDao(): FoodDao
     abstract fun mealLogDao(): MealLogDao
     abstract fun mealPlanDao(): MealPlanDao
+    abstract fun dailyOverrideDao(): DailyOverrideDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

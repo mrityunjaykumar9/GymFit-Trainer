@@ -44,7 +44,8 @@ fun HomeScreen(
     container: AppContainer,
     onStartWorkout: (Long) -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenExercise: (Long) -> Unit
+    onOpenExercise: (Long) -> Unit,
+    onOpenWorkouts: () -> Unit
 ) {
     val viewModel: HomeViewModel = viewModel(factory = GenericViewModelFactory { HomeViewModel(container) })
     val state by viewModel.uiState.collectAsState()
@@ -105,7 +106,13 @@ fun HomeScreen(
             }
             Spacer(Modifier.height(16.dp))
 
-            TodayWorkoutHero(state = state, onStartWorkout = onStartWorkout)
+            TodayWorkoutHero(
+                state = state,
+                onStartWorkout = onStartWorkout,
+                onSkipToday = { viewModel.setSkipToday(true) },
+                onUndoSkip = { viewModel.setSkipToday(false) },
+                onOpenWorkouts = onOpenWorkouts
+            )
 
             Spacer(Modifier.height(24.dp))
             SectionHeader("Today's Progress")
@@ -267,7 +274,13 @@ private fun QuickWeightLogDialog(onDismiss: () -> Unit, onSave: (Float) -> Unit)
  * in place) if that asset is ever missing.
  */
 @Composable
-private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit) {
+private fun TodayWorkoutHero(
+    state: HomeUiState,
+    onStartWorkout: (Long) -> Unit,
+    onSkipToday: () -> Unit,
+    onUndoSkip: () -> Unit,
+    onOpenWorkouts: () -> Unit
+) {
     val heroPhoto = rememberAssetImageBitmap("gym_pics/gym_pic1.jpg")
 
     // Both scrim stops are kept mid-to-dark so a single light text color stays legible
@@ -325,6 +338,25 @@ private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit)
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("START WORKOUT") }
+                TextButton(onClick = onSkipToday, colors = ButtonDefaults.textButtonColors(contentColor = onGradient.copy(alpha = 0.85f))) {
+                    Text("Not today, skip it")
+                }
+            } else if (state.isManualSkip) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "You skipped today's scheduled workout. Change your mind?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = onGradient.copy(alpha = 0.9f)
+                )
+                Spacer(Modifier.height(16.dp))
+                Button(
+                    onClick = onUndoSkip,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("ACTUALLY, LET'S TRAIN") }
             } else {
                 Spacer(Modifier.height(8.dp))
                 Text(
@@ -332,6 +364,13 @@ private fun TodayWorkoutHero(state: HomeUiState, onStartWorkout: (Long) -> Unit)
                     style = MaterialTheme.typography.bodyMedium,
                     color = onGradient.copy(alpha = 0.9f)
                 )
+                Spacer(Modifier.height(16.dp))
+                OutlinedButton(
+                    onClick = onOpenWorkouts,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = onGradient),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, onGradient.copy(alpha = 0.6f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("BROWSE WORKOUTS") }
             }
         }
     }

@@ -36,6 +36,7 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
 
+            FilterLabel("Muscle Group")
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp)
@@ -55,7 +56,29 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
                     )
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
+            FilterLabel("Equipment")
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                item {
+                    FilterChipItem(
+                        label = "All",
+                        selected = filter.equipment == null,
+                        onClick = { viewModel.setEquipment(null) }
+                    )
+                }
+                items(viewModel.equipmentOptions) { equipment ->
+                    FilterChipItem(
+                        label = equipment,
+                        selected = filter.equipment == equipment,
+                        onClick = { viewModel.setEquipment(if (filter.equipment == equipment) null else equipment) }
+                    )
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            FilterLabel("Difficulty")
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp)
@@ -100,4 +123,14 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
             }
         }
     }
+}
+
+@Composable
+private fun FilterLabel(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
+    )
 }

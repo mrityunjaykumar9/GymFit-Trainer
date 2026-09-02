@@ -31,7 +31,15 @@ data class HomeUiState(
     val calorieTarget: Int = 2200,
     val latestWeightKg: Float? = null,
     val weightTrendKg: Float? = null, // negative = down since last month
-    val recommendedExercises: List<Exercise> = emptyList()
+    val recommendedExercises: List<Exercise> = emptyList(),
+    val isManualSkip: Boolean = false // today was a scheduled workout the user chose to skip
+)
+
+private data class PlanSnapshot(
+    val profile: UserProfile?,
+    val weeklyPlan: List<com.freegymtrainer.app.data.local.entity.WeeklyPlanEntry>,
+    val sessions: List<com.freegymtrainer.app.data.local.entity.WorkoutSession>,
+    val override: com.freegymtrainer.app.data.local.entity.DailyOverride?
 )
 
 /**
@@ -54,8 +62,9 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
         val planAndSessions = combine(
             container.userRepository.observeProfile(),
             container.workoutRepository.getWeeklyPlan(),
-            container.workoutRepository.getAllSessions()
-        ) { profile, weeklyPlan, sessions -> Triple(profile, weeklyPlan, sessions) }
+            container.workoutRepository.getAllSessions(),
+            container.workoutRepository.observeTodayOverride()
+        ) { profile, weeklyPlan, sessions, override -> PlanSnapshot(profile, weeklyPlan, sessions, override) }
 
         val nutritionAndWeight = combine(
             container.progressRepository.getWaterForToday(),
@@ -64,8 +73,10 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
         ) { water, meals, weightHistory -> Triple(water, meals, weightHistory) }
 
         viewModelScope.launch {
-            combine(planAndSessions, nutritionAndWeight) { (profile, weeklyPlan, sessions), (waterLogs, meals, weightHistory) ->
+            combine(planAndSessions, nutritionAndWeight) { plan, (waterLogs, meals, weightHistory) ->
+                val (profile, weeklyPlan, sessions, override) = plan
                 val planEntry = weeklyPlan.firstOrNull { it.dayOfWeek == todayDow }
+                val skippedToday = override?.skipWorkout == true
 
                 var dayTitle = "Rest Day"
                 var muscleGroups = ""
@@ -74,7 +85,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                 var templateDayId: Long? = null
                 var isRest = true
 
-                if (planEntry != null && !planEntry.isRestDay && planEntry.templateDayId != null) {
+                if (!skippedToday && planEntry != null && !planEntry.isRestDay && planEntry.templateDayId != null) {
                     val detail = container.workoutRepository.getTemplateDayDetail(planEntry.templateDayId)
                     if (detail != null) {
                         dayTitle = detail.day.title
@@ -85,6 +96,9 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                         isRest = false
                     }
                 }
+                // A skipped scheduled day still reads as "rest" above, but the UI needs to
+                // know it was a deliberate skip (to offer "undo") rather than a normal rest day.
+                val isManualSkip = skippedToday && planEntry != null && !planEntry.isRestDay
 
                 val completedSessions = sessions.filter { it.completed }
                 val streak = calculateStreak(completedSessions.map { it.dateEpochDay })
@@ -133,7 +147,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     calorieTarget = nutritionTargets?.calorieTarget ?: 2200,
                     latestWeightKg = latestWeight?.weightKg,
                     weightTrendKg = trend,
-                    recommendedExercises = recommended
+                    recommendedExercises = recommended,
+                    isManualSkip = isManualSkip
                 )
             }.collect { newState -> _uiState.value = newState }
         }
@@ -141,6 +156,10 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
     fun addWeightEntry(weightKg: Float) {
         viewModelScope.launch { container.progressRepository.addWeightEntry(weightKg) }
+    }
+
+    fun setSkipToday(skip: Boolean) {
+        viewModelScope.launch { container.workoutRepository.setSkipToday(skip) }
     }
 
     private fun estimateMinutes(totalSets: Int): Int = (totalSets * 3.5).toInt().coerceAtLeast(15)

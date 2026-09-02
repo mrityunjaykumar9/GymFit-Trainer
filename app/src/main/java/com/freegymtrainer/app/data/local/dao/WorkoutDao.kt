@@ -35,6 +35,12 @@ interface WorkoutTemplateDao {
 
     @Query("SELECT COUNT(*) FROM workout_template_exercises WHERE templateDayId = :dayId")
     suspend fun countExercisesForDay(dayId: Long): Int
+
+    /** Swaps which exercise a plan slot points at - e.g. substituting one machine exercise
+     * for another when the user doesn't have that equipment. Applies to every future use of
+     * that plan slot, the same way editing "your" plan would. */
+    @Query("UPDATE workout_template_exercises SET exerciseId = :newExerciseId WHERE id = :templateExerciseId")
+    suspend fun swapExercise(templateExerciseId: Long, newExerciseId: Long)
 }
 
 @Dao
@@ -53,6 +59,18 @@ interface WeeklyPlanDao {
 
     @Query("SELECT * FROM weekly_plan WHERE dayOfWeek = :dayOfWeek")
     suspend fun getForDay(dayOfWeek: Int): WeeklyPlanEntry?
+}
+
+@Dao
+interface DailyOverrideDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(override: DailyOverride)
+
+    @Query("DELETE FROM daily_overrides WHERE dateEpochDay = :day")
+    suspend fun deleteForDay(day: Long)
+
+    @Query("SELECT * FROM daily_overrides WHERE dateEpochDay = :day")
+    fun observeForDay(day: Long): Flow<DailyOverride?>
 }
 
 @Dao

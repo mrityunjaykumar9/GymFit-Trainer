@@ -3,6 +3,7 @@ package com.freegymtrainer.app.data.repository
 import com.freegymtrainer.app.data.local.AppDatabase
 import com.freegymtrainer.app.data.local.entity.*
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 data class TemplateDayDetail(
     val day: WorkoutTemplateDay,
@@ -17,6 +18,10 @@ class WorkoutRepository(private val db: AppDatabase) {
         db.workoutTemplateDao().getDaysForTemplate(templateId)
 
     suspend fun countExercisesForDay(dayId: Long): Int = db.workoutTemplateDao().countExercisesForDay(dayId)
+
+    /** Substitutes the exercise at one plan slot (e.g. no equipment for the original pick). */
+    suspend fun swapExercise(templateExerciseId: Long, newExerciseId: Long) =
+        db.workoutTemplateDao().swapExercise(templateExerciseId, newExerciseId)
 
     suspend fun getTemplateDayDetail(dayId: Long): TemplateDayDetail? {
         val day = db.workoutTemplateDao().getTemplateDay(dayId) ?: return null
@@ -44,6 +49,15 @@ class WorkoutRepository(private val db: AppDatabase) {
             }
         }
         db.weeklyPlanDao().upsertAll(entries)
+    }
+
+    /** A one-off "skip today" override, distinct from the recurring weekly plan (see DailyOverride). */
+    fun observeTodayOverride(): Flow<DailyOverride?> = db.dailyOverrideDao().observeForDay(LocalDate.now().toEpochDay())
+
+    suspend fun setSkipToday(skip: Boolean) {
+        val today = LocalDate.now().toEpochDay()
+        if (skip) db.dailyOverrideDao().upsert(DailyOverride(today, true))
+        else db.dailyOverrideDao().deleteForDay(today)
     }
 
     suspend fun startSession(templateDayId: Long?, dayTitle: String): Long =

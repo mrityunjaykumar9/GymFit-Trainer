@@ -76,7 +76,8 @@ fun NavGraph(
             WorkoutDayDetailScreen(
                 container = container, dayId = dayId,
                 onBack = { navController.popBackStack() },
-                onStartWorkout = { navController.navigate(Screen.WorkoutExecution.createRoute(dayId)) }
+                onStartWorkout = { navController.navigate(Screen.WorkoutExecution.createRoute(dayId)) },
+                onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) }
             )
         }
 

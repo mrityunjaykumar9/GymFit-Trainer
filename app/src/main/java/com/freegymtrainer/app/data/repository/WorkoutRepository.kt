@@ -16,6 +16,8 @@ class WorkoutRepository(private val db: AppDatabase) {
     suspend fun getTemplateDays(templateId: Long): List<WorkoutTemplateDay> =
         db.workoutTemplateDao().getDaysForTemplate(templateId)
 
+    suspend fun countExercisesForDay(dayId: Long): Int = db.workoutTemplateDao().countExercisesForDay(dayId)
+
     suspend fun getTemplateDayDetail(dayId: Long): TemplateDayDetail? {
         val day = db.workoutTemplateDao().getTemplateDay(dayId) ?: return null
         val exercises = db.workoutTemplateDao().getExercisesForDay(dayId).mapNotNull { te ->

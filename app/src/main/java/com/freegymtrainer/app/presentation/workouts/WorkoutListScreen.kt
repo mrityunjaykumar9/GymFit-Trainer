@@ -1,17 +1,33 @@
 package com.freegymtrainer.app.presentation.workouts
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarViewWeek
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.EmptyState
+import com.freegymtrainer.app.presentation.components.muscleGroupIcon
+import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
+import com.freegymtrainer.app.presentation.components.workoutTemplateIcon
 
 @Composable
 fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit) {
@@ -26,38 +42,139 @@ fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit) {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item { WorkoutsHero(programCount = templates.size) }
+
             items(templates) { templateWithDays ->
-                ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(templateWithDays.template.name, style = MaterialTheme.typography.titleLarge)
-                            AssistChip(onClick = {}, label = { Text(templateWithDays.template.level) })
-                        }
-                        Text(templateWithDays.template.description, style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "${templateWithDays.template.daysPerWeek} days/week  •  ${templateWithDays.template.goalTag}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        templateWithDays.days.forEach { day ->
-                            OutlinedButton(
-                                onClick = { onOpenDay(day.id) },
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
-                            ) {
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(day.title)
-                                    Text(day.muscleGroupsSummary, style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                        }
-                    }
+                TemplateCard(templateWithDays = templateWithDays, onOpenDay = onOpenDay, modifier = Modifier.padding(horizontal = 16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun WorkoutsHero(programCount: Int) {
+    val photo = rememberAssetImageBitmap("gym_pics/gym_pic2.jpg")
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+    ) {
+        if (photo != null) {
+            Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.35f), Color.Black.copy(alpha = 0.75f)))
+                )
+            )
+        } else {
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
+                )
+            )
+        }
+        Column(Modifier.align(Alignment.BottomStart).padding(20.dp)) {
+            Text("Workout Programs", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                "$programCount programs to choose from - pick one that fits your schedule",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -> Unit, modifier: Modifier = Modifier) {
+    val template = templateWithDays.template
+    ElevatedCard(shape = RoundedCornerShape(18.dp), modifier = modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        workoutTemplateIcon(template.name),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(template.name, style = MaterialTheme.typography.titleLarge)
+                    Text(template.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AssistChip(
+                    onClick = {},
+                    label = { Text(template.level) },
+                    leadingIcon = { Icon(Icons.Filled.FitnessCenter, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                )
+                AssistChip(
+                    onClick = {},
+                    label = { Text("${template.daysPerWeek} days/wk") },
+                    leadingIcon = { Icon(Icons.Filled.CalendarViewWeek, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                )
+                AssistChip(
+                    onClick = {},
+                    label = { Text(template.goalTag) },
+                    leadingIcon = { Icon(Icons.Filled.Flag, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+            templateWithDays.days.forEach { dayWithCount ->
+                DayRow(dayWithCount = dayWithCount, onClick = { onOpenDay(dayWithCount.day.id) })
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
+    val day = dayWithCount.day
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    muscleGroupIcon(day.muscleGroupsSummary.split(",").firstOrNull()?.trim() ?: ""),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(day.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "${day.muscleGroupsSummary}  •  ${dayWithCount.exerciseCount} exercises",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

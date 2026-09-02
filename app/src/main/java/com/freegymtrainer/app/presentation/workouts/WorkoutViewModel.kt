@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 
 // ---------------- List screen ----------------
 
-data class TemplateWithDays(val template: WorkoutTemplate, val days: List<WorkoutTemplateDay>)
+data class DayWithExerciseCount(val day: WorkoutTemplateDay, val exerciseCount: Int)
+data class TemplateWithDays(val template: WorkoutTemplate, val days: List<DayWithExerciseCount>)
 
 class WorkoutListViewModel(private val container: AppContainer) : ViewModel() {
     private val _templates = MutableStateFlow<List<TemplateWithDays>>(emptyList())
@@ -24,7 +25,10 @@ class WorkoutListViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             val all = container.workoutRepository.getAllTemplates().first()
             _templates.value = all.map { template ->
-                TemplateWithDays(template, container.workoutRepository.getTemplateDays(template.id))
+                val days = container.workoutRepository.getTemplateDays(template.id).map { day ->
+                    DayWithExerciseCount(day, container.workoutRepository.countExercisesForDay(day.id))
+                }
+                TemplateWithDays(template, days)
             }
         }
     }

@@ -32,6 +32,9 @@ interface WorkoutTemplateDao {
 
     @Query("SELECT * FROM workout_template_exercises WHERE templateDayId = :dayId ORDER BY orderIndex ASC")
     suspend fun getExercisesForDay(dayId: Long): List<WorkoutTemplateExercise>
+
+    @Query("SELECT COUNT(*) FROM workout_template_exercises WHERE templateDayId = :dayId")
+    suspend fun countExercisesForDay(dayId: Long): Int
 }
 
 @Dao

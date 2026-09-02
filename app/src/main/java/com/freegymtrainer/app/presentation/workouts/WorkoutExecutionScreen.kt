@@ -122,7 +122,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
             ) {
-                ExerciseAutoMedia(exercise = currentExercise.exercise, modifier = Modifier.fillMaxSize())
+                ExerciseAutoMedia(exercise = currentExercise.exercise, modifier = Modifier.fillMaxSize(), showAllSteps = true)
             }
             Spacer(Modifier.height(16.dp))
 

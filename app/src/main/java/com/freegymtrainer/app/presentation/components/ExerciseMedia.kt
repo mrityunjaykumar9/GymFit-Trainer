@@ -59,11 +59,24 @@ private fun decodeAsset(context: Context, path: String): ImageBitmap? =
     }
 
 @Composable
-private fun rememberPhotoFrames(slug: String): List<ImageBitmap> {
+private fun rememberPhotoFrames(slug: String, preferFull: Boolean): List<ImageBitmap> {
     val context = LocalContext.current
-    return remember(slug) {
+    return remember(slug, preferFull) {
+        // The full, uncropped how-to collage (all steps in one image) - only used where a
+        // bigger view is warranted (exercise detail, workout execution), not in list rows.
+        if (preferFull) {
+            val fullFile = listAssetsSafely(context, "exercise_photos_full")
+                .firstOrNull { it.substringBeforeLast('.') == slug && it.substringAfterLast('.', "").lowercase() in PHOTO_EXTENSIONS }
+            if (fullFile != null) {
+                return@remember listOfNotNull(decodeAsset(context, "exercise_photos_full/$fullFile"))
+            }
+            // No full version for this exercise - fall through to the cropped thumbnail below
+            // rather than showing nothing.
+        }
+
         // A single flat file (exercise_photos/<slug>.jpg) - the common case: one photo per
-        // exercise, named exactly like the exercise.
+        // exercise, named exactly like the exercise, cropped to just its first step so it
+        // reads clearly at thumbnail size.
         val flatFile = listAssetsSafely(context, "exercise_photos")
             .firstOrNull { it.substringBeforeLast('.') == slug && it.substringAfterLast('.', "").lowercase() in PHOTO_EXTENSIONS }
         if (flatFile != null) {
@@ -123,20 +136,29 @@ private fun ExerciseVideoPlayback(uri: String, modifier: Modifier = Modifier) {
 /**
  * Shows demonstration media for [exercise], in priority order:
  * 1. [Exercise.mediaUrl] - a remote-hosted clip, if you've set one.
- * 2. `assets/exercise_photos/<slug>.jpg` - a single photo named exactly like the exercise.
- *    `<slug>` is [exerciseSlug] of the exercise name, e.g. "Barbell Bench Press" ->
+ * 2. `assets/exercise_photos_full/<slug>.jpg` - the full, uncropped how-to collage showing
+ *    every step - only looked up when [showAllSteps] is true, and only used at all on
+ *    screens with room for it (exercise detail, workout execution). Falls through to the
+ *    cropped thumbnail below if no full version exists for this exercise.
+ * 3. `assets/exercise_photos/<slug>.jpg` - a single photo named exactly like the exercise,
+ *    cropped to just its first step/pose so it reads clearly at small (list row / card)
+ *    sizes. `<slug>` is [exerciseSlug] of the exercise name, e.g. "Barbell Bench Press" ->
  *    `assets/exercise_photos/barbell_bench_press.jpg`.
- * 3. `assets/exercise_photos/<slug>/1.jpg, 2.jpg, ...` - or a numbered sequence in its own
+ * 4. `assets/exercise_photos/<slug>/1.jpg, 2.jpg, ...` - or a numbered sequence in its own
  *    folder instead of a single file, auto-cycled as a slideshow.
- * 4. `assets/exercise_videos/<slug>.mp4` - a local video file, same slug convention.
- * 5. [AnimatedExerciseFigure] - the built-in animated placeholder, if none of the above exist.
+ * 5. `assets/exercise_videos/<slug>.mp4` - a local video file, same slug convention.
+ * 6. [AnimatedExerciseFigure] - the built-in animated placeholder, if none of the above exist.
  *
  * Photos are recommended over bundling videos: a handful of small photos per exercise adds
  * only a few hundred KB each, while 50 exercises x a 10s video would add tens to a few hundred
  * MB to the app depending on resolution/bitrate - a real difference for a free, ad-supported app.
+ *
+ * @param showAllSteps true for a big, detailed view that should show every step of the
+ * exercise (exercise detail screen, workout execution); false (default) for a small
+ * thumbnail/badge spot where a single cropped step reads better than 4 shrunk-down ones.
  */
 @Composable
-fun ExerciseAutoMedia(exercise: Exercise, modifier: Modifier = Modifier) {
+fun ExerciseAutoMedia(exercise: Exercise, modifier: Modifier = Modifier, showAllSteps: Boolean = false) {
     val slug = remember(exercise.name) { exerciseSlug(exercise.name) }
     val context = LocalContext.current
 
@@ -146,7 +168,7 @@ fun ExerciseAutoMedia(exercise: Exercise, modifier: Modifier = Modifier) {
         return
     }
 
-    val photoFrames = rememberPhotoFrames(slug)
+    val photoFrames = rememberPhotoFrames(slug, preferFull = showAllSteps)
     if (photoFrames.isNotEmpty()) {
         PhotoSlideshow(photoFrames, modifier)
         return

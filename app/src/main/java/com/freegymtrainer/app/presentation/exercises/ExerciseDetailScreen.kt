@@ -60,7 +60,7 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
             ) {
-                ExerciseAutoMedia(exercise = ex, modifier = Modifier.fillMaxSize())
+                ExerciseAutoMedia(exercise = ex, modifier = Modifier.fillMaxSize(), showAllSteps = true)
             }
 
             Spacer(Modifier.height(16.dp))

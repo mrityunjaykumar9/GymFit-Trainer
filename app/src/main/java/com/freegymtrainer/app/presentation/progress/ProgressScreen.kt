@@ -1,6 +1,7 @@
 package com.freegymtrainer.app.presentation.progress
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -12,12 +13,14 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +31,9 @@ import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SimpleLineChart
 import com.freegymtrainer.app.presentation.components.StatCard
+import com.freegymtrainer.app.presentation.theme.ErrorRed
+import com.freegymtrainer.app.presentation.theme.SuccessGreen
+import com.freegymtrainer.app.presentation.theme.WarningAmber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -54,7 +60,26 @@ fun ProgressScreen(container: AppContainer) {
                 StatCard("This Week", "${state.weeklyConsistency} workouts", Icons.Filled.CalendarMonth, modifier = Modifier.weight(1f))
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
+            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    CardHeader(Icons.Filled.CalendarMonth, "Consistency")
+                    Spacer(Modifier.height(4.dp))
+                    val windowStart = remember { LocalDate.now().minusWeeks(10).toEpochDay() }
+                    Text(
+                        "${state.completedWorkoutDays.count { it >= windowStart }} active days in the last 10 weeks",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    WorkoutConsistencyCalendar(completedDays = state.completedWorkoutDays)
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+            BmiCard(heightCm = state.profile?.heightCm, latestWeightKg = state.weightHistory.lastOrNull()?.weightKg)
+
+            Spacer(Modifier.height(16.dp))
             ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -93,19 +118,22 @@ fun ProgressScreen(container: AppContainer) {
                         TextButton(onClick = { showMeasurementDialog = true }) { Text("+ Log") }
                     }
                     if (state.measurements.isEmpty()) {
+                        Spacer(Modifier.height(4.dp))
                         Text("No measurements logged yet.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
                         val latest = state.measurements.last()
-                        Spacer(Modifier.height(8.dp))
-                        listOfNotNull(
+                        Spacer(Modifier.height(12.dp))
+                        val entries = listOfNotNull(
                             latest.chestCm?.let { "Chest" to it }, latest.waistCm?.let { "Waist" to it },
                             latest.hipsCm?.let { "Hips" to it }, latest.armsCm?.let { "Arms" to it },
                             latest.thighsCm?.let { "Thighs" to it }, latest.neckCm?.let { "Neck" to it }
-                        ).forEach { (label, value) ->
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("${value} cm")
+                        )
+                        entries.chunked(2).forEach { pair ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                pair.forEach { (label, value) -> MeasurementTile(label, value, Modifier.weight(1f)) }
+                                if (pair.size == 1) Spacer(Modifier.weight(1f))
                             }
+                            Spacer(Modifier.height(8.dp))
                         }
                     }
                 }
@@ -119,9 +147,15 @@ fun ProgressScreen(container: AppContainer) {
                     if (state.personalRecords.isEmpty()) {
                         Text("Complete a workout to start setting records.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
-                        state.personalRecords.take(10).forEach { pr ->
+                        state.personalRecords.take(10).forEachIndexed { index, pr ->
+                            val medal = when (index) {
+                                0 -> "🥇"
+                                1 -> "🥈"
+                                2 -> "🥉"
+                                else -> "🏆"
+                            }
                             Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("🏆 ${pr.exerciseName}")
+                                Text("$medal ${pr.exerciseName}")
                                 Text("${pr.weightKg.toInt()} kg × ${pr.reps}")
                             }
                         }
@@ -154,6 +188,114 @@ private fun CardHeader(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
         }
         Spacer(Modifier.width(10.dp))
         Text(title, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+/**
+ * A GitHub-contributions-style grid: one column per week (oldest to newest, left to right),
+ * one cell per day, filled in whenever a workout was completed that day. Needs no input and
+ * no explanation to read at a glance - exactly the kind of "consistency at a glance" view
+ * popular fitness apps (Strong, Apple Fitness) use.
+ */
+@Composable
+private fun WorkoutConsistencyCalendar(completedDays: Set<Long>, weeksToShow: Int = 10, modifier: Modifier = Modifier) {
+    val today = remember { LocalDate.now() }
+    val todayEpoch = remember(today) { today.toEpochDay() }
+    val firstMonday = remember(today) {
+        val mondayThisWeek = today.minusDays((today.dayOfWeek.value - 1).toLong())
+        mondayThisWeek.minusWeeks((weeksToShow - 1).toLong())
+    }
+
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.surfaceVariant
+    val todayBorderColor = MaterialTheme.colorScheme.primary
+
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        for (week in 0 until weeksToShow) {
+            val weekStart = firstMonday.plusWeeks(week.toLong())
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                for (day in 0 until 7) {
+                    val epoch = weekStart.plusDays(day.toLong()).toEpochDay()
+                    val isFuture = epoch > todayEpoch
+                    val isToday = epoch == todayEpoch
+                    val active = completedDays.contains(epoch)
+                    Box(
+                        Modifier
+                            .size(14.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(
+                                when {
+                                    isFuture -> Color.Transparent
+                                    active -> activeColor
+                                    else -> inactiveColor
+                                }
+                            )
+                            .then(
+                                if (isToday) Modifier.border(1.5.dp, todayBorderColor, RoundedCornerShape(4.dp))
+                                else Modifier
+                            )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BmiCard(heightCm: Float?, latestWeightKg: Float?) {
+    val bmi = if (heightCm != null && heightCm > 0f && latestWeightKg != null) {
+        val heightM = heightCm / 100f
+        latestWeightKg / (heightM * heightM)
+    } else null
+
+    ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            CardHeader(Icons.Filled.Speed, "Body Mass Index")
+            Spacer(Modifier.height(12.dp))
+            if (bmi == null) {
+                Text(
+                    "Log your weight to see your BMI.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                val (category, color) = bmiCategory(bmi)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("%.1f".format(bmi), style = MaterialTheme.typography.headlineMedium)
+                    AssistChip(
+                        onClick = {},
+                        label = { Text(category) },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = color.copy(alpha = 0.15f),
+                            labelColor = color
+                        )
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "A general estimate from height and weight - it doesn't account for muscle mass or body composition.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+private fun bmiCategory(bmi: Float): Pair<String, Color> = when {
+    bmi < 18.5f -> "Underweight" to Color(0xFF4A90D9)
+    bmi < 25f -> "Normal" to SuccessGreen
+    bmi < 30f -> "Overweight" to WarningAmber
+    else -> "Obese" to ErrorRed
+}
+
+@Composable
+private fun MeasurementTile(label: String, valueCm: Float, modifier: Modifier = Modifier) {
+    Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = modifier) {
+        Column(Modifier.padding(12.dp)) {
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("$valueCm cm", style = MaterialTheme.typography.titleMedium)
+        }
     }
 }
 

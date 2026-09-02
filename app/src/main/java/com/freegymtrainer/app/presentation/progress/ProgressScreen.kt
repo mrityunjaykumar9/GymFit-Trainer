@@ -1,16 +1,23 @@
 package com.freegymtrainer.app.presentation.progress
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +28,11 @@ import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SimpleLineChart
 import com.freegymtrainer.app.presentation.components.StatCard
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+private val shortDateFormatter = DateTimeFormatter.ofPattern("MMM d")
+private fun formatShortDate(epochDay: Long): String = LocalDate.ofEpochDay(epochDay).format(shortDateFormatter)
 
 @Composable
 fun ProgressScreen(container: AppContainer) {
@@ -46,21 +58,28 @@ fun ProgressScreen(container: AppContainer) {
             ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Weight", style = MaterialTheme.typography.titleMedium)
+                        CardHeader(Icons.Filled.MonitorWeight, "Weight")
                         TextButton(onClick = { showWeightDialog = true }) { Text("+ Log") }
                     }
-                    SimpleLineChart(values = state.weightHistory.map { it.weightKg }, unitLabel = "kg")
+                    Spacer(Modifier.height(8.dp))
+                    SimpleLineChart(
+                        values = state.weightHistory.map { it.weightKg },
+                        labels = state.weightHistory.map { formatShortDate(it.dateEpochDay) },
+                        unitLabel = "kg"
+                    )
                 }
             }
 
             Spacer(Modifier.height(16.dp))
             ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("Weekly Training Volume", style = MaterialTheme.typography.titleMedium)
+                    CardHeader(Icons.Filled.FitnessCenter, "Weekly Training Volume")
                     Spacer(Modifier.height(4.dp))
                     Text("Sets × Reps × Weight, summed per week", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
                     SimpleLineChart(
                         values = state.weeklyVolume.map { it.totalVolumeKg.toFloat() },
+                        labels = state.weeklyVolume.map { it.weekLabel },
                         unitLabel = "kg"
                     )
                 }
@@ -70,7 +89,7 @@ fun ProgressScreen(container: AppContainer) {
             ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("Body Measurements", style = MaterialTheme.typography.titleMedium)
+                        CardHeader(Icons.Filled.Straighten, "Body Measurements")
                         TextButton(onClick = { showMeasurementDialog = true }) { Text("+ Log") }
                     }
                     if (state.measurements.isEmpty()) {
@@ -93,15 +112,19 @@ fun ProgressScreen(container: AppContainer) {
             }
 
             Spacer(Modifier.height(16.dp))
-            Text("Personal Records", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            if (state.personalRecords.isEmpty()) {
-                Text("Complete a workout to start setting records.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            } else {
-                state.personalRecords.take(10).forEach { pr ->
-                    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("🏆 ${pr.exerciseName}")
-                        Text("${pr.weightKg.toInt()} kg × ${pr.reps}")
+            ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    CardHeader(Icons.Filled.EmojiEvents, "Personal Records")
+                    Spacer(Modifier.height(8.dp))
+                    if (state.personalRecords.isEmpty()) {
+                        Text("Complete a workout to start setting records.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        state.personalRecords.take(10).forEach { pr ->
+                            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("🏆 ${pr.exerciseName}")
+                                Text("${pr.weightKg.toInt()} kg × ${pr.reps}")
+                            }
+                        }
                     }
                 }
             }
@@ -117,6 +140,20 @@ fun ProgressScreen(container: AppContainer) {
     }
     if (showMeasurementDialog) {
         MeasurementLogDialog(onDismiss = { showMeasurementDialog = false }, onSave = { viewModel.addMeasurement(it); showMeasurementDialog = false })
+    }
+}
+
+@Composable
+private fun CardHeader(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(18.dp))
+        }
+        Spacer(Modifier.width(10.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium)
     }
 }
 

@@ -13,7 +13,9 @@ data class Food(
     val carbsPer100g: Float,
     val fatPer100g: Float,
     val fiberPer100g: Float,
-    val defaultServingGrams: Float
+    val defaultServingGrams: Float,
+    val keyNutrients: List<String> = emptyList(), // notable vitamins/minerals this food is a good source of
+    val highlight: String = ""                    // one-line "why it's good for you" summary
 )
 
 /** Every category except "Non-vegetarian" is vegetarian-safe in this food database. */

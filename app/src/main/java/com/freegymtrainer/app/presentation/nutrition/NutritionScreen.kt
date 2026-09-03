@@ -1,5 +1,7 @@
 package com.freegymtrainer.app.presentation.nutrition
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +18,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +33,7 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.di.SettingsDataStore
 import com.freegymtrainer.app.presentation.components.LoadingState
+import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
 private fun MealPlanItemDetail.calories(): Float = food.caloriesPer100g * grams / 100f
 private fun MealPlanItemDetail.protein(): Float = food.proteinPer100g * grams / 100f
@@ -51,7 +58,10 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
         }
         val targets = state.targets
 
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
+            NutritionHeroBanner(consumedCalories = state.consumedCalories, calorieTarget = targets?.calorieTarget)
+
+            Column(Modifier.padding(16.dp)) {
             if (targets == null) {
                 Text("Complete onboarding to see your personalized nutrition targets.", style = MaterialTheme.typography.bodyLarge)
             } else {
@@ -156,6 +166,7 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
             Spacer(Modifier.height(20.dp))
             AdBanner()
             Spacer(Modifier.height(80.dp)) // room for FAB
+            }
         }
     }
 
@@ -167,6 +178,47 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
             onDismiss = { showAddFoodSheet = false },
             mealTypeOptions = viewModel.mealTypeOptions
         )
+    }
+}
+
+/**
+ * Uses the nutrition-themed photo you supplied (assets/nutrients_pics/nutrients.jpg) as a hero
+ * banner, mirroring the Home/Workouts tabs so Nutrition doesn't feel like the plain, text-only
+ * screen of the three.
+ */
+@Composable
+private fun NutritionHeroBanner(consumedCalories: Int, calorieTarget: Int?) {
+    val photo = rememberAssetImageBitmap("nutrients_pics/nutrients.jpg")
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+    ) {
+        if (photo != null) {
+            Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.3f), Color.Black.copy(alpha = 0.8f)))
+                )
+            )
+        } else {
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
+                )
+            )
+        }
+        Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
+            Text("Fuel Your Progress", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                if (calorieTarget != null) "$consumedCalories / $calorieTarget kcal logged today" else "Complete onboarding for personalized targets",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+        }
     }
 }
 

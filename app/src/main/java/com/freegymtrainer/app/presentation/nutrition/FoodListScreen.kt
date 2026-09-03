@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.nutrition
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Search
@@ -16,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.data.local.entity.Food
@@ -24,11 +29,12 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.LoadingState
+import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
 private enum class DietFilter { ALL, VEG, NON_VEG }
 
 @Composable
-fun FoodListScreen(container: AppContainer, onBack: () -> Unit) {
+fun FoodListScreen(container: AppContainer, onBack: () -> Unit, onOpenFood: (Long) -> Unit) {
     val viewModel: FoodListViewModel = viewModel(factory = GenericViewModelFactory { FoodListViewModel(container) })
     val state by viewModel.uiState.collectAsState()
     var filter by remember { mutableStateOf(DietFilter.ALL) }
@@ -60,6 +66,8 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit) {
         }
 
         Column(Modifier.fillMaxSize().padding(padding)) {
+            FoodDatabaseHero(itemCount = state.foods.size)
+
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
@@ -104,7 +112,7 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(filtered, key = { it.id }) { food ->
-                        FoodRow(food)
+                        FoodRow(food, onClick = { onOpenFood(food.id) })
                     }
                     item { Spacer(Modifier.height(8.dp)) }
                 }
@@ -114,8 +122,44 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit) {
 }
 
 @Composable
-private fun FoodRow(food: Food) {
-    ElevatedCard(shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+private fun FoodDatabaseHero(itemCount: Int) {
+    val photo = rememberAssetImageBitmap("nutrients_pics/nutrients.jpg")
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+    ) {
+        if (photo != null) {
+            Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.3f), Color.Black.copy(alpha = 0.8f)))
+                )
+            )
+        } else {
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
+                )
+            )
+        }
+        Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
+            Text("Food Database", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                "$itemCount foods - tap any item for vitamins, minerals & full nutrition facts",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun FoodRow(food: Food, onClick: () -> Unit) {
+    ElevatedCard(onClick = onClick, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
@@ -149,6 +193,8 @@ private fun FoodRow(food: Food) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Spacer(Modifier.width(4.dp))
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

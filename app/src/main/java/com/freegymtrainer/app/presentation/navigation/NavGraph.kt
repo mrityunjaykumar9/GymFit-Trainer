@@ -11,6 +11,7 @@ import com.freegymtrainer.app.di.SettingsDataStore
 import com.freegymtrainer.app.presentation.exercises.ExerciseDetailScreen
 import com.freegymtrainer.app.presentation.exercises.ExerciseListScreen
 import com.freegymtrainer.app.presentation.home.HomeScreen
+import com.freegymtrainer.app.presentation.nutrition.FoodDetailScreen
 import com.freegymtrainer.app.presentation.nutrition.FoodListScreen
 import com.freegymtrainer.app.presentation.nutrition.NutritionScreen
 import com.freegymtrainer.app.presentation.onboarding.OnboardingScreen
@@ -114,7 +115,19 @@ fun NavGraph(
         }
 
         composable(Screen.FoodList.route) {
-            FoodListScreen(container = container, onBack = { navController.popBackStack() })
+            FoodListScreen(
+                container = container,
+                onBack = { navController.popBackStack() },
+                onOpenFood = { id -> navController.navigate(Screen.FoodDetail.createRoute(id)) }
+            )
+        }
+
+        composable(
+            Screen.FoodDetail.route,
+            arguments = listOf(navArgument("foodId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val foodId = backStackEntry.arguments?.getLong("foodId") ?: 0L
+            FoodDetailScreen(container = container, foodId = foodId, onBack = { navController.popBackStack() })
         }
 
         composable(Screen.Progress.route) {

@@ -24,6 +24,7 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
+import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
 fun WorkoutDayDetailScreen(
@@ -160,7 +161,7 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                 Surface(
                     onClick = { onPick(exercise) },
                     shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                    color = orangeSoftContainer(),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                 ) {
                     Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -173,7 +174,7 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                             Text(
                                 exercise.equipment,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         if (candidate.isAvailable) {

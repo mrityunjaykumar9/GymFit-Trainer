@@ -39,6 +39,13 @@ val ErrorOnContainerLight = Color(0xFF7A1F14)
 val ErrorContainerDark = Color(0xFF5C2018)
 val ErrorOnContainerDark = Color(0xFFFFDAD4)
 
+// A second, fainter orange tone for subtle fills (a row/tile background that just needs to feel
+// "on-brand" rather than draw attention like a badge does) - sits between the page background
+// and the full-strength OrangeContainer. Fixed hex like everything else above, not a runtime
+// alpha over OrangeContainer, which looks different depending on what's layered underneath it.
+val OrangeSoftLight = Color(0xFFFFF0E9)
+val OrangeSoftDark = Color(0xFF3A2A26)
+
 // A soft warm ivory instead of stark white - a gentle tint of OrangePrimary, so the page itself
 // feels branded rather than like a blank system default. Cards (LightSurface) stay a hair
 // lighter than the page so they still read as "raised" against it.

@@ -29,6 +29,7 @@ import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 import com.freegymtrainer.app.presentation.components.workoutTemplateIcon
+import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
 fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenHistory: () -> Unit) {
@@ -148,7 +149,7 @@ private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -
                 BrandChip(template.level, Icons.Filled.FitnessCenter, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
                 BrandChip(
                     "${template.daysPerWeek} days/wk", Icons.Filled.CalendarViewWeek,
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f), MaterialTheme.colorScheme.onPrimaryContainer
+                    orangeSoftContainer(), MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 BrandChip(
                     template.goalTag, Icons.Filled.Flag,
@@ -179,12 +180,14 @@ private fun BrandChip(label: String, icon: androidx.compose.ui.graphics.vector.I
 @Composable
 private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
     val day = dayWithCount.day
-    // A faint orange fill (not the neutral surfaceVariant gray) so this row still reads as
-    // "part of the same app" - the icon badge flips to white-on-orange to stay legible against it.
+    // A faint solid orange fill (not the neutral surfaceVariant gray, and not a runtime alpha
+    // over primaryContainer, which looks different depending on what's layered underneath it)
+    // so this row still reads as "part of the same app" - the icon badge flips to white-on-
+    // orange to stay legible against it.
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+        color = orangeSoftContainer(),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -208,10 +211,10 @@ private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
                 Text(
                     "${day.muscleGroupsSummary}  •  ${dayWithCount.exerciseCount} exercises",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
-            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f))
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }

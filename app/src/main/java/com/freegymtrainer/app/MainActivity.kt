@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val settingsStore = SettingsDataStore(applicationContext)
 
         setContent {
-            val themeMode by settingsStore.themeMode.collectAsState(initial = "system")
+            val themeMode by settingsStore.themeMode.collectAsState(initial = "light")
             FreeGymTrainerTheme(themeMode = themeMode) {
                 AppRoot(container = app.container, settings = settingsStore, seedingReady = app.seedingReady)
             }

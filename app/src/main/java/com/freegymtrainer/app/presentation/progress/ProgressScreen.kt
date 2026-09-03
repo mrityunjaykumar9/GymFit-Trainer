@@ -339,15 +339,19 @@ private fun MeasurementLogDialog(onDismiss: () -> Unit, onSave: (BodyMeasurement
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                onSave(
-                    BodyMeasurement(
-                        dateEpochDay = java.time.LocalDate.now().toEpochDay(),
-                        chestCm = chest.toFloatOrNull(), waistCm = waist.toFloatOrNull(),
-                        hipsCm = hips.toFloatOrNull(), armsCm = arms.toFloatOrNull()
+            val hasAnyValue = listOf(chest, waist, hips, arms).any { it.toFloatOrNull() != null }
+            TextButton(
+                enabled = hasAnyValue,
+                onClick = {
+                    onSave(
+                        BodyMeasurement(
+                            dateEpochDay = java.time.LocalDate.now().toEpochDay(),
+                            chestCm = chest.toFloatOrNull(), waistCm = waist.toFloatOrNull(),
+                            hipsCm = hips.toFloatOrNull(), armsCm = arms.toFloatOrNull()
+                        )
                     )
-                )
-            }) { Text("Save") }
+                }
+            ) { Text("Save") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )

@@ -17,7 +17,10 @@ class SettingsDataStore(private val context: Context) {
     private val disclaimerSeenKey = booleanPreferencesKey("disclaimer_seen")
     private val dietPreferenceKey = stringPreferencesKey("diet_preference") // "Veg" | "Non-Veg"
 
-    val themeMode: Flow<String> = context.dataStore.data.map { it[themeKey] ?: "system" }
+    // Defaults to light rather than following the system theme, so a fresh install looks the
+    // same for every user regardless of their phone's dark-mode setting - dark is opt-in only,
+    // via the System/Light/Dark picker in Settings.
+    val themeMode: Flow<String> = context.dataStore.data.map { it[themeKey] ?: "light" }
     val units: Flow<String> = context.dataStore.data.map { it[unitsKey] ?: "metric" }
     val disclaimerSeen: Flow<Boolean> = context.dataStore.data.map { it[disclaimerSeenKey] ?: false }
     val dietPreference: Flow<String> = context.dataStore.data.map { it[dietPreferenceKey] ?: "Veg" }

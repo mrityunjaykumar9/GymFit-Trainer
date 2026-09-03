@@ -109,18 +109,29 @@ release build specifically for that purpose (see Step 3 below).
    manifestPlaceholders["admobAppId"] = "ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY"
    ```
    Leave the `debug` block pointed at Google's test IDs — never test-click your own real ads.
-6. That's it functionally — `AdBanner()` (used on Home, Nutrition, Progress) already reads
-   `BuildConfig.ADMOB_BANNER_ID`, so a release build automatically serves your real ads.
+6. Repeat step 3 for an **Interstitial** ad unit too, and set `ADMOB_INTERSTITIAL_ID` /
+   `manifestPlaceholders["admobAppId"]` the same way. That's it functionally — `AdBanner()`
+   (used on Home, Nutrition, Progress) and `InterstitialAdManager` already read their
+   respective `BuildConfig` fields, so a release build automatically serves your real ads.
 
 **Where the ads are placed:** one banner each at the bottom of Home, Nutrition, and
-Progress — screens people revisit often, without interrupting the workout-execution flow
-(interrupting an active workout with an ad is against most fitness-app norms and hurts
-retention more than it earns). You can add `AdBanner()` to more screens the same way, or
-add AdMob interstitials between workout sessions later if you want more inventory.
+Progress — screens people revisit often — plus one interstitial shown after finishing a
+workout (never mid-session; interrupting an active workout is against most fitness-app
+norms and hurts retention more than it earns). The interstitial also won't show in the
+first 2 minutes of a session or within 5 minutes of the last one shown, so back-to-back
+short workouts don't get hit with an ad every single time (see `InterstitialAdManager`).
 
 **Payout:** AdMob pays out monthly once you cross the regional threshold (commonly $100
 equivalent) via bank transfer/wire, after linking a payment profile in the AdMob console.
 There's no cost to you to run ads — Google takes a share of ad revenue, not a fee from you.
+
+**Realistic expectations:** ad revenue here is a function of installs × daily opens, not
+of the app existing. A free fitness app with no marketing budget typically gets organic
+installs in the tens-to-low-hundreds over its first months unless you promote it (social
+media, Reddit fitness communities, ASO/keyword-optimized store listing, word of mouth).
+At that scale, expect this to earn cents to a few dollars a month at first, not a living —
+it can grow meaningfully with real user acquisition and retention, but the ad plumbing
+being correct (which it is) is a small part of that; distribution is the actual bottleneck.
 
 ---
 

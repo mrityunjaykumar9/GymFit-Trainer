@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val profile: UserProfile? = null,
     val reminderSettings: ReminderSettings = ReminderSettings(),
-    val themeMode: String = "system",
+    val themeMode: String = "light",
     val units: String = "metric"
 )
 

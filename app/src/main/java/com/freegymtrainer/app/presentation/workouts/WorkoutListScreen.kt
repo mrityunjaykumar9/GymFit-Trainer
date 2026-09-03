@@ -89,9 +89,16 @@ private fun WorkoutsHero(programCount: Int) {
     ) {
         if (photo != null) {
             Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            // Brand-colored scrim (matches Home's hero) rather than a flat black overlay, so the
+            // photo still reads as "this app" rather than a generic dark-gradient stock banner.
             Box(
                 Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.35f), Color.Black.copy(alpha = 0.75f)))
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.88f)
+                        )
+                    )
                 )
             )
         } else {
@@ -138,21 +145,12 @@ private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -
 
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AssistChip(
-                    onClick = {},
-                    label = { Text(template.level) },
-                    leadingIcon = { Icon(Icons.Filled.FitnessCenter, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                BrandChip(template.level, Icons.Filled.FitnessCenter, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
+                BrandChip(
+                    "${template.daysPerWeek} days/wk", Icons.Filled.CalendarViewWeek,
+                    MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                AssistChip(
-                    onClick = {},
-                    label = { Text("${template.daysPerWeek} days/wk") },
-                    leadingIcon = { Icon(Icons.Filled.CalendarViewWeek, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                )
-                AssistChip(
-                    onClick = {},
-                    label = { Text(template.goalTag) },
-                    leadingIcon = { Icon(Icons.Filled.Flag, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                )
+                BrandChip(template.goalTag, Icons.Filled.Flag, MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer)
             }
 
             Spacer(Modifier.height(14.dp))
@@ -162,6 +160,17 @@ private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -
             }
         }
     }
+}
+
+@Composable
+private fun BrandChip(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, containerColor: Color, contentColor: Color) {
+    AssistChip(
+        onClick = {},
+        label = { Text(label) },
+        leadingIcon = { Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(16.dp)) },
+        colors = AssistChipDefaults.assistChipColors(containerColor = containerColor, labelColor = contentColor),
+        border = null
+    )
 }
 
 @Composable
@@ -178,13 +187,13 @@ private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface),
+                Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     muscleGroupIcon(day.muscleGroupsSummary.split(",").firstOrNull()?.trim() ?: ""),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(18.dp)
                 )
             }

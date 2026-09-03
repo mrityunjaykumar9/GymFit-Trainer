@@ -13,13 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.DinnerDining
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.FreeBreakfast
+import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LunchDining
 import androidx.compose.material.icons.filled.MenuBook
@@ -120,31 +120,7 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
             }
 
             Spacer(Modifier.height(16.dp))
-            ElevatedCard(
-                onClick = onOpenFoodList,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    Modifier.padding(16.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text("Food Database", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                "Browse all foods with calories & protein per serving",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
+            FoodDatabasePromoCard(onClick = onOpenFoodList)
 
             Spacer(Modifier.height(24.dp))
             MealPlanSection(state = state, viewModel = viewModel)
@@ -231,6 +207,64 @@ private fun NutritionHeroBanner(consumedCalories: Int, calorieTarget: Int?) {
                 color = Color.White.copy(alpha = 0.9f)
             )
         }
+    }
+}
+
+/**
+ * A vibrant gradient promo rather than another plain white quick-link card - the Food Database
+ * hides a lot behind one row (50+ foods, full macro breakdowns, vitamins & minerals per item -
+ * see FoodDetailScreen), so the entry point deliberately looks different from every other card
+ * on this screen instead of blending in and getting overlooked.
+ */
+@Composable
+private fun FoodDatabasePromoCard(onClick: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)))
+            .clickable(onClick = onClick)
+    ) {
+        Icon(
+            Icons.Filled.MenuBook,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.15f),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 2.dp, end = 2.dp)
+                .size(110.dp)
+        )
+        Column(Modifier.padding(18.dp)) {
+            Text("FOOD DATABASE", style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.85f))
+            Spacer(Modifier.height(4.dp))
+            Text("50+ Foods, Fully Detailed", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Calories, macros, vitamins & minerals for every item",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White.copy(alpha = 0.9f)
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PromoBadge(Icons.Filled.HealthAndSafety, "Vitamins & Minerals")
+                PromoBadge(Icons.Filled.Eco, "Veg & Non-Veg")
+            }
+        }
+    }
+}
+
+@Composable
+private fun PromoBadge(icon: ImageVector, label: String) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.22f))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+        Spacer(Modifier.width(4.dp))
+        Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White)
     }
 }
 

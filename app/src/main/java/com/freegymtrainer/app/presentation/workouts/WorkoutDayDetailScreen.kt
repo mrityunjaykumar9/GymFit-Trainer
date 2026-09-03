@@ -160,7 +160,7 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                 Surface(
                     onClick = { onPick(exercise) },
                     shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                 ) {
                     Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -169,8 +169,12 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(exercise.name, style = MaterialTheme.typography.titleSmall)
-                            Text(exercise.equipment, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(exercise.name, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text(
+                                exercise.equipment,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                            )
                         }
                         if (candidate.isAvailable) {
                             Spacer(Modifier.width(8.dp))
@@ -178,8 +182,8 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                                 onClick = { onPick(exercise) },
                                 label = { Text("Available", style = MaterialTheme.typography.labelSmall) },
                                 colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    labelColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             )
                         }

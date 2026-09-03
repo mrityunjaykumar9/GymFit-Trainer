@@ -209,15 +209,18 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
 
 @Composable
 private fun SetChip(number: Int, completed: Boolean, current: Boolean, onClick: () -> Unit) {
+    // Every state is a tint of the same orange (primary/primaryContainer), never gray - a
+    // fainter primaryContainer for "not reached yet" instead of a neutral surfaceVariant keeps
+    // the whole set-tracker on-brand rather than mixing in an unrelated gray.
     val containerColor = when {
         completed -> MaterialTheme.colorScheme.primary
         current -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
     }
     val contentColor = when {
         completed -> MaterialTheme.colorScheme.onPrimary
         current -> MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
     }
     Box(
         Modifier

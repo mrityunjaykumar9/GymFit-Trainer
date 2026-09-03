@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -44,6 +43,7 @@ fun SimpleLineChart(
 ) {
     val lineColor = MaterialTheme.colorScheme.primary
     val mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val haloColor = MaterialTheme.colorScheme.surface
 
     Column(modifier) {
         if (values.isEmpty()) {
@@ -111,7 +111,7 @@ fun SimpleLineChart(
 
             // Highlight the latest point so the chart reads as "here's where you are now".
             val last = points.last()
-            drawCircle(color = Color.White, radius = 11f, center = last)
+            drawCircle(color = haloColor, radius = 11f, center = last)
             drawCircle(color = lineColor, radius = 7f, center = last)
         }
 

@@ -115,11 +115,6 @@ fun HomeScreen(
                 onOpenWorkouts = onOpenWorkouts
             )
 
-            if (state.dayOptions.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
-                QuickStartCard(dayOptions = state.dayOptions, onStart = onStartWorkout, modifier = Modifier.padding(horizontal = 16.dp))
-            }
-
             Spacer(Modifier.height(24.dp))
             SectionHeader("Today's Progress")
 
@@ -274,60 +269,13 @@ private fun QuickWeightLogDialog(onDismiss: () -> Unit, onSave: (Float) -> Unit)
 }
 
 /**
- * Lets the user start ANY workout day right now - built-in program or something they made
- * themselves in the workout builder - independent of whatever the weekly plan/override
- * machinery decided "today" should be. [dayOptions] already lists custom days first (see
- * WorkoutTemplateDao.getAllDayOptions).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun QuickStartCard(dayOptions: List<DayOption>, onStart: (Long) -> Unit, modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-    // Tracked by id, not by re-keying remember() on the dayOptions list itself - that list is a
-    // fresh instance on every HomeUiState emission (e.g. logging water elsewhere resets it),
-    // which would otherwise silently wipe out whatever the user had picked in this dropdown.
-    var selectedId by remember { mutableStateOf<Long?>(null) }
-    val selected = dayOptions.firstOrNull { it.id == selectedId } ?: dayOptions.first()
-
-    ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Quick Start", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "Want to do something different today? Pick any workout.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(10.dp))
-            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                OutlinedTextField(
-                    value = if (selected.isCustom) selected.title else "${selected.templateName} - ${selected.title}",
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    dayOptions.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(if (option.isCustom) option.title else "${option.templateName} - ${option.title}") },
-                            onClick = { selectedId = option.id; expanded = false }
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = { onStart(selected.id) }, modifier = Modifier.fillMaxWidth()) {
-                Text("START THIS WORKOUT")
-            }
-        }
-    }
-}
-
-/**
- * Hero banner for today's workout. Uses the gym photo you supplied
- * (assets/gym_pics/gym_pic1.jpg) as the background with a color scrim over it for text
- * legibility; falls back to a plain gradient (no watermark icon needed once a real photo is
- * in place) if that asset is ever missing.
+ * The one "what am I doing right now" section on Home: today's scheduled workout (or rest-day /
+ * skip messaging) driven by the weekly plan, plus a row of quick-pick program chips underneath
+ * that override it for this visit only, without touching the actual schedule - one representative
+ * day per program (Beginner Full Body, Push Pull Legs, ...; custom ones from the workout builder
+ * show up the same way) rather than every single day flattened into a long list. Uses the gym
+ * photo you supplied (assets/gym_pics/gym_pic1.jpg) as the background with a color scrim over it
+ * for text legibility; falls back to a plain gradient if that asset is ever missing.
  */
 @Composable
 private fun TodayWorkoutHero(
@@ -339,94 +287,143 @@ private fun TodayWorkoutHero(
 ) {
     val heroPhoto = rememberAssetImageBitmap("gym_pics/gym_pic1.jpg")
 
+    val categoryChips = remember(state.dayOptions) {
+        state.dayOptions.groupBy { it.templateName }.values.mapNotNull { it.firstOrNull() }
+    }
+    var override by remember { mutableStateOf<DayOption?>(null) }
+    val picked = override
+
     // Both scrim stops are kept mid-to-dark so a single light text color stays legible
     // everywhere (a pastel "container" tone at either end would wash the text out).
-    val scrimTop = if (state.isRestDay) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    val isRestDay = picked == null && state.isRestDay
+    val scrimTop = if (isRestDay) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
     val scrimBottom = MaterialTheme.colorScheme.secondary
     val onGradient = MaterialTheme.colorScheme.onPrimary
 
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(260.dp)
-            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-    ) {
-        if (heroPhoto != null) {
-            Image(bitmap = heroPhoto, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(scrimTop.copy(alpha = 0.45f), scrimBottom.copy(alpha = 0.88f))))
-            )
-        } else {
-            Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(scrimTop, scrimBottom))))
-            Icon(
-                if (state.isRestDay) Icons.Filled.SelfImprovement else Icons.Filled.FitnessCenter,
-                contentDescription = null,
-                tint = onGradient.copy(alpha = 0.15f),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 4.dp, end = 4.dp)
-                    .size(130.dp)
-            )
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))) {
+        Box(Modifier.fillMaxWidth().height(230.dp)) {
+            if (heroPhoto != null) {
+                Image(bitmap = heroPhoto, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Brush.verticalGradient(listOf(scrimTop.copy(alpha = 0.45f), scrimBottom.copy(alpha = 0.88f))))
+                )
+            } else {
+                Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(scrimTop, scrimBottom))))
+                Icon(
+                    if (isRestDay) Icons.Filled.SelfImprovement else Icons.Filled.FitnessCenter,
+                    contentDescription = null,
+                    tint = onGradient.copy(alpha = 0.15f),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 4.dp, end = 4.dp)
+                        .size(130.dp)
+                )
+            }
+
+            Column(Modifier.align(Alignment.BottomStart).padding(20.dp)) {
+                if (picked != null) {
+                    Text("QUICK START", style = MaterialTheme.typography.labelLarge, color = onGradient.copy(alpha = 0.85f))
+                    Spacer(Modifier.height(4.dp))
+                    Text(picked.title.uppercase(), style = MaterialTheme.typography.headlineMedium, color = onGradient)
+                    Spacer(Modifier.height(4.dp))
+                    Text(picked.muscleGroupsSummary, style = MaterialTheme.typography.bodyMedium, color = onGradient.copy(alpha = 0.9f))
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "${picked.exerciseCount} exercises",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = onGradient.copy(alpha = 0.9f)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Button(
+                        onClick = { onStartWorkout(picked.id) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("START WORKOUT") }
+                } else {
+                    Text("TODAY'S WORKOUT", style = MaterialTheme.typography.labelLarge, color = onGradient.copy(alpha = 0.85f))
+                    Spacer(Modifier.height(4.dp))
+                    Text(state.todayDayTitle.uppercase(), style = MaterialTheme.typography.headlineMedium, color = onGradient)
+
+                    if (!state.isRestDay) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(state.todayMuscleGroups, style = MaterialTheme.typography.bodyMedium, color = onGradient.copy(alpha = 0.9f))
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "${state.todayExerciseCount} exercises  •  ~${state.todayEstimatedMinutes} minutes",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = onGradient.copy(alpha = 0.9f)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = { state.todayTemplateDayId?.let(onStartWorkout) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("START WORKOUT") }
+                        TextButton(onClick = onSkipToday, colors = ButtonDefaults.textButtonColors(contentColor = onGradient.copy(alpha = 0.85f))) {
+                            Text("Not today, skip it")
+                        }
+                    } else if (state.isManualSkip) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "You skipped today's scheduled workout. Change your mind?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = onGradient.copy(alpha = 0.9f)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = onUndoSkip,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("ACTUALLY, LET'S TRAIN") }
+                    } else {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Enjoy your rest day - recovery is part of the plan too.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = onGradient.copy(alpha = 0.9f)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        OutlinedButton(
+                            onClick = onOpenWorkouts,
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = onGradient),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, onGradient.copy(alpha = 0.6f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("BROWSE WORKOUTS") }
+                    }
+                }
+            }
         }
 
-        Column(Modifier.align(Alignment.BottomStart).padding(20.dp)) {
-            Text("TODAY'S WORKOUT", style = MaterialTheme.typography.labelLarge, color = onGradient.copy(alpha = 0.85f))
-            Spacer(Modifier.height(4.dp))
-            Text(state.todayDayTitle.uppercase(), style = MaterialTheme.typography.headlineMedium, color = onGradient)
-
-            if (!state.isRestDay) {
-                Spacer(Modifier.height(4.dp))
-                Text(state.todayMuscleGroups, style = MaterialTheme.typography.bodyMedium, color = onGradient.copy(alpha = 0.9f))
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "${state.todayExerciseCount} exercises  •  ~${state.todayEstimatedMinutes} minutes",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = onGradient.copy(alpha = 0.9f)
-                )
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = { state.todayTemplateDayId?.let(onStartWorkout) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("START WORKOUT") }
-                TextButton(onClick = onSkipToday, colors = ButtonDefaults.textButtonColors(contentColor = onGradient.copy(alpha = 0.85f))) {
-                    Text("Not today, skip it")
+        if (categoryChips.isNotEmpty()) {
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+                    Text(
+                        if (picked == null) "Or start something else" else "Tap again to go back to today's plan",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(categoryChips, key = { it.id }) { chip ->
+                            FilterChip(
+                                selected = picked?.id == chip.id,
+                                onClick = { override = if (picked?.id == chip.id) null else chip },
+                                label = { Text(chip.templateName.substringBefore(" (")) }
+                            )
+                        }
+                    }
                 }
-            } else if (state.isManualSkip) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "You skipped today's scheduled workout. Change your mind?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = onGradient.copy(alpha = 0.9f)
-                )
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = onUndoSkip,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("ACTUALLY, LET'S TRAIN") }
-            } else {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "Enjoy your rest day - recovery is part of the plan too.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = onGradient.copy(alpha = 0.9f)
-                )
-                Spacer(Modifier.height(16.dp))
-                OutlinedButton(
-                    onClick = onOpenWorkouts,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = onGradient),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, onGradient.copy(alpha = 0.6f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("BROWSE WORKOUTS") }
             }
         }
     }

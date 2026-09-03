@@ -11,7 +11,8 @@ data class DayOption(
     val title: String,
     val muscleGroupsSummary: String,
     val templateName: String,
-    val isCustom: Boolean
+    val isCustom: Boolean,
+    val exerciseCount: Int
 )
 
 @Dao
@@ -67,7 +68,8 @@ interface WorkoutTemplateDao {
     @Query(
         """
         SELECT d.id AS id, d.title AS title, d.muscleGroupsSummary AS muscleGroupsSummary,
-               t.name AS templateName, t.isCustom AS isCustom
+               t.name AS templateName, t.isCustom AS isCustom,
+               (SELECT COUNT(*) FROM workout_template_exercises e WHERE e.templateDayId = d.id) AS exerciseCount
         FROM workout_template_days d
         INNER JOIN workout_templates t ON t.id = d.templateId
         ORDER BY t.isCustom DESC, t.name ASC, d.orderIndex ASC

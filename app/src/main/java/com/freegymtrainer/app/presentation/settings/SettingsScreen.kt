@@ -97,7 +97,7 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "Defaults to Light. Pick Dark to switch, or System to follow your phone.",
+                    "Defaults to Dark. Pick Light to switch, or System to follow your phone.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

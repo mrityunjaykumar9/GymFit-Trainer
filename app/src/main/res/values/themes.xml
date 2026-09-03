@@ -1,5 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.FreeGymTrainer" parent="android:Theme.Material.Light.NoActionBar">
+    <!-- Dark by default regardless of the phone's own light/dark setting - matches
+         SettingsDataStore's "dark" default, which no longer follows system theme either.
+         Light and System remain available as explicit opt-ins from in-app Settings; this native
+         theme only controls the brief pre-Compose window background, so it stays fixed to dark
+         to avoid a light-then-dark flash on a phone that happens to be in system light mode. -->
+    <style name="Theme.FreeGymTrainer" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

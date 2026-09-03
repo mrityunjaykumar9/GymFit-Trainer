@@ -1,7 +1,7 @@
 <resources>
     <color name="ad_banner_background">#FFFFFF</color>
-    <!-- Matches Color.kt's LightBackground/DarkBackground - keeps the native window background
-         (visible for a moment before Compose's first frame) from flashing white or black
-         against the app's actual warm-ivory / navy theme. -->
-    <color name="window_background">#FFF6EE</color>
+    <!-- Matches Color.kt's DarkBackground - keeps the native window background (visible for a
+         moment before Compose's first frame) from flashing light against the app's dark-by-
+         default theme, regardless of the phone's own system light/dark setting. -->
+    <color name="window_background">#12141F</color>
 </resources>

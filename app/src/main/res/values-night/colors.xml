@@ -1,5 +1,0 @@
-<resources>
-    <!-- Matches Color.kt's DarkBackground - only used for the native window background flash
-         before Compose's first frame when the phone is in system dark mode. -->
-    <color name="window_background">#12141F</color>
-</resources>

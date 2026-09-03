@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
+import com.freegymtrainer.app.data.local.dao.DayOption
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
@@ -113,6 +114,11 @@ fun HomeScreen(
                 onUndoSkip = { viewModel.setSkipToday(false) },
                 onOpenWorkouts = onOpenWorkouts
             )
+
+            if (state.dayOptions.isNotEmpty()) {
+                Spacer(Modifier.height(16.dp))
+                QuickStartCard(dayOptions = state.dayOptions, onStart = onStartWorkout, modifier = Modifier.padding(horizontal = 16.dp))
+            }
 
             Spacer(Modifier.height(24.dp))
             SectionHeader("Today's Progress")
@@ -265,6 +271,56 @@ private fun QuickWeightLogDialog(onDismiss: () -> Unit, onSave: (Float) -> Unit)
         confirmButton = { TextButton(onClick = { weight.toFloatOrNull()?.let(onSave) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+/**
+ * Lets the user start ANY workout day right now - built-in program or something they made
+ * themselves in the workout builder - independent of whatever the weekly plan/override
+ * machinery decided "today" should be. [dayOptions] already lists custom days first (see
+ * WorkoutTemplateDao.getAllDayOptions).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QuickStartCard(dayOptions: List<DayOption>, onStart: (Long) -> Unit, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+    // Tracked by id, not by re-keying remember() on the dayOptions list itself - that list is a
+    // fresh instance on every HomeUiState emission (e.g. logging water elsewhere resets it),
+    // which would otherwise silently wipe out whatever the user had picked in this dropdown.
+    var selectedId by remember { mutableStateOf<Long?>(null) }
+    val selected = dayOptions.firstOrNull { it.id == selectedId } ?: dayOptions.first()
+
+    ElevatedCard(shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text("Quick Start", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Want to do something different today? Pick any workout.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(10.dp))
+            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+                OutlinedTextField(
+                    value = if (selected.isCustom) selected.title else "${selected.templateName} - ${selected.title}",
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    dayOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(if (option.isCustom) option.title else "${option.templateName} - ${option.title}") },
+                            onClick = { selectedId = option.id; expanded = false }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { onStart(selected.id) }, modifier = Modifier.fillMaxWidth()) {
+                Text("START THIS WORKOUT")
+            }
+        }
+    }
 }
 
 /**

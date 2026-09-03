@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SwapHoriz
@@ -32,18 +33,28 @@ fun WorkoutDayDetailScreen(
     dayId: Long,
     onBack: () -> Unit,
     onStartWorkout: () -> Unit,
-    onOpenExercise: (Long) -> Unit
+    onOpenExercise: (Long) -> Unit,
+    onDeleted: () -> Unit = onBack
 ) {
     val viewModel: WorkoutDayDetailViewModel = viewModel(factory = GenericViewModelFactory { WorkoutDayDetailViewModel(container, dayId) })
     val detail by viewModel.detail.collectAsState()
+    val isCustom by viewModel.isCustom.collectAsState()
     val swapCandidates by viewModel.swapCandidates.collectAsState()
     var swapTarget by remember { mutableStateOf<Pair<WorkoutTemplateExercise, Exercise>?>(null) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(detail?.day?.title ?: "") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } },
+                actions = {
+                    if (isCustom) {
+                        IconButton(onClick = { showDeleteConfirm = true }) {
+                            Icon(Icons.Filled.DeleteOutline, contentDescription = "Delete this workout")
+                        }
+                    }
+                }
             )
         },
         bottomBar = {
@@ -133,6 +144,18 @@ fun WorkoutDayDetailScreen(
                 }
             )
         }
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete this workout?") },
+            text = { Text("This removes it from My Workouts permanently. Past sessions you've already logged aren't affected.") },
+            confirmButton = {
+                TextButton(onClick = { showDeleteConfirm = false; viewModel.deleteDay(onDeleted) }) { Text("Delete") }
+            },
+            dismissButton = { TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") } }
+        )
     }
 }
 

@@ -17,6 +17,7 @@ import com.freegymtrainer.app.presentation.nutrition.NutritionScreen
 import com.freegymtrainer.app.presentation.onboarding.OnboardingScreen
 import com.freegymtrainer.app.presentation.progress.ProgressScreen
 import com.freegymtrainer.app.presentation.settings.SettingsScreen
+import com.freegymtrainer.app.presentation.workouts.CustomWorkoutBuilderScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutDayDetailScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutExecutionScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutHistoryScreen
@@ -74,12 +75,25 @@ fun NavGraph(
             WorkoutListScreen(
                 container = container,
                 onOpenDay = { dayId -> navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) },
-                onOpenHistory = { navController.navigate(Screen.WorkoutHistory.route) }
+                onOpenHistory = { navController.navigate(Screen.WorkoutHistory.route) },
+                onCreateWorkout = { navController.navigate(Screen.CustomWorkoutBuilder.route) }
             )
         }
 
         composable(Screen.WorkoutHistory.route) {
             WorkoutHistoryScreen(container = container, onBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.CustomWorkoutBuilder.route) {
+            CustomWorkoutBuilderScreen(
+                container = container,
+                onBack = { navController.popBackStack() },
+                onSaved = { dayId ->
+                    navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) {
+                        popUpTo(Screen.Workouts.route) { inclusive = false }
+                    }
+                }
+            )
         }
 
         composable(

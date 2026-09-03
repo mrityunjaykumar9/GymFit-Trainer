@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarViewWeek
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -32,11 +33,16 @@ import com.freegymtrainer.app.presentation.components.workoutTemplateIcon
 import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
-fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenHistory: () -> Unit) {
+fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenHistory: () -> Unit, onCreateWorkout: () -> Unit) {
     val viewModel: WorkoutListViewModel = viewModel(factory = GenericViewModelFactory { WorkoutListViewModel(container) })
     val templates by viewModel.templates.collectAsState()
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Workouts") }) }) { padding ->
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Workouts") }) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(onClick = onCreateWorkout, icon = { Icon(Icons.Filled.Add, contentDescription = null) }, text = { Text("New Workout") })
+        }
+    ) { padding ->
         if (templates.isEmpty()) {
             EmptyState("Loading workout programs...", modifier = Modifier.padding(padding))
             return@Scaffold
@@ -44,7 +50,7 @@ fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpen
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(bottom = 16.dp),
+            contentPadding = PaddingValues(bottom = 96.dp), // room for the FAB
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { WorkoutsHero(programCount = templates.size) }
@@ -148,7 +154,10 @@ private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 BrandChip(template.level, Icons.Filled.FitnessCenter, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
                 BrandChip(
-                    "${template.daysPerWeek} days/wk", Icons.Filled.CalendarViewWeek,
+                    // "My Workouts" isn't a fixed weekly program - daysPerWeek is meaningless
+                    // there (always 0), so show how many workouts have actually been built.
+                    if (template.isCustom) "${templateWithDays.days.size} workouts" else "${template.daysPerWeek} days/wk",
+                    Icons.Filled.CalendarViewWeek,
                     orangeSoftContainer(), MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 BrandChip(

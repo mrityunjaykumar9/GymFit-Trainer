@@ -3,6 +3,7 @@ package com.freegymtrainer.app.presentation.workouts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freegymtrainer.app.data.local.entity.*
+import com.freegymtrainer.app.data.repository.CustomExerciseInput
 import com.freegymtrainer.app.data.repository.TemplateDayDetail
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.domain.usecase.CalorieEstimator
@@ -25,13 +26,18 @@ class WorkoutListViewModel(private val container: AppContainer) : ViewModel() {
     val templates: StateFlow<List<TemplateWithDays>> = _templates
 
     init {
+        // Collected continuously (not a one-shot .first()) so a custom workout saved via the
+        // builder - which keeps this same screen's ViewModel alive on the back stack the whole
+        // time (see NavGraph's popUpTo(Workouts)) - shows up the moment it's created, not only
+        // after leaving and re-entering the tab.
         viewModelScope.launch {
-            val all = container.workoutRepository.getAllTemplates().first()
-            _templates.value = all.map { template ->
-                val days = container.workoutRepository.getTemplateDays(template.id).map { day ->
-                    DayWithExerciseCount(day, container.workoutRepository.countExercisesForDay(day.id))
+            container.workoutRepository.getAllTemplates().collect { all ->
+                _templates.value = all.map { template ->
+                    val days = container.workoutRepository.getTemplateDays(template.id).map { day ->
+                        DayWithExerciseCount(day, container.workoutRepository.countExercisesForDay(day.id))
+                    }
+                    TemplateWithDays(template, days)
                 }
-                TemplateWithDays(template, days)
             }
         }
     }
@@ -45,6 +51,87 @@ class WorkoutHistoryViewModel(container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
 
+// ---------------- Custom workout builder ----------------
+
+data class BuilderExerciseEntry(val exercise: Exercise, val sets: Int = 3, val reps: String = "10", val restSeconds: Int = 60)
+
+data class CustomWorkoutBuilderUiState(
+    val allExercises: List<Exercise> = emptyList(),
+    val searchQuery: String = "",
+    val title: String = "",
+    val selectedEntries: List<BuilderExerciseEntry> = emptyList(),
+    val saving: Boolean = false,
+    val savedDayId: Long? = null
+) {
+    val availableExercises: List<Exercise>
+        get() {
+            val selectedIds = selectedEntries.map { it.exercise.id }.toSet()
+            return allExercises
+                .filter { it.id !in selectedIds }
+                .filter { searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true) }
+        }
+}
+
+/** Backs the "build your own workout" screen - pick exercises, tune sets/reps/rest for each,
+ * save under an auto-created "My Workouts" template (see WorkoutRepository.createCustomDay). */
+class CustomWorkoutBuilderViewModel(private val container: AppContainer) : ViewModel() {
+    private val _uiState = MutableStateFlow(CustomWorkoutBuilderUiState())
+    val uiState: StateFlow<CustomWorkoutBuilderUiState> = _uiState
+
+    init {
+        viewModelScope.launch {
+            val all = container.exerciseRepository.getAll().first()
+            _uiState.value = _uiState.value.copy(allExercises = all)
+        }
+    }
+
+    fun setTitle(title: String) {
+        _uiState.value = _uiState.value.copy(title = title)
+    }
+
+    fun setSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+    }
+
+    fun addExercise(exercise: Exercise) {
+        val state = _uiState.value
+        if (state.selectedEntries.any { it.exercise.id == exercise.id }) return
+        _uiState.value = state.copy(selectedEntries = state.selectedEntries + BuilderExerciseEntry(exercise))
+    }
+
+    fun removeExercise(exerciseId: Long) {
+        _uiState.value = _uiState.value.copy(selectedEntries = _uiState.value.selectedEntries.filter { it.exercise.id != exerciseId })
+    }
+
+    fun updateSets(exerciseId: Long, sets: Int) = updateEntry(exerciseId) { it.copy(sets = sets.coerceIn(1, 20)) }
+    fun updateReps(exerciseId: Long, reps: String) = updateEntry(exerciseId) { it.copy(reps = reps) }
+    fun updateRestSeconds(exerciseId: Long, restSeconds: Int) = updateEntry(exerciseId) { it.copy(restSeconds = restSeconds.coerceIn(0, 600)) }
+
+    private fun updateEntry(exerciseId: Long, mutation: (BuilderExerciseEntry) -> BuilderExerciseEntry) {
+        val state = _uiState.value
+        _uiState.value = state.copy(
+            selectedEntries = state.selectedEntries.map { if (it.exercise.id == exerciseId) mutation(it) else it }
+        )
+    }
+
+    fun save() {
+        val state = _uiState.value
+        if (state.title.isBlank() || state.selectedEntries.isEmpty() || state.saving) return
+        _uiState.value = state.copy(saving = true)
+        viewModelScope.launch {
+            val muscleSummary = state.selectedEntries.map { it.exercise.primaryMuscle }.distinct().take(3).joinToString(", ")
+            val dayId = container.workoutRepository.createCustomDay(
+                title = state.title.trim(),
+                muscleGroupsSummary = muscleSummary,
+                exercises = state.selectedEntries.map {
+                    CustomExerciseInput(exerciseId = it.exercise.id, sets = it.sets, reps = it.reps, restSeconds = it.restSeconds)
+                }
+            )
+            _uiState.value = _uiState.value.copy(saving = false, savedDayId = dayId)
+        }
+    }
+}
+
 // ---------------- Day detail screen ----------------
 
 data class SwapCandidate(val exercise: Exercise, val isAvailable: Boolean)
@@ -53,15 +140,30 @@ class WorkoutDayDetailViewModel(private val container: AppContainer, private val
     private val _detail = MutableStateFlow<TemplateDayDetail?>(null)
     val detail: StateFlow<TemplateDayDetail?> = _detail
 
+    private val _isCustom = MutableStateFlow(false)
+    val isCustom: StateFlow<Boolean> = _isCustom
+
     private val _swapCandidates = MutableStateFlow<List<SwapCandidate>>(emptyList())
     val swapCandidates: StateFlow<List<SwapCandidate>> = _swapCandidates
 
     init {
-        viewModelScope.launch { refresh() }
+        viewModelScope.launch {
+            refresh()
+            _isCustom.value = container.workoutRepository.isCustomDay(dayId)
+        }
     }
 
     private suspend fun refresh() {
         _detail.value = container.workoutRepository.getTemplateDayDetail(dayId)
+    }
+
+    /** Only meaningful for a day under "My Workouts" - the UI only offers this where [isCustom]
+     * is true. [onDeleted] fires after the delete completes so the screen can navigate away. */
+    fun deleteDay(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            container.workoutRepository.deleteCustomDay(dayId)
+            onDeleted()
+        }
     }
 
     /**

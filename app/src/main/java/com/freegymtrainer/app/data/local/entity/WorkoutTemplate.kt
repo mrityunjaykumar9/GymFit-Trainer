@@ -10,7 +10,11 @@ data class WorkoutTemplate(
     val description: String,
     val daysPerWeek: Int,
     val level: String,              // Beginner / Intermediate / Advanced
-    val goalTag: String             // Muscle gain / Fat loss / Strength / General fitness
+    val goalTag: String,            // Muscle gain / Fat loss / Strength / General fitness
+    // True only for the single auto-created "My Workouts" template that holds every day the
+    // user builds themselves via the workout builder - lets the UI/queries distinguish it from
+    // the seeded programs without fragile name-matching.
+    val isCustom: Boolean = false
 )
 
 @Entity(tableName = "workout_template_days")

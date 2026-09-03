@@ -4,6 +4,16 @@ import androidx.room.*
 import com.freegymtrainer.app.data.local.entity.*
 import kotlinx.coroutines.flow.Flow
 
+/** Flat "day" row for the Home quick-start dropdown - joins in the parent template's name so
+ * the picker can show e.g. "My Workouts - Push Day" without a second lookup per item. */
+data class DayOption(
+    val id: Long,
+    val title: String,
+    val muscleGroupsSummary: String,
+    val templateName: String,
+    val isCustom: Boolean
+)
+
 @Dao
 interface WorkoutTemplateDao {
     @Query("SELECT COUNT(*) FROM workout_templates")
@@ -24,8 +34,14 @@ interface WorkoutTemplateDao {
     @Query("SELECT * FROM workout_templates WHERE id = :id")
     suspend fun getTemplate(id: Long): WorkoutTemplate?
 
+    @Query("SELECT * FROM workout_templates WHERE isCustom = 1 LIMIT 1")
+    suspend fun getCustomTemplate(): WorkoutTemplate?
+
     @Query("SELECT * FROM workout_template_days WHERE templateId = :templateId ORDER BY orderIndex ASC")
     suspend fun getDaysForTemplate(templateId: Long): List<WorkoutTemplateDay>
+
+    @Query("SELECT COUNT(*) FROM workout_template_days WHERE templateId = :templateId")
+    suspend fun countDaysForTemplate(templateId: Long): Int
 
     @Query("SELECT * FROM workout_template_days WHERE id = :dayId")
     suspend fun getTemplateDay(dayId: Long): WorkoutTemplateDay?
@@ -41,6 +57,23 @@ interface WorkoutTemplateDao {
      * that plan slot, the same way editing "your" plan would. */
     @Query("UPDATE workout_template_exercises SET exerciseId = :newExerciseId WHERE id = :templateExerciseId")
     suspend fun swapExercise(templateExerciseId: Long, newExerciseId: Long)
+
+    @Query("DELETE FROM workout_template_days WHERE id = :dayId")
+    suspend fun deleteTemplateDay(dayId: Long)
+
+    @Query("DELETE FROM workout_template_exercises WHERE templateDayId = :dayId")
+    suspend fun deleteExercisesForDay(dayId: Long)
+
+    @Query(
+        """
+        SELECT d.id AS id, d.title AS title, d.muscleGroupsSummary AS muscleGroupsSummary,
+               t.name AS templateName, t.isCustom AS isCustom
+        FROM workout_template_days d
+        INNER JOIN workout_templates t ON t.id = d.templateId
+        ORDER BY t.isCustom DESC, t.name ASC, d.orderIndex ASC
+        """
+    )
+    fun getAllDayOptions(): Flow<List<DayOption>>
 }
 
 @Dao

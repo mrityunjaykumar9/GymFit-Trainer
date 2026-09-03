@@ -2,6 +2,7 @@ package com.freegymtrainer.app.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.freegymtrainer.app.data.local.dao.DayOption
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.data.local.entity.UserProfile
 import com.freegymtrainer.app.di.AppContainer
@@ -32,14 +33,16 @@ data class HomeUiState(
     val latestWeightKg: Float? = null,
     val weightTrendKg: Float? = null, // negative = down since last month
     val recommendedExercises: List<Exercise> = emptyList(),
-    val isManualSkip: Boolean = false // today was a scheduled workout the user chose to skip
+    val isManualSkip: Boolean = false, // today was a scheduled workout the user chose to skip
+    val dayOptions: List<DayOption> = emptyList() // every workout day, for "Quick Start"
 )
 
 private data class PlanSnapshot(
     val profile: UserProfile?,
     val weeklyPlan: List<com.freegymtrainer.app.data.local.entity.WeeklyPlanEntry>,
     val sessions: List<com.freegymtrainer.app.data.local.entity.WorkoutSession>,
-    val override: com.freegymtrainer.app.data.local.entity.DailyOverride?
+    val override: com.freegymtrainer.app.data.local.entity.DailyOverride?,
+    val dayOptions: List<DayOption>
 )
 
 /**
@@ -63,8 +66,9 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
             container.userRepository.observeProfile(),
             container.workoutRepository.getWeeklyPlan(),
             container.workoutRepository.getAllSessions(),
-            container.workoutRepository.observeTodayOverride()
-        ) { profile, weeklyPlan, sessions, override -> PlanSnapshot(profile, weeklyPlan, sessions, override) }
+            container.workoutRepository.observeTodayOverride(),
+            container.workoutRepository.getAllDayOptions()
+        ) { profile, weeklyPlan, sessions, override, dayOptions -> PlanSnapshot(profile, weeklyPlan, sessions, override, dayOptions) }
 
         val nutritionAndWeight = combine(
             container.progressRepository.getWaterForToday(),
@@ -74,7 +78,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
         viewModelScope.launch {
             combine(planAndSessions, nutritionAndWeight) { plan, (waterLogs, meals, weightHistory) ->
-                val (profile, weeklyPlan, sessions, override) = plan
+                val (profile, weeklyPlan, sessions, override, dayOptions) = plan
                 val planEntry = weeklyPlan.firstOrNull { it.dayOfWeek == todayDow }
                 val skippedToday = override?.skipWorkout == true
 
@@ -148,7 +152,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     latestWeightKg = latestWeight?.weightKg,
                     weightTrendKg = trend,
                     recommendedExercises = recommended,
-                    isManualSkip = isManualSkip
+                    isManualSkip = isManualSkip,
+                    dayOptions = dayOptions
                 )
             }.collect { newState -> _uiState.value = newState }
         }

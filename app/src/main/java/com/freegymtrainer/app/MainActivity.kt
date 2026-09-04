@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -94,6 +95,7 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
                         Triple(Screen.Home, Icons.Filled.Home, "Home"),
                         Triple(Screen.Exercises, Icons.Filled.FitnessCenter, "Exercises"),
                         Triple(Screen.Workouts, Icons.Filled.List, "Workouts"),
+                        Triple(Screen.Yoga, Icons.Filled.Spa, "Yoga"),
                         Triple(Screen.Nutrition, Icons.Filled.Restaurant, "Nutrition"),
                         Triple(Screen.Progress, Icons.Filled.ShowChart, "Progress")
                     )

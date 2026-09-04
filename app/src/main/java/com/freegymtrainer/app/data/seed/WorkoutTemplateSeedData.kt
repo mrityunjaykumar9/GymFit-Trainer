@@ -5,7 +5,8 @@ data class SeedTemplateExercise(val exerciseName: String, val sets: Int, val rep
 data class SeedTemplateDay(val title: String, val muscleGroupsSummary: String, val exercises: List<SeedTemplateExercise>)
 data class SeedTemplate(
     val name: String, val description: String, val daysPerWeek: Int,
-    val level: String, val goalTag: String, val days: List<SeedTemplateDay>
+    val level: String, val goalTag: String, val days: List<SeedTemplateDay>,
+    val isYoga: Boolean = false
 )
 
 object WorkoutTemplateSeedData {
@@ -132,7 +133,8 @@ object WorkoutTemplateSeedData {
                     te("Child's Pose (Balasana)", 1, "5-10 breaths", 10),
                     te("Corpse Pose (Savasana)", 1, "1-5 min", 0)
                 ))
-            )
+            ),
+            isYoga = true
         )
     )
 }

@@ -29,7 +29,10 @@ interface WorkoutTemplateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTemplateExercises(exercises: List<WorkoutTemplateExercise>)
 
-    @Query("SELECT * FROM workout_templates ORDER BY name ASC")
+    // Excludes yoga programs - gym-goers and yoga practitioners are different audiences (see
+    // the dedicated Yoga tab / getYogaTemplate below), so this - the Workouts tab and
+    // onboarding's default-plan picker - stays gym-only.
+    @Query("SELECT * FROM workout_templates WHERE isYoga = 0 ORDER BY name ASC")
     fun getAllTemplates(): Flow<List<WorkoutTemplate>>
 
     @Query("SELECT * FROM workout_templates WHERE id = :id")
@@ -37,6 +40,9 @@ interface WorkoutTemplateDao {
 
     @Query("SELECT * FROM workout_templates WHERE isCustom = 1 LIMIT 1")
     suspend fun getCustomTemplate(): WorkoutTemplate?
+
+    @Query("SELECT * FROM workout_templates WHERE isYoga = 1 LIMIT 1")
+    fun getYogaTemplate(): Flow<WorkoutTemplate?>
 
     @Query("SELECT * FROM workout_template_days WHERE templateId = :templateId ORDER BY orderIndex ASC")
     suspend fun getDaysForTemplate(templateId: Long): List<WorkoutTemplateDay>
@@ -65,6 +71,8 @@ interface WorkoutTemplateDao {
     @Query("DELETE FROM workout_template_exercises WHERE templateDayId = :dayId")
     suspend fun deleteExercisesForDay(dayId: Long)
 
+    // Excludes yoga days - Home's Quick Start is the gym-hero's companion picker; yoga gets
+    // started from its own dedicated tab instead, keeping the two audiences' entry points apart.
     @Query(
         """
         SELECT d.id AS id, d.title AS title, d.muscleGroupsSummary AS muscleGroupsSummary,
@@ -72,6 +80,7 @@ interface WorkoutTemplateDao {
                (SELECT COUNT(*) FROM workout_template_exercises e WHERE e.templateDayId = d.id) AS exerciseCount
         FROM workout_template_days d
         INNER JOIN workout_templates t ON t.id = d.templateId
+        WHERE t.isYoga = 0
         ORDER BY t.isCustom DESC, t.name ASC, d.orderIndex ASC
         """
     )

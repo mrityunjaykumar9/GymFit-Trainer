@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 class ExerciseRepository(private val db: AppDatabase) {
     fun getAll(): Flow<List<Exercise>> = db.exerciseDao().getAll()
 
+    fun getAllYoga(): Flow<List<Exercise>> = db.exerciseDao().getAllYoga()
+
     fun filter(muscle: String?, equipment: String?, difficulty: String?, query: String?): Flow<List<Exercise>> =
         db.exerciseDao().filter(muscle, equipment, difficulty, query?.takeIf { it.isNotBlank() })
 

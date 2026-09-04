@@ -18,6 +18,10 @@ class WorkoutRepository(private val db: AppDatabase) {
 
     fun getAllTemplates(): Flow<List<WorkoutTemplate>> = db.workoutTemplateDao().getAllTemplates()
 
+    /** The single seeded "Yoga & Flexibility" program - excluded from [getAllTemplates] since
+     * that's the gym-focused Workouts tab. Backs the dedicated Yoga tab instead. */
+    fun getYogaTemplate(): Flow<WorkoutTemplate?> = db.workoutTemplateDao().getYogaTemplate()
+
     suspend fun getTemplateDays(templateId: Long): List<WorkoutTemplateDay> =
         db.workoutTemplateDao().getDaysForTemplate(templateId)
 

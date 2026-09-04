@@ -39,7 +39,8 @@ class SeedRepository(private val db: AppDatabase) {
                     description = seedTemplate.description,
                     daysPerWeek = seedTemplate.daysPerWeek,
                     level = seedTemplate.level,
-                    goalTag = seedTemplate.goalTag
+                    goalTag = seedTemplate.goalTag,
+                    isYoga = seedTemplate.isYoga
                 )
             )
             seedTemplate.days.forEachIndexed { dayIndex, seedDay ->

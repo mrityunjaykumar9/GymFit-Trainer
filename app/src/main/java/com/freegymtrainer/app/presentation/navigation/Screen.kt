@@ -16,6 +16,7 @@ sealed class Screen(val route: String) {
     }
     object WorkoutHistory : Screen("workout_history")
     object CustomWorkoutBuilder : Screen("custom_workout_builder")
+    object Yoga : Screen("yoga")
     object Nutrition : Screen("nutrition")
     object FoodList : Screen("food_list")
     object FoodDetail : Screen("food_detail/{foodId}") {
@@ -28,6 +29,6 @@ sealed class Screen(val route: String) {
         // Lazy avoids a JVM class-init-order NPE (KT-25289): this list references sibling
         // `object` singletons of this sealed class, which can still be null if evaluated
         // eagerly while `Screen` itself is mid-initialization.
-        val bottomNavItems by lazy { listOf(Home, Exercises, Workouts, Nutrition, Progress) }
+        val bottomNavItems by lazy { listOf(Home, Exercises, Workouts, Yoga, Nutrition, Progress) }
     }
 }

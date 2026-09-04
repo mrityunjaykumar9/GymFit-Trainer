@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.MonitorWeight
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.WaterDrop
@@ -46,7 +47,8 @@ fun HomeScreen(
     onStartWorkout: (Long) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenExercise: (Long) -> Unit,
-    onOpenWorkouts: () -> Unit
+    onOpenWorkouts: () -> Unit,
+    onOpenYoga: () -> Unit
 ) {
     val viewModel: HomeViewModel = viewModel(factory = GenericViewModelFactory { HomeViewModel(container) })
     val state by viewModel.uiState.collectAsState()
@@ -105,6 +107,9 @@ fun HomeScreen(
                     )
                 }
             }
+            Spacer(Modifier.height(18.dp))
+            TrainingModeSelector(onOpenGym = onOpenWorkouts, onOpenYoga = onOpenYoga)
+
             Spacer(Modifier.height(16.dp))
 
             TodayWorkoutHero(
@@ -266,6 +271,56 @@ private fun QuickWeightLogDialog(onDismiss: () -> Unit, onSave: (Float) -> Unit)
         confirmButton = { TextButton(onClick = { weight.toFloatOrNull()?.let(onSave) }) { Text("Save") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+/**
+ * Gym-goers and yoga practitioners are largely different audiences with different intents, so
+ * Home leads with this choice up front rather than mixing both into one undifferentiated feed -
+ * pick a path here, or use both by returning and tapping the other one another day.
+ */
+@Composable
+private fun TrainingModeSelector(onOpenGym: () -> Unit, onOpenYoga: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        ModeCard(
+            icon = Icons.Filled.FitnessCenter,
+            label = "Gym",
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            onClick = onOpenGym,
+            modifier = Modifier.weight(1f)
+        )
+        ModeCard(
+            icon = Icons.Filled.Spa,
+            label = "Yoga",
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            onClick = onOpenYoga,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun ModeCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    containerColor: Color,
+    contentColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
+        modifier = modifier
+    ) {
+        Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = contentColor)
+            Spacer(Modifier.width(8.dp))
+            Text(label, style = MaterialTheme.typography.titleMedium, color = contentColor)
+        }
+    }
 }
 
 /**

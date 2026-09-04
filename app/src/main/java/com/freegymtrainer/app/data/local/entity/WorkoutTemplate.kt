@@ -14,7 +14,12 @@ data class WorkoutTemplate(
     // True only for the single auto-created "My Workouts" template that holds every day the
     // user builds themselves via the workout builder - lets the UI/queries distinguish it from
     // the seeded programs without fragile name-matching.
-    val isCustom: Boolean = false
+    val isCustom: Boolean = false,
+    // True only for the seeded "Yoga & Flexibility" program. Gym-goers and yoga practitioners
+    // are largely different audiences (see the dedicated Yoga tab) - this keeps yoga programs
+    // out of the Workouts tab and the onboarding default-plan picker, both of which are
+    // gym-focused, without fragile name-matching.
+    val isYoga: Boolean = false
 )
 
 @Entity(tableName = "workout_template_days")

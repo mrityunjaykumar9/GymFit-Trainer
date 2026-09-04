@@ -29,7 +29,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

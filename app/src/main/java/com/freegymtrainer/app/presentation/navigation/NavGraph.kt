@@ -22,6 +22,7 @@ import com.freegymtrainer.app.presentation.workouts.WorkoutDayDetailScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutExecutionScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutHistoryScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutListScreen
+import com.freegymtrainer.app.presentation.yoga.YogaScreen
 
 @Composable
 fun NavGraph(
@@ -48,6 +49,13 @@ fun NavGraph(
                 onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) },
                 onOpenWorkouts = {
                     navController.navigate(Screen.Workouts.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onOpenYoga = {
+                    navController.navigate(Screen.Yoga.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
@@ -93,6 +101,14 @@ fun NavGraph(
                         popUpTo(Screen.Workouts.route) { inclusive = false }
                     }
                 }
+            )
+        }
+
+        composable(Screen.Yoga.route) {
+            YogaScreen(
+                container = container,
+                onOpenDay = { dayId -> navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) },
+                onOpenPose = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) }
             )
         }
 

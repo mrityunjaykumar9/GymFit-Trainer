@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
@@ -41,8 +42,8 @@ fun CustomWorkoutBuilderScreen(container: AppContainer, onBack: () -> Unit, onSa
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Create Workout") },
+            AppTopBar(
+                title = "Create Workout",
                 navigationIcon = { IconButton(onClick = requestBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } }
             )
         },

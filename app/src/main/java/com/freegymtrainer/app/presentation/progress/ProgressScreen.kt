@@ -28,6 +28,7 @@ import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.data.local.entity.BodyMeasurement
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SimpleLineChart
 import com.freegymtrainer.app.presentation.components.StatCard
@@ -47,7 +48,7 @@ fun ProgressScreen(container: AppContainer) {
     var showWeightDialog by remember { mutableStateOf(false) }
     var showMeasurementDialog by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Progress") }) }) { padding ->
+    Scaffold(topBar = { AppTopBar(title = "Progress") }) { padding ->
         if (state.loading) {
             LoadingState(Modifier.padding(padding))
             return@Scaffold

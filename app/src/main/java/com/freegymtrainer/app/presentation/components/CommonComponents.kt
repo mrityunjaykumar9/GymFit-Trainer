@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /** A dashboard stat tile - e.g. "12 Day Streak", "4 Workouts". */
@@ -131,4 +132,42 @@ fun workoutTemplateIcon(templateName: String): ImageVector = when {
     templateName.contains("Fat Loss", ignoreCase = true) -> Icons.Filled.LocalFireDepartment
     templateName.contains("Full Body", ignoreCase = true) -> Icons.Filled.SelfImprovement
     else -> Icons.Filled.FitnessCenter
+}
+
+/**
+ * Shared top bar used on every screen so header height/spacing/title style is consistent
+ * app-wide instead of each screen tuning Material3's TopAppBar independently. Deliberately
+ * a plain Surface + Row (not Material3's TopAppBar) so the content height is fixed at 56.dp -
+ * more compact than Material3's default 64.dp small app bar - while still reserving exactly
+ * as much space as the status bar actually needs via windowInsetsTopHeight.
+ */
+@Composable
+fun AppTopBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
+) {
+    Surface(modifier = modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+        Column {
+            Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(start = if (navigationIcon != null) 4.dp else 16.dp, end = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                navigationIcon?.invoke()
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).padding(start = if (navigationIcon != null) 4.dp else 0.dp)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically, content = actions)
+            }
+        }
+    }
 }

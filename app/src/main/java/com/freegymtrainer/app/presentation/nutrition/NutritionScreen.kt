@@ -44,6 +44,7 @@ import com.freegymtrainer.app.data.repository.MealPlanMealDetail
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.di.SettingsDataStore
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
@@ -59,7 +60,7 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
     var showAddFoodSheet by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Nutrition") }) },
+        topBar = { AppTopBar(title = "Nutrition") },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { showAddFoodSheet = true }, text = { Text("Log Food") }, icon = {})
         }

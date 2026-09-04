@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
@@ -38,7 +39,7 @@ fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpen
     val templates by viewModel.templates.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Workouts") }) },
+        topBar = { AppTopBar(title = "Workouts") },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = onCreateWorkout, icon = { Icon(Icons.Filled.Add, contentDescription = null) }, text = { Text("New Workout") })
         }

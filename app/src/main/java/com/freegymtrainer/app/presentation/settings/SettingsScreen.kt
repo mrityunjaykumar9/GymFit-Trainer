@@ -34,6 +34,7 @@ import com.freegymtrainer.app.BuildConfig
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.di.SettingsDataStore
+import com.freegymtrainer.app.presentation.components.AppTopBar
 
 @Composable
 fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack: () -> Unit, onDataCleared: () -> Unit) {
@@ -44,8 +45,8 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
+            AppTopBar(
+                title = "Settings",
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } }
             )
         }

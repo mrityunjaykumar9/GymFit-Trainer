@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
@@ -35,7 +36,7 @@ fun YogaScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenPose: (
     val viewModel: YogaViewModel = viewModel(factory = GenericViewModelFactory { YogaViewModel(container) })
     val state by viewModel.uiState.collectAsState()
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Yoga") }) }) { padding ->
+    Scaffold(topBar = { AppTopBar(title = "Yoga") }) { padding ->
         if (state.loading) {
             LoadingState(Modifier.padding(padding))
             return@Scaffold

@@ -35,6 +35,7 @@ import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.data.local.dao.DayOption
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.SectionHeader
@@ -56,8 +57,8 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Free Gym Trainer") },
+            AppTopBar(
+                title = "Free Gym Trainer",
                 actions = {
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "Profile & settings")

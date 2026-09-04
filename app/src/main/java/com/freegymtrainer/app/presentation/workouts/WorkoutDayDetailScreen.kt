@@ -23,6 +23,7 @@ import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.data.local.entity.WorkoutTemplateExercise
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
@@ -45,8 +46,8 @@ fun WorkoutDayDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(detail?.day?.title ?: "") },
+            AppTopBar(
+                title = detail?.day?.title ?: "",
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } },
                 actions = {
                     if (isCustom) {

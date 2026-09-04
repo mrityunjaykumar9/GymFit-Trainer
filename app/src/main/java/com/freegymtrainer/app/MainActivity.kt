@@ -113,7 +113,15 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
                                 }
                             },
                             icon = { Icon(icon, contentDescription = label) },
-                            label = { Text(label) }
+                            label = {
+                                Text(
+                                    label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip
+                                )
+                            }
                         )
                     }
                 }

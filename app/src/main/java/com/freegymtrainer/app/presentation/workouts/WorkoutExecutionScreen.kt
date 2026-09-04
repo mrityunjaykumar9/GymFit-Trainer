@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ErrorState
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
@@ -46,7 +47,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
     }
 
     if (state.error != null) {
-        Scaffold(topBar = { TopAppBar(title = { Text("Workout") }) }) { padding ->
+        Scaffold(topBar = { AppTopBar(title = "Workout") }) { padding ->
             ErrorState(state.error!!, onRetry = onFinished, retryLabel = "Go Back", modifier = Modifier.padding(padding))
         }
         return
@@ -65,8 +66,8 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
     Scaffold(
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text(state.dayTitle) },
+                AppTopBar(
+                    title = state.dayTitle,
                     navigationIcon = {
                         IconButton(onClick = { showExitConfirm = true }) {
                             Icon(Icons.Filled.Close, contentDescription = "Exit workout")

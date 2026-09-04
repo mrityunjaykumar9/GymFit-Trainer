@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.isVeg
 import com.freegymtrainer.app.di.AppContainer
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.StatCard
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
@@ -43,8 +44,8 @@ fun FoodDetailScreen(container: AppContainer, foodId: Long, onBack: () -> Unit) 
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(food?.name ?: "") },
+            AppTopBar(
+                title = food?.name ?: "",
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } }
             )
         }

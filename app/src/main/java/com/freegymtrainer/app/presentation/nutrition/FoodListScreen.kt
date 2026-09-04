@@ -27,6 +27,7 @@ import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.isVeg
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
@@ -42,8 +43,8 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit, onOpenFood: (Lon
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Food Database") },
+            AppTopBar(
+                title = "Food Database",
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") } }
             )
         }

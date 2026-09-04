@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.FilterChipItem
@@ -54,7 +55,7 @@ fun ExerciseListScreen(container: AppContainer, onOpenExercise: (Long) -> Unit) 
         }
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Exercise Library") }) }) { padding ->
+    Scaffold(topBar = { AppTopBar(title = "Exercise Library") }) { padding ->
         Box(
             Modifier
                 .fillMaxSize()

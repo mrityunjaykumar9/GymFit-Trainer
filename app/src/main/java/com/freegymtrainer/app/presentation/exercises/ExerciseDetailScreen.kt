@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
+import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.components.muscleGroupIcon
@@ -35,8 +36,8 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(exercise?.name ?: "") },
+            AppTopBar(
+                title = exercise?.name ?: "",
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Back") }
                 }

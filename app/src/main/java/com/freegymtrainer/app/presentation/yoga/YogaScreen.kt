@@ -114,13 +114,21 @@ private fun YogaHero(poseCount: Int, description: String) {
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 4.dp).size(140.dp)
             )
         }
-        Column(Modifier.align(Alignment.BottomStart).padding(20.dp)) {
-            Text("Yoga & Flexibility", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+        Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(20.dp)) {
+            Text(
+                "Yoga & Flexibility",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
             Spacer(Modifier.height(4.dp))
             Text(
                 description.ifBlank { "$poseCount poses to build flexibility, balance, and calm" },
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.9f)
+                color = Color.White.copy(alpha = 0.9f),
+                maxLines = 2,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
     }
@@ -138,11 +146,18 @@ private fun FlowCard(day: DayWithExerciseCount, onClick: () -> Unit, modifier: M
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(day.day.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    day.day.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
                 Text(
                     "${day.day.muscleGroupsSummary}  •  ${day.exerciseCount} poses",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
             Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -159,7 +174,12 @@ private fun PoseRow(pose: Exercise, onClick: () -> Unit, modifier: Modifier = Mo
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(pose.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    pose.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         muscleGroupIcon(pose.primaryMuscle),
@@ -170,8 +190,10 @@ private fun PoseRow(pose: Exercise, onClick: () -> Unit, modifier: Modifier = Mo
                     Spacer(Modifier.width(4.dp))
                     Text(
                         "${pose.primaryMuscle} • ${pose.difficulty}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
             }

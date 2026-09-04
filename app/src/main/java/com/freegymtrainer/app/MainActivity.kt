@@ -8,8 +8,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
@@ -21,6 +23,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -117,8 +120,13 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
             }
         }
     ) { padding ->
-        Box(Modifier.padding(padding)) {
-            NavGraph(navController = navController, container = container, settings = settings, startDestination = destination)
+        // Constrains and centers content on wide screens (tablets) so cards/text don't stretch
+        // edge-to-edge at an awkward width - phones stay full-width since they never reach the
+        // cap. Applied once here rather than per-screen so every screen benefits uniformly.
+        Box(Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.fillMaxHeight().widthIn(max = 640.dp)) {
+                NavGraph(navController = navController, container = container, settings = settings, startDestination = destination)
+            }
         }
     }
 }

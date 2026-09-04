@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.nutrition
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,10 +34,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
+import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.isVeg
 import com.freegymtrainer.app.data.repository.MealPlanItemDetail
@@ -58,6 +61,7 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
     val viewModel: NutritionViewModel = viewModel(factory = GenericViewModelFactory { NutritionViewModel(container, settings) })
     val state by viewModel.uiState.collectAsState()
     var showAddFoodSheet by remember { mutableStateOf(false) }
+    val activity = LocalContext.current as? Activity
 
     Scaffold(
         topBar = { AppTopBar(title = "Nutrition") },
@@ -163,7 +167,13 @@ fun NutritionScreen(container: AppContainer, settings: SettingsDataStore, onOpen
         AddFoodSheet(
             state = state,
             onQueryChange = { viewModel.setFoodSearchQuery(it) },
-            onLog = { food, mealType, grams -> viewModel.logFood(food, mealType, grams); showAddFoodSheet = false },
+            onLog = { food, mealType, grams ->
+                viewModel.logFood(food, mealType, grams)
+                showAddFoodSheet = false
+                // Same natural-break-point idea as a finished workout - logging a meal is a
+                // deliberate, multi-step action just reaching completion.
+                if (activity != null) InterstitialAdManager.showIfReady(activity, onDismissed = {})
+            },
             onDismiss = { showAddFoodSheet = false },
             mealTypeOptions = viewModel.mealTypeOptions
         )

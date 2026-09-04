@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.workouts
 
+import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,9 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
@@ -31,9 +34,17 @@ fun CustomWorkoutBuilderScreen(container: AppContainer, onBack: () -> Unit, onSa
     val viewModel: CustomWorkoutBuilderViewModel = viewModel(factory = GenericViewModelFactory { CustomWorkoutBuilderViewModel(container) })
     val state by viewModel.uiState.collectAsState()
     var showDiscardConfirm by remember { mutableStateOf(false) }
+    val activity = LocalContext.current as? Activity
 
     LaunchedEffect(state.savedDayId) {
-        state.savedDayId?.let(onSaved)
+        val dayId = state.savedDayId ?: return@LaunchedEffect
+        // Finishing a custom workout build is the same kind of natural break point as finishing
+        // a workout session - never shown while the user is still mid-edit.
+        if (activity != null) {
+            InterstitialAdManager.showIfReady(activity, onDismissed = { onSaved(dayId) })
+        } else {
+            onSaved(dayId)
+        }
     }
 
     val canSave = state.title.isNotBlank() && state.selectedEntries.isNotEmpty() && !state.saving

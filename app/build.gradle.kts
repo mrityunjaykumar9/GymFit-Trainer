@@ -85,6 +85,22 @@ android {
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
+
+    lint {
+        // False positive for this app: the check exists for FragmentActivity subclasses that
+        // combine Fragments with the ActivityResult APIs (a real bug in old Fragment versions
+        // that skipped calling super.onRequestPermissionsResult()). This app is pure Compose
+        // with a plain ComponentActivity and uses zero Fragments, so the underlying issue can't
+        // apply - without this it hard-fails lintVitalRelease (and therefore assembleRelease/
+        // bundleRelease) on MainActivity's registerForActivityResult call.
+        disable += "InvalidFragmentVersionForActivityResult"
+    }
+}
+
+ksp {
+    // AppDatabase has exportSchema = true; without this KSP just warns on every build that it
+    // has nowhere to write the schema. Exported JSONs are useful history for Room migrations.
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {

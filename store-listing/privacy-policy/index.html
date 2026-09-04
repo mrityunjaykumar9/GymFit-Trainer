@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free Gym Trainer Privacy Policy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap');
+
+  :root {
+    --ink: #1B1F3B;
+    --ink-soft: #5B5F7A;
+    --paper: #FFF9F4;
+    --paper-raised: #FFFFFF;
+    --rule: #E7DFD5;
+    --ember: #FF6B35;
+    --ember-soft: #FFE4D6;
+    --sage: #1F8A4C;
+    --sage-soft: #DFF3E6;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #F1EFEA;
+      --ink-soft: #A9ADC7;
+      --paper: #14172A;
+      --paper-raised: #1C2036;
+      --rule: #2C3050;
+      --ember: #FF8C5A;
+      --ember-soft: #3A2A22;
+      --sage: #4FD886;
+      --sage-soft: #16301F;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #F1EFEA;
+    --ink-soft: #A9ADC7;
+    --paper: #14172A;
+    --paper-raised: #1C2036;
+    --rule: #2C3050;
+    --ember: #FF8C5A;
+    --ember-soft: #3A2A22;
+    --sage: #4FD886;
+    --sage-soft: #16301F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--ember); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  header.masthead {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 2.75rem;
+  }
+
+  .mark {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--ember);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mark svg { width: 22px; height: 22px; }
+
+  .masthead-text .app-name {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+  .masthead-text .doc-label {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+
+  h1 {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.35rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 0.6rem;
+  }
+
+  .updated {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin: 0 0 3rem;
+  }
+
+  .callout {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    background: var(--sage-soft);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    margin: 0 0 3rem;
+  }
+  .callout svg { flex: none; width: 20px; height: 20px; margin-top: 0.2rem; color: var(--sage); }
+  .callout p {
+    margin: 0;
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .callout strong { color: var(--sage); }
+
+  section { margin-bottom: 2.6rem; }
+  section:last-of-type { margin-bottom: 0; }
+
+  h2 {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.01em;
+    margin: 0 0 0.9rem;
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--ember);
+  }
+
+  section p, section li { color: var(--ink); }
+  section p { margin: 0 0 0.9rem; }
+  section p:last-child { margin-bottom: 0; }
+
+  ul { margin: 0; padding-left: 1.3rem; }
+  li { margin-bottom: 0.55rem; }
+  li:last-child { margin-bottom: 0; }
+  li strong { font-family: "Manrope", system-ui, sans-serif; font-weight: 700; font-size: 0.95em; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 3rem 0;
+  }
+
+  footer {
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  footer .contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  footer .contact svg { width: 15px; height: 15px; color: var(--ember); }
+
+  @media (max-width: 480px) {
+    .page { padding: 3rem 1.25rem 4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 12h2M18 12h2M6 8v8M18 8v8M8 12h8"/>
+      </svg>
+    </div>
+    <div class="masthead-text">
+      <div class="app-name">Free Gym Trainer</div>
+      <div class="doc-label">Privacy Policy</div>
+    </div>
+  </header>
+
+  <h1>How Free Gym Trainer handles your information</h1>
+  <p class="updated">Last updated September 4, 2026</p>
+
+  <div class="callout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+    </svg>
+    <p><strong>The short version:</strong> Free Gym Trainer has no backend server and no login. Your profile, workouts, and nutrition logs stay on your device — we never see them.</p>
+  </div>
+
+  <section>
+    <h2>Data stored on your device</h2>
+    <p>
+      Free Gym Trainer stores all fitness data locally on your device, including your profile
+      (name, age, gender, height, weight, goals), workout history, nutrition logs, water intake,
+      body measurements, and progress photos (if used). This data is <strong>not</strong>
+      transmitted to us or to any server we operate, because the app does not use a backend
+      server. Uninstalling the app or clearing its data permanently deletes this information.
+    </p>
+  </section>
+
+  <section>
+    <h2>Advertising data</h2>
+    <p>
+      The app is free and supported by ads served through Google AdMob. AdMob may collect
+      device identifiers (such as the advertising ID), approximate location, and app usage
+      data to serve and measure ads, in accordance with
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's own privacy policy</a>.
+    </p>
+    <p>
+      You can opt out of personalized advertising in your device's Google settings
+      (Settings → Google → Ads → Opt out of Ads Personalization).
+    </p>
+  </section>
+
+  <section>
+    <h2>Permissions used</h2>
+    <ul>
+      <li><strong>Notifications</strong> — to send optional workout, water, and nutrition reminders you configure yourself.</li>
+      <li><strong>Internet / network state</strong> — required only to load ads; never used to transmit your fitness data anywhere.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Children's privacy</h2>
+    <p>The app is not directed at children under 13 and does not knowingly collect data from them.</p>
+  </section>
+
+  <section>
+    <h2>Changes to this policy</h2>
+    <p>We may update this policy from time to time. Continued use of the app after changes constitutes acceptance of the revised policy.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <footer>
+    Questions about this policy?
+    <div class="contact">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/>
+      </svg>
+      mrityunjaykumar579@gmail.com
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

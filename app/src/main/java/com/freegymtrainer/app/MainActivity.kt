@@ -8,9 +8,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -91,6 +95,10 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
     val showBottomBar = Screen.bottomNavItems.any { it.route == currentRoute }
 
     Scaffold(
+        // Every screen's own AppTopBar already reserves space for the status bar itself, so
+        // this outer Scaffold (which has no topBar) must not also reserve it here - otherwise
+        // the status-bar inset gets applied twice, leaving a large empty gap above every title.
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {

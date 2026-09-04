@@ -26,7 +26,6 @@ import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
 import com.freegymtrainer.app.presentation.components.LoadingState
-import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
 fun WorkoutDayDetailScreen(
@@ -182,10 +181,9 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
         } else {
             candidates.forEach { candidate ->
                 val exercise = candidate.exercise
-                Surface(
+                ElevatedCard(
                     onClick = { onPick(exercise) },
                     shape = RoundedCornerShape(14.dp),
-                    color = orangeSoftContainer(),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                 ) {
                     Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -194,11 +192,11 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(exercise.name, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text(exercise.name, style = MaterialTheme.typography.titleSmall)
                             Text(
                                 exercise.equipment,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         if (candidate.isAvailable) {

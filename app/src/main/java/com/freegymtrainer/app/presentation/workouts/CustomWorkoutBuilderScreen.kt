@@ -25,7 +25,6 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
-import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
 fun CustomWorkoutBuilderScreen(container: AppContainer, onBack: () -> Unit, onSaved: (Long) -> Unit) {
@@ -213,23 +212,18 @@ private fun SelectedExerciseCard(
 
 @Composable
 private fun PickerExerciseRow(exercise: Exercise, onAdd: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        onClick = onAdd,
-        shape = RoundedCornerShape(12.dp),
-        color = orangeSoftContainer(),
-        modifier = modifier.fillMaxWidth()
-    ) {
+    ElevatedCard(onClick = onAdd, shape = RoundedCornerShape(12.dp), modifier = modifier.fillMaxWidth()) {
         Row(Modifier.padding(10.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))) {
                 ExerciseAutoMedia(exercise = exercise, modifier = Modifier.fillMaxSize())
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(exercise.name, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(exercise.name, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     "${exercise.primaryMuscle} • ${exercise.equipment}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Icon(Icons.Filled.Add, contentDescription = "Add ${exercise.name}", tint = MaterialTheme.colorScheme.primary)

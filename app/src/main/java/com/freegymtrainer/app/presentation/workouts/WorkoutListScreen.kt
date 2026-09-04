@@ -31,7 +31,6 @@ import com.freegymtrainer.app.presentation.components.EmptyState
 import com.freegymtrainer.app.presentation.components.muscleGroupIcon
 import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 import com.freegymtrainer.app.presentation.components.workoutTemplateIcon
-import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
 @Composable
 fun WorkoutListScreen(container: AppContainer, onOpenDay: (Long) -> Unit, onOpenHistory: () -> Unit, onCreateWorkout: () -> Unit) {
@@ -152,14 +151,17 @@ private fun TemplateCard(templateWithDays: TemplateWithDays, onOpenDay: (Long) -
             }
 
             Spacer(Modifier.height(12.dp))
+            // Three chips, three distinct roles instead of three shades of the same orange: level
+            // is neutral meta info, frequency is the app's navy secondary, and only the goal tag -
+            // the one thing worth scanning for at a glance - gets the bold brand-orange pop.
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                BrandChip(template.level, Icons.Filled.FitnessCenter, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
+                BrandChip(template.level, Icons.Filled.FitnessCenter, MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant)
                 BrandChip(
                     // "My Workouts" isn't a fixed weekly program - daysPerWeek is meaningless
                     // there (always 0), so show how many workouts have actually been built.
                     if (template.isCustom) "${templateWithDays.days.size} workouts" else "${template.daysPerWeek} days/wk",
                     Icons.Filled.CalendarViewWeek,
-                    orangeSoftContainer(), MaterialTheme.colorScheme.onPrimaryContainer
+                    MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 BrandChip(
                     template.goalTag, Icons.Filled.Flag,
@@ -190,14 +192,14 @@ private fun BrandChip(label: String, icon: androidx.compose.ui.graphics.vector.I
 @Composable
 private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
     val day = dayWithCount.day
-    // A faint solid orange fill (not the neutral surfaceVariant gray, and not a runtime alpha
-    // over primaryContainer, which looks different depending on what's layered underneath it)
-    // so this row still reads as "part of the same app" - the icon badge flips to white-on-
-    // orange to stay legible against it.
+    // A neutral tonal surface (the same "standard" card treatment used everywhere else in the
+    // app) rather than a full-row solid orange fill - with 3-5 of these stacked per program card,
+    // painting every row orange read as muddy and repetitive. The icon badge is still a small
+    // orange accent, so the row stays on-brand without drowning the whole card in one color.
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        color = orangeSoftContainer(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -205,26 +207,26 @@ private fun DayRow(dayWithCount: DayWithExerciseCount, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface),
+                Modifier.size(34.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     muscleGroupIcon(day.muscleGroupsSummary.split(",").firstOrNull()?.trim() ?: ""),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(18.dp)
                 )
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(day.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(day.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     "${day.muscleGroupsSummary}  •  ${dayWithCount.exerciseCount} exercises",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

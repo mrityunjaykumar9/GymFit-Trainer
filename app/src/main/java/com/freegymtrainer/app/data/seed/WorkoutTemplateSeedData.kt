@@ -110,6 +110,29 @@ object WorkoutTemplateSeedData {
                     te("Push Ups", 3, "AMRAP", 45), te("Plank", 3, "30-45s", 30)
                 ))
             )
+        ),
+
+        SeedTemplate(
+            "Yoga & Flexibility", "Beginner-friendly yoga flows to build flexibility, balance, and calm.",
+            5, "Beginner", "Mobility",
+            listOf(
+                SeedTemplateDay("Morning Energizer Flow", "Balance, Flexibility, Full Body", listOf(
+                    te("Mountain Pose (Tadasana)", 1, "5-8 breaths", 10),
+                    te("Cat-Cow Stretch (Marjaryasana-Bitilasana)", 1, "8-10 rounds", 10),
+                    te("Downward-Facing Dog (Adho Mukha Svanasana)", 2, "5-8 breaths", 10),
+                    te("Warrior I (Virabhadrasana I)", 2, "5 breaths/side", 10),
+                    te("Warrior II (Virabhadrasana II)", 2, "5 breaths/side", 10),
+                    te("Tree Pose (Vrikshasana)", 2, "5-8 breaths/side", 10),
+                    te("Cobra Pose (Bhujangasana)", 2, "3-5 breaths", 10)
+                )),
+                SeedTemplateDay("Flexibility & Relaxation", "Flexibility, Full Body", listOf(
+                    te("Seated Forward Bend (Paschimottanasana)", 2, "5-8 breaths", 10),
+                    te("Triangle Pose (Trikonasana)", 2, "5 breaths/side", 10),
+                    te("Bridge Pose (Setu Bandhasana)", 2, "5 breaths", 10),
+                    te("Child's Pose (Balasana)", 1, "5-10 breaths", 10),
+                    te("Corpse Pose (Savasana)", 1, "1-5 min", 0)
+                ))
+            )
         )
     )
 }

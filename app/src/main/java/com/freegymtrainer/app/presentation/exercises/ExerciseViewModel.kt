@@ -25,8 +25,8 @@ class ExerciseListViewModel(private val container: AppContainer) : ViewModel() {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val muscleGroups = listOf("Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs", "Abs", "Glutes", "Forearms", "Traps", "Full Body", "Cardio")
-    val equipmentOptions = listOf("Barbell", "Dumbbell", "Machine", "Cable", "Bodyweight")
+    val muscleGroups = listOf("Chest", "Back", "Shoulders", "Biceps", "Triceps", "Legs", "Abs", "Glutes", "Forearms", "Traps", "Full Body", "Cardio", "Flexibility", "Balance")
+    val equipmentOptions = listOf("Barbell", "Dumbbell", "Machine", "Cable", "Bodyweight", "Yoga Mat")
     val difficultyOptions = listOf("Beginner", "Intermediate", "Advanced")
 
     fun setMuscle(muscle: String?) { filterState.value = filterState.value.copy(muscle = muscle) }

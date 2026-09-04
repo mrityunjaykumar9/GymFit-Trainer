@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -166,26 +167,32 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.height(12.dp))
+                    // Yoga poses are held, not lifted - showing a weight input for "Tree Pose"
+                    // would just be confusing, so it's dropped entirely for that category and
+                    // the remaining field is relabeled from reps to hold time.
+                    val isYoga = currentExercise.exercise.category == "Yoga"
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         OutlinedTextField(
                             value = if (currentSet.actualReps == 0) "" else currentSet.actualReps.toString(),
                             onValueChange = { viewModel.updateCurrentSetReps(it.filter { c -> c.isDigit() }.take(3).toIntOrNull() ?: 0) },
-                            label = { Text("Reps") },
+                            label = { Text(if (isYoga) "Hold (s)" else "Reps") },
                             placeholder = { Text(currentExercise.templateExercise.reps) },
-                            leadingIcon = { Icon(Icons.Filled.Repeat, contentDescription = null) },
+                            leadingIcon = { Icon(if (isYoga) Icons.Filled.Timer else Icons.Filled.Repeat, contentDescription = null) },
                             singleLine = true,
                             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f)
                         )
-                        OutlinedTextField(
-                            value = if (currentSet.weightKg == 0.0) "" else currentSet.weightKg.toString(),
-                            onValueChange = { viewModel.updateCurrentSetWeight(it.filter { c -> c.isDigit() || c == '.' }.toDoubleOrNull() ?: 0.0) },
-                            label = { Text("Weight (kg)") },
-                            leadingIcon = { Icon(Icons.Filled.FitnessCenter, contentDescription = null) },
-                            singleLine = true,
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            modifier = Modifier.weight(1f)
-                        )
+                        if (!isYoga) {
+                            OutlinedTextField(
+                                value = if (currentSet.weightKg == 0.0) "" else currentSet.weightKg.toString(),
+                                onValueChange = { viewModel.updateCurrentSetWeight(it.filter { c -> c.isDigit() || c == '.' }.toDoubleOrNull() ?: 0.0) },
+                                label = { Text("Weight (kg)") },
+                                leadingIcon = { Icon(Icons.Filled.FitnessCenter, contentDescription = null) },
+                                singleLine = true,
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }

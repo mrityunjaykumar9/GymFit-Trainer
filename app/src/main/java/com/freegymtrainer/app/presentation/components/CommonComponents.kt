@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PanTool
 import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.*
@@ -117,11 +118,14 @@ fun muscleGroupIcon(primaryMuscle: String): ImageVector = when (primaryMuscle) {
     "Traps" -> Icons.Filled.AccessibilityNew
     "Full Body" -> Icons.Filled.SelfImprovement
     "Cardio" -> Icons.Filled.Whatshot
+    "Flexibility" -> Icons.Filled.Spa
+    "Balance" -> Icons.Filled.SelfImprovement
     else -> Icons.Filled.FitnessCenter
 }
 
 /** Icon standing in for a workout program's cover image, keyed off its name. */
 fun workoutTemplateIcon(templateName: String): ImageVector = when {
+    templateName.contains("Yoga", ignoreCase = true) -> Icons.Filled.Spa
     templateName.contains("Home", ignoreCase = true) -> Icons.Filled.Home
     templateName.contains("Upper Lower", ignoreCase = true) -> Icons.Filled.SwapVert
     templateName.contains("Fat Loss", ignoreCase = true) -> Icons.Filled.LocalFireDepartment

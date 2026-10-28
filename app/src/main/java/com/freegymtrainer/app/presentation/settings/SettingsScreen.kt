@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.BuildConfig
+import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.di.SettingsDataStore
@@ -136,9 +138,24 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
                     icon = Icons.Filled.Restaurant,
                     label = "Nutrition reminders",
                     checked = reminders.nutritionReminderEnabled,
-                    onCheckedChange = { viewModel.updateReminderSettings(context, reminders.copy(nutritionReminderEnabled = it)) },
+                    onCheckedChange = { viewModel.updateReminderSettings(context, reminders.copy(nutritionReminderEnabled = it)) }
+                )
+                SwitchRow(
+                    icon = Icons.Filled.RestaurantMenu,
+                    label = "Meal plan reminders",
+                    checked = reminders.mealRemindersEnabled,
+                    onCheckedChange = { viewModel.updateReminderSettings(context, reminders.copy(mealRemindersEnabled = it)) },
                     isLast = true
                 )
+                if (reminders.mealRemindersEnabled) {
+                    Text(
+                        "A nudge at breakfast (8:00), lunch (1:00), snack (5:30), and dinner (8:30) " +
+                            "with what's on your weekly plan.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -169,7 +186,7 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
             SettingsCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Free Gym Trainer", style = MaterialTheme.typography.titleMedium)
+                        Text("GymFit Trainer", style = MaterialTheme.typography.titleMedium)
                         Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -190,7 +207,18 @@ fun SettingsScreen(container: AppContainer, settings: SettingsDataStore, onBack:
                     )
                 }
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "3D athlete: Universal Base Characters by Quaternius (quaternius.com). " +
+                    "Food illustrations: Food Kit by Kenney (kenney.nl), CC0 public domain. " +
+                    "Exercise poses, equipment and diagrams are original.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            Spacer(Modifier.height(20.dp))
+            AdBanner()
+            Spacer(Modifier.height(12.dp))
         }
     }
 

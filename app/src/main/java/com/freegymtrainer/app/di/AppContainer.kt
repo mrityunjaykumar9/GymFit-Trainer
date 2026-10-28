@@ -10,6 +10,7 @@ import com.freegymtrainer.app.data.repository.*
  */
 class AppContainer(context: Context) {
     private val db: AppDatabase = AppDatabase.getInstance(context)
+    private val appContext: Context = context.applicationContext
 
     val seedRepository by lazy { SeedRepository(db) }
     val exerciseRepository by lazy { ExerciseRepository(db) }
@@ -17,4 +18,5 @@ class AppContainer(context: Context) {
     val userRepository by lazy { UserRepository(db) }
     val progressRepository by lazy { ProgressRepository(db) }
     val nutritionRepository by lazy { NutritionRepository(db) }
+    val nutritionPlanner by lazy { NutritionPlanner(db, SettingsDataStore(appContext)) }
 }

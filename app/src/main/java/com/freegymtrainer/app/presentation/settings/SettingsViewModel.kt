@@ -68,6 +68,9 @@ class SettingsViewModel(
             if (settings.nutritionReminderEnabled) {
                 ReminderScheduler.scheduleNutritionReminder(context)
             }
+            if (settings.mealRemindersEnabled) {
+                ReminderScheduler.scheduleMealReminders(context, settings)
+            }
         }
     }
 

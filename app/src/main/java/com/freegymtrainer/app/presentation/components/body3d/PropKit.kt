@@ -343,7 +343,17 @@ internal object PropBuilder {
         val r = p.r * S
         val pinned = p.at.joint != null
         when {
-            p.fill && p.role == "metal" && pinned -> out += Prim.Cyl(Kind.CYL_BLACK, at + V3(-0.15f, 0f, 0f), at + V3(0.15f, 0f, 0f), r * 1.3f)
+            p.fill && p.role == "metal" && pinned -> {
+                // A pinned metal roller (the ankle pad on a leg extension/curl machine) rests
+                // against both legs, but was drawn as a fixed +-0.15 cylinder around the near
+                // ankle alone - on a wider stance the far leg just hung off the end of it with
+                // nothing underneath. Span both ankles instead, centred between them.
+                val farJoint = when (p.at.joint) { "ankleN" -> "ankleF"; "ankleF" -> "ankleN"; else -> null }
+                val far = farJoint?.let { c.ref(Ref(it, p.at.x, p.at.y)) }
+                val mid = if (far != null) V3.lerp(at, far, 0.5f) else at
+                val half = if (far != null) max(abs(at.x - far.x) / 2f + 0.08f, 0.15f) else 0.15f
+                out += Prim.Cyl(Kind.CYL_BLACK, mid + V3(-half, 0f, 0f), mid + V3(half, 0f, 0f), r * 1.3f)
+            }
             p.fill && p.role == "metal" -> out += Prim.Cyl(Kind.CYL_CHROME, at + V3(-0.11f, 0f, 0f), at + V3(0.11f, 0f, 0f), max(r, 0.03f))
             p.fill -> out += Prim.Cyl(Kind.CYL_STEEL, at + V3(-0.06f, 0f, 0f), at + V3(0.06f, 0f, 0f), r)
             else -> out += Prim.Cyl(Kind.CYL_STEEL, at + V3(-0.03f, 0f, 0f), at + V3(0.03f, 0f, 0f), r)

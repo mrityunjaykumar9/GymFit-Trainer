@@ -49,12 +49,18 @@ reg("Leg Curl", [
     prop_circle(at("ankleN", (0.0, .05)), .035, "metal", True, 1)],
     [meas("Knee", "hip", "kneeN", "ankleN")], ["hamstrings"], dur=3000, view=[-0.7, 0.6, -0.08, 0.8])
 
+#  At the old hip height (.27) the "knees bent" foot (toes pointed down at ft=165) computed below
+#  floor level, so the renderer's own "keep every limb above the floor" safety lifted the WHOLE
+#  seated body to compensate - and let go of that lift as the leg extended and the foot rose back
+#  above the floor on its own, which read as the person sliding upward out of the seat mid-rep.
+#  Raising the seat height and easing the toe-down angle keeps the foot clear for the whole rep,
+#  so nothing ever needs correcting and the hip stays exactly where it's authored to be.
 reg("Leg Extension", [
-    key(0.0, (-.06, .27), -4, fkleg(90, 178, ft=165), hiprel(.10, .03), label="Knees bent", cue="Back flat against the pad"),
-    key(0.5, (-.06, .27), -4, fkleg(90, 98, ft=80), hiprel(.10, .03), label="Extend & squeeze", cue="Pause with quads tight, lower slowly"),
-], [prop_line((-.2, .20), (.08, .20), .05), prop_line((-.17, .22), (-.17, .80), .05), prop_line((-.02, .17), (-.02, 0), .03),
+    key(0.0, (-.06, .36), -4, fkleg(90, 178, ft=150), hiprel(.10, .03), label="Knees bent", cue="Back flat against the pad"),
+    key(0.5, (-.06, .36), -4, fkleg(90, 98, ft=80), hiprel(.10, .03), label="Extend & squeeze", cue="Pause with quads tight, lower slowly"),
+], [prop_line((-.2, .29), (.08, .29), .05), prop_line((-.17, .31), (-.17, .89), .05), prop_line((-.02, .26), (-.02, 0), .03),
     prop_circle(at("ankleN", (-.03, .015)), .04, "metal", True, 1)],
-    [KNEE()], ["thigh"], dur=3000, view=[-0.5, 0.6, -0.08, 1.0])
+    [KNEE()], ["thigh"], dur=3000, view=[-0.5, 0.6, -0.08, 1.1])
 
 # ---------------------------------------------------------------- LUNGES
 _wl = lambda t, hip, T, fa, bth, bsh, bft, label="", cue="": key(

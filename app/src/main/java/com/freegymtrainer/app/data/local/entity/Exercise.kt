@@ -22,6 +22,12 @@ data class Exercise(
     val safetyNotes: String,
     // Null until a real demonstration clip is hosted somewhere and wired up per exercise -
     // the UI falls back to a muscle-group icon placeholder when this is null. See
-    // ExerciseMediaPlayer and README -> "Adding exercise animations".
-    val mediaUrl: String? = null
+    // ExerciseDemoCard and README -> "Adding exercise animations".
+    val mediaUrl: String? = null,
+    // Drives WorkoutExecutionScreen's "Hold (s)" vs "Reps" input - true for a pose/stretch you
+    // hold still (category = "Mobility"'s static poses), false for anything counted in reps,
+    // including the dynamic warm-up drills that also live under "Mobility" (Arm Circles, Jumping
+    // Jacks, ...). Deliberately decoupled from category so that category alone never has to carry
+    // this distinction.
+    val isHeldPose: Boolean = false
 )

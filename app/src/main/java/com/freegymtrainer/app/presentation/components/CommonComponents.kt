@@ -126,7 +126,7 @@ fun muscleGroupIcon(primaryMuscle: String): ImageVector = when (primaryMuscle) {
 
 /** Icon standing in for a workout program's cover image, keyed off its name. */
 fun workoutTemplateIcon(templateName: String): ImageVector = when {
-    templateName.contains("Yoga", ignoreCase = true) -> Icons.Filled.Spa
+    templateName.contains("Warm-Up", ignoreCase = true) || templateName.contains("Mobility", ignoreCase = true) -> Icons.Filled.SelfImprovement
     templateName.contains("Home", ignoreCase = true) -> Icons.Filled.Home
     templateName.contains("Upper Lower", ignoreCase = true) -> Icons.Filled.SwapVert
     templateName.contains("Fat Loss", ignoreCase = true) -> Icons.Filled.LocalFireDepartment

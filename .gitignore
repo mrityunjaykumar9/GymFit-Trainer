@@ -14,3 +14,9 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+
+# Quaternius model: licensed for use inside apps, not for redistribution as files (see tools/athlete_model/build_glb.py)
+app/src/main/assets/models/athlete.glb
+
+__pycache__/
+*.pyc

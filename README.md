@@ -1,10 +1,12 @@
 # Free Gym Trainer
 
-A free, ad-supported Android fitness app: exercise library, workout programs with a guided
-execution flow (sets/reps/rest timer), nutrition & macro calculators, water tracking, and a
-progress dashboard (weight, volume, personal records, streaks). Everything runs **fully
-offline** on-device using a local Room database — there is no backend server, so there's
-nothing to host and nothing that costs money to run.
+A free, ad-supported Android fitness app built around one question: *how do I do this
+exercise correctly?* Every exercise is demonstrated by a realistic 3D bodybuilder (rotate it,
+slow it down, read the form cues), there is a "train a body part" hub with ready-made
+routines (chest, back, shoulders, biceps, triceps, legs, glutes, abs ...), plus yoga, nutrition
+& macro planning, and weight logging. Everything runs **fully offline** on-device using a local
+Room database — there is no backend server, so there's nothing to host and nothing that costs
+money to run.
 
 ## Why this architecture
 
@@ -20,7 +22,7 @@ publish a free app and start earning ad revenue quickly. This build trades that 
 
 You can add a backend and cloud sync later without rewriting the app — the repository
 layer (`data/repository/`) is the seam where that would plug in.
-
+    
 ## Tech stack
 
 - Kotlin, Jetpack Compose, Material 3
@@ -218,11 +220,8 @@ The signing key must be the same one you used for the first release.
 Being upfront about what this MVP intentionally leaves out, per the "don't fake it,
 mark it as a TODO" principle from your original spec:
 
-- **No exercise animations/video.** The exercise detail screen has a placeholder where a
-  looping demonstration clip would go. Bundling video for ~50 exercises would bloat the
-  APK; the right approach is hosting clips in object storage (S3-compatible, e.g.
-  Cloudflare R2's free tier) and loading them with ExoPlayer — a backend-free option that
-  fits the current architecture. Wire it into `ExerciseDetailScreen.kt` where noted.
+- **No real-person exercise video.** Exercises are shown by a 3D model instead (see section 6),
+  which keeps the APK small and works offline. `Exercise.mediaUrl` can still point at a remote clip.
 - **No login/cloud sync.** All data is local to the device — uninstalling the app deletes
   it, and there's no way to use the app across two devices. If you want that later, the
   `data/repository/` layer is exactly where a remote data source would be added.
@@ -234,18 +233,26 @@ mark it as a TODO" principle from your original spec:
   correctness check. Small issues, if any turn up, are typically one-line fixes (an import
   or a version mismatch) — paste any error you hit back to me and I'll fix it directly.
 
-## 6. Adding exercise animations (when you're ready)
+## 6. The 3D athlete model (one-time setup)
 
-1. Record or source short (5–10s) looping clips per exercise, encode as small `.mp4`s.
-2. Upload to any S3-compatible object storage (Cloudflare R2 has a free tier with no
-   egress fees — a good fit for a free app).
-3. Add a `mediaUrl: String?` field to the `Exercise` entity (Room migration required since
-   the schema changes).
-4. Replace the placeholder `Box` in `ExerciseDetailScreen.kt` with an ExoPlayer
-   `PlayerView` wrapped in `AndroidView`, pointed at that URL, with play/pause/replay
-   controls per the original spec.
+The 3D demos use a skinned model, `app/src/main/assets/models/athlete.glb`, rendered with
+[Filament](https://github.com/google/filament). The model is the Superhero_Male body from
+Quaternius' *Universal Base Characters* pack (free for commercial use inside an app, but the
+license forbids redistributing the raw files, so the `.glb` is **gitignored** — don't commit it
+to a public repo). To (re)generate it:
+
+1. Download the pack from <https://quaternius.itch.io/universal-base-characters> (the free
+   *Standard* zip) and unzip it.
+2. `python tools/athlete_model/build_glb.py "<unzipped>/Base Characters" app/src/main/assets/models/athlete.glb`
+   (needs `pip install pillow numpy`). This packs the glTF, shrinks the textures and adds a short haircut.
+3. The gym props (bars, plates, benches...) are original procedural meshes:
+   `python tools/athlete_model/build_props.py app/src/main/assets/models/props`.
+
+Without the `.glb` the app still runs: the player falls back to the 2D side-view animation.
+Poses come from `assets/exercise_motions.json` (joint-angle key poses, see `tools/exercise_motion/`);
+`presentation/components/body3d/` turns them into bone rotations with inverse kinematics.
 
 ---
 
-Questions, build errors, or want the next feature (progress photos, PR celebrations, a
-proper app icon, exercise animations, or a backend for cloud sync) built out — just ask.
+Questions, build errors, or want the next feature (more exercises, more equipment, a
+backend for cloud sync) built out — just ask.

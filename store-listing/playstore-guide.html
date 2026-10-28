@@ -231,7 +231,7 @@
   </header>
 
   <h1>From finished app to live on the Play Store</h1>
-  <p class="subtitle">Every step, in order, for a first-time submission — what's already done, what only you can do, and exactly how to do it.</p>
+  <p class="subtitle">Every remaining step, in the order to do them — updated September 6, 2026 after a full build + on-device check.</p>
 
   <p class="print-hint">📄 <strong>To save this as a PDF:</strong> press <code>Ctrl</code>+<code>P</code> (or <code>Cmd</code>+<code>P</code> on Mac), then choose "Save as PDF" as the destination.</p>
 
@@ -239,19 +239,19 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0Z"/>
     </svg>
-    <p><strong>About the privacy policy link you already have:</strong> that page lives on Claude's hosting, tied to this account. Play Store requires the privacy policy URL to stay reachable for as long as the app is listed — for years, regardless of whether you ever open Claude again. Don't paste that link into Play Console. Phase 1 below moves it to a permanent home you control, for free, in about 5 minutes.</p>
+    <p><strong>Don't paste this guide's own link (or the privacy-policy artifact link) into Play Console.</strong> Those pages live on Claude's hosting, tied to your account. Google needs the privacy-policy URL to stay reachable for years, no matter what. Phase 1 moves it to a permanent home you control, free, in about 5 minutes.</p>
   </div>
 
   <div class="status-block">
     <h2>Where things stand</h2>
     <ul class="status-list">
-      <li><span class="chip done">Done</span> App verified with real Gradle builds — debug and release both compile and package cleanly.</li>
-      <li><span class="chip done">Done</span> Release-blocking lint error found and fixed; <code>compileSdk</code>/<code>targetSdk</code> bumped to 35 and re-verified.</li>
-      <li><span class="chip done">Done</span> Privacy policy written, and a ready-to-host copy sits at <code>store-listing/privacy-policy/index.html</code> in your project.</li>
-      <li><span class="chip done">Done</span> Ads wired up: banners on Home/Nutrition/Progress, interstitials after finishing a workout, saving a custom workout, and logging a meal — currently on Google's test IDs.</li>
-      <li><span class="chip todo">Your action</span> Give the privacy policy a permanent URL (Phase 1).</li>
-      <li><span class="chip todo">Your action</span> Create Play Console + AdMob accounts (Phase 2).</li>
-      <li><span class="chip todo">Your action</span> Real AdMob ad unit IDs, signing key, store graphics, 14-day closed test, final submission (Phases 3–7).</li>
+      <li><span class="chip done">Done</span> Debug <em>and</em> release builds verified with real Gradle builds (Android Gradle Plugin 8.9.2 / Gradle 8.11.1). R8 minification + release lint both pass.</li>
+      <li><span class="chip done">Done</span> <code>targetSdk</code>/<code>compileSdk</code> raised to <strong>36</strong> — Google Play requires API 36 for all new apps submitted after Aug 31, 2026. The Gradle wrapper is now committed so the project builds anywhere.</li>
+      <li><span class="chip done">Done</span> Release APK installed and launched on a physical Android device — opens clean, no crash.</li>
+      <li><span class="chip done">Done</span> Privacy policy written; a standalone copy to host sits at <code>store-listing/privacy-policy/index.html</code>.</li>
+      <li><span class="chip done">Done</span> Ads wired: banners on Home / Nutrition / Progress, interstitials at 3 natural break points (finish a workout, save a custom workout, log a meal) — currently on Google's <em>test</em> IDs.</li>
+      <li><span class="chip done">Done</span> Play Console and AdMob accounts created.</li>
+      <li><span class="chip todo">Your action</span> Phases 1–7 below: privacy-policy URL, real AdMob ad units, signing key, signed <code>.aab</code>, store graphics, Play Console forms, 14-day closed test, submit.</li>
     </ul>
   </div>
 
@@ -260,107 +260,146 @@
       <span class="phase-num">1</span>
       <span class="phase-title">Host your privacy policy permanently<span class="phase-who you">You</span></span>
     </div>
-    <p>GitHub Pages hosts a single page for free, forever, with no subscription of any kind attached to it — the most standard choice for exactly this situation.</p>
+    <p>GitHub Pages hosts one page for free, indefinitely, with nothing to renew — the standard choice for exactly this.</p>
     <ol class="steps">
-      <li>Go to <a href="https://github.com/signup" target="_blank" rel="noopener">github.com/signup</a> and create a free account, if you don't already have one.</li>
-      <li>Click the <strong>+</strong> in the top-right corner → <strong>New repository</strong>. Name it <code>freegymtrainer-privacy</code>, make sure <strong>Public</strong> is selected (Private won't work — Google's reviewers need to reach it without logging in), and click <strong>Create repository</strong>.</li>
-      <li>On the new repo's page, click <strong>Add file → Upload files</strong>. Drag in the file from your project at <code>store-listing/privacy-policy/index.html</code>. Before committing, rename it in GitHub's upload box from <code>index.html</code> to exactly <code>index.html</code> at the repo root (it already has that name — just don't let it nest inside a folder).</li>
-      <li>Scroll down, click <strong>Commit changes</strong> (the default "main branch" option is fine).</li>
-      <li>Go to the repo's <strong>Settings</strong> tab → <strong>Pages</strong> (left sidebar). Under "Build and deployment", set <strong>Source: Deploy from a branch</strong>, <strong>Branch: main</strong> / <strong>(root)</strong> → <strong>Save</strong>.</li>
-      <li>Wait about a minute, then refresh that Pages settings screen — it'll show your live URL: <code>https://&lt;your-github-username&gt;.github.io/freegymtrainer-privacy/</code></li>
+      <li>Sign in at <a href="https://github.com" target="_blank" rel="noopener">github.com</a> (create a free account if you don't have one).</li>
+      <li>Top-right <strong>+</strong> → <strong>New repository</strong>. Name it <code>freegymtrainer-privacy</code>, set it <strong>Public</strong> (Private won't work — Google's reviewers open it logged-out), click <strong>Create repository</strong>.</li>
+      <li>On the repo page: <strong>Add file → Upload files</strong>. Drag in <code>store-listing/privacy-policy/index.html</code> from your project. Keep the name <code>index.html</code> and leave it at the repo root (not inside a folder).</li>
+      <li>Click <strong>Commit changes</strong> (default branch is fine).</li>
+      <li><strong>Settings</strong> tab → <strong>Pages</strong> (left sidebar). Under "Build and deployment": <strong>Source: Deploy from a branch</strong>, <strong>Branch: main / (root)</strong> → <strong>Save</strong>.</li>
+      <li>Wait ~1 minute, refresh the Pages screen. Your live URL appears: <code>https://&lt;your-username&gt;.github.io/freegymtrainer-privacy/</code>. Open it once to confirm it loads.</li>
     </ol>
-    <div class="note"><strong>Use that <code>github.io</code> URL everywhere from here on</strong> — Play Console's privacy policy field, your store listing, everywhere. It has no expiry and no dependency on Claude, a subscription, or anything else you'd need to keep renewing. If you ever need to change the wording, edit the file in the GitHub web UI and commit — the live page updates within a minute.</div>
+    <div class="note"><strong>That <code>github.io</code> URL is the one you use everywhere</strong> — Play Console's privacy-policy field and the store listing. To change wording later, edit the file on GitHub and commit; the page updates within a minute.</div>
   </section>
 
   <section class="phase">
     <div class="phase-head">
       <span class="phase-num">2</span>
-      <span class="phase-title">Create two accounts<span class="phase-who you">You</span></span>
+      <span class="phase-title">Create your real AdMob ad units<span class="phase-who you">You</span> <span class="phase-who me">then Claude</span></span>
     </div>
-    <ol class="steps">
-      <li><strong>Google Play Console</strong> — <a href="https://play.google.com/console/signup" target="_blank" rel="noopener">play.google.com/console/signup</a>. One-time $25 fee, needs your Google account, a payment method, and ID verification (can take a day or two to clear — start this early since later steps wait on it).</li>
-      <li><strong>Google AdMob</strong> — <a href="https://apps.admob.com" target="_blank" rel="noopener">apps.admob.com</a>. Free, same Google account works.</li>
-    </ol>
+    <p>Every ad in the app currently uses Google's shared <strong>test</strong> IDs — they prove the wiring works but never earn anything. You need your own units.</p>
+    <p>In <a href="https://apps.admob.com" target="_blank" rel="noopener">AdMob</a>: <strong>Apps → Add app</strong> → Android → "No, not published yet" → name it "Free Gym Trainer". Then under that app, <strong>Ad units → Add ad unit</strong>:</p>
+    <ul class="steps">
+      <li>One <strong>Banner</strong> unit (name it e.g. "Home/Nutrition/Progress banner")</li>
+      <li>One <strong>Interstitial</strong> unit (name it e.g. "Break-point interstitial")</li>
+    </ul>
+    <p>Then send Claude these <strong>three</strong> values:</p>
+    <ul class="steps">
+      <li><strong>App ID</strong> — <code>ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY</code> (has a <code>~</code>)</li>
+      <li><strong>Banner ad unit ID</strong> — <code>ca-app-pub-XXXXXXXXXXXXXXXX/BBBBBBBBBB</code> (has a <code>/</code>)</li>
+      <li><strong>Interstitial ad unit ID</strong> — <code>ca-app-pub-XXXXXXXXXXXXXXXX/IIIIIIIIII</code></li>
+    </ul>
+    <p>It's a 4-line edit in the <code>release</code> block of <code>app/build.gradle.kts</code>. The <code>debug</code> block stays on Google's test IDs on purpose, so any testing you do never risks your real account.</p>
+    <div class="note"><strong>Also, in AdMob → App settings:</strong> set <strong>Maximum ad content rating</strong> to <em>G</em> (matches a fitness app rated for everyone) so no unsuitable ads serve inside your app.</div>
   </section>
 
   <section class="phase">
     <div class="phase-head">
       <span class="phase-num">3</span>
-      <span class="phase-title">Create real AdMob ad units<span class="phase-who you">You</span> <span class="phase-who me">Then me</span></span>
+      <span class="phase-title">Generate your signing key<span class="phase-who you">You</span></span>
     </div>
-    <p>Right now every ad in the app — the banners and all three interstitial spots — uses Google's shared <strong>test</strong> ad IDs. They prove the wiring works, but they will never earn a rupee; you need your own ad units before this makes money.</p>
-    <p>In the AdMob console: <strong>Apps → Add app</strong> → Android → "No, not published yet" → name it "Free Gym Trainer". Then under that app:</p>
+    <p>Every release is signed with the same key for the life of the app. In Android Studio with the project open: <strong>Build → Generate Signed App Bundle / APK → Android App Bundle → Next → Create new…</strong></p>
     <ul class="steps">
-      <li><strong>Ad units → Add ad unit → Banner</strong> (e.g. "Home/Nutrition/Progress banner")</li>
-      <li><strong>Ad units → Add ad unit → Interstitial</strong> (e.g. "Post-action interstitial")</li>
+      <li>Save the <code>.jks</code> file <strong>outside</strong> the project folder (e.g. a <code>keystores/</code> folder in Documents) — never inside the repo.</li>
+      <li>Set a keystore password and a key password (can be the same). Alias: <code>freegymtrainer</code>.</li>
+      <li>Certificate fields: your name and country is enough — it's not shown publicly.</li>
+      <li>Create it, then you can cancel the rest of the wizard — you'll come back in Phase 4.</li>
     </ul>
-    <p>Copy three values: the <strong>App ID</strong> (<code>ca-app-pub-XXXX~YYYY</code>), the <strong>Banner ad unit ID</strong>, and the <strong>Interstitial ad unit ID</strong> (both <code>ca-app-pub-XXXX/ZZZZ</code>). Send all three to Claude — it's a 4-line edit in <code>app/build.gradle.kts</code>'s <code>release</code> block (the debug block stays on Google's test IDs on purpose, so testing never risks your real account).</p>
+    <p>Then create <code>keystore.properties</code> in the project root (already git-ignored) so command-line and CI builds can sign too:</p>
+    <div class="copyblock">
+      <span class="label">keystore.properties</span>
+      <p><code>storeFile=C:/Users/mrity/Documents/keystores/freegymtrainer.jks</code><br>
+      <code>storePassword=yourStorePassword</code><br>
+      <code>keyAlias=freegymtrainer</code><br>
+      <code>keyPassword=yourKeyPassword</code></p>
+    </div>
+    <div class="note"><strong>This file cannot be recovered if lost.</strong> Back up the <code>.jks</code> in two places and put both passwords in a password manager. Lose it and you can never update this listing again. (Google's Play App Signing, which you'll accept on first upload, protects the <em>download</em> key — but you still must keep this <em>upload</em> key.)</div>
   </section>
 
   <section class="phase">
     <div class="phase-head">
       <span class="phase-num">4</span>
-      <span class="phase-title">Generate your signing key<span class="phase-who you">You</span></span>
+      <span class="phase-title">Build the final signed release<span class="phase-who you">You</span></span>
     </div>
-    <p>In Android Studio, with the project open: <strong>Build → Generate Signed App Bundle / APK → Android App Bundle → Next → Create new...</strong></p>
-    <ul class="steps">
-      <li>Save the <code>.jks</code> file <strong>outside</strong> the project folder (e.g. <code>Documents/</code>) — never inside the git repo.</li>
-      <li>Set a store password and key password.</li>
-      <li>Fill in the certificate identity fields (minimal/personal is fine — not shown publicly).</li>
-      <li>Finish creating it, then cancel out of the rest of the wizard for now — you'll return to it in Phase 5.</li>
-    </ul>
-    <div class="note"><strong>This file cannot be recovered if lost.</strong> Save the passwords in a password manager. Losing this key means you can never update your app under the same listing again.</div>
+    <p>After Phase 2's real ad IDs are in: <strong>Build → Generate Signed App Bundle / APK → Android App Bundle → Next</strong> → pick your keystore, enter passwords → build variant <strong>release</strong> → <strong>Finish</strong>.</p>
+    <p>Output: <code>app/build/outputs/bundle/release/app-release.aab</code> — the file you upload to Play Console. (Command-line equivalent, now that the wrapper is committed: <code>gradlew bundleRelease</code>.)</p>
+    <div class="note"><strong>Before building, bump nothing</strong> — <code>versionCode 1</code> / <code>versionName "1.0.0"</code> is correct for the first release. You only bump these for <em>updates</em> after the app is live.</div>
   </section>
 
   <section class="phase">
     <div class="phase-head">
       <span class="phase-num">5</span>
-      <span class="phase-title">Build the final signed release<span class="phase-who you">You</span></span>
-    </div>
-    <p>Once Phase 3's ad IDs are wired in: <strong>Build → Generate Signed App Bundle / APK → Android App Bundle → Next</strong> → select your keystore, enter the passwords → choose the <strong>release</strong> build variant → <strong>Finish</strong>.</p>
-    <p>This produces <code>app-release.aab</code> — the exact file you upload to Play Console in Phase 7.</p>
-  </section>
-
-  <section class="phase">
-    <div class="phase-head">
-      <span class="phase-num">6</span>
       <span class="phase-title">Store listing content<span class="phase-who me">Drafted</span> <span class="phase-who you">Graphics: you</span></span>
+    </div>
+    <div class="copyblock">
+      <span class="label">App name (30 char max)</span>
+      <p>Free Gym Trainer</p>
     </div>
     <div class="copyblock">
       <span class="label">Short description (80 char max)</span>
       <p>Free offline workout &amp; nutrition tracker. Build routines. No login needed.</p>
     </div>
     <div class="copyblock">
-      <span class="label">Full description</span>
+      <span class="label">Full description (paste as-is)</span>
       <p>Free Gym Trainer is a completely free, offline fitness companion — no login, no cloud, no subscription.</p>
-      <p>🏋️ <strong>Workouts</strong> — Follow built-in programs (Push Pull Legs, Upper/Lower, Fat Loss Circuit, Beginner Full Body, Home Workout) or build your own from 60+ exercises with custom sets, reps, and rest timers. Track every session with a live rest timer and set-by-set logging.</p>
-      <p>🧘 <strong>Yoga</strong> — A dedicated flows section with guided poses, step-by-step photos, and hold-based tracking, separate from the gym experience.</p>
-      <p>🥗 <strong>Nutrition</strong> — Personalized calorie and macro targets, a full food database with vitamins &amp; minerals for 50+ foods, veg/non-veg meal plans, and one-tap water tracking.</p>
-      <p>📊 <strong>Progress</strong> — Streaks, personal records, weight and body-measurement trends, and a consistency calendar to see your habits build over time.</p>
-      <p>🔒 <strong>Private by design</strong> — Every bit of your data stays on your device. No account, no server, no data collection beyond what's needed to show ads.</p>
+      <p>🏋️ Workouts — Follow built-in programs (Push Pull Legs, Upper/Lower, Fat Loss Circuit, Beginner Full Body, Home Workout) or build your own from 60+ exercises with custom sets, reps, and rest timers. Track every session with a live rest timer and set-by-set logging.</p>
+      <p>🧘 Yoga — A dedicated flows section with guided poses, step-by-step photos, and hold-based tracking, separate from the gym experience.</p>
+      <p>🥗 Nutrition — Personalized calorie and macro targets, a full 7-day veg &amp; non-veg diet plan with one-tap meal logging, meal-time reminders that show what's on your plan, a food database with vitamins &amp; minerals for 50+ foods, and one-tap water tracking.</p>
+      <p>📊 Progress — Streaks, personal records, weight and body-measurement trends, and a consistency calendar to see your habits build over time.</p>
+      <p>🔒 Private by design — Every bit of your data stays on your device. No account, no server, no data collection beyond what's needed to show ads.</p>
       <p>Free forever, supported by minimal ads that never interrupt an active workout.</p>
     </div>
-    <p><strong>Icon (512×512 PNG) and feature graphic (1024×500 PNG)</strong> — needs your action; Claude has no image-generation tool. Canva has free templates for both sizes, or use an AI image tool / freelancer. Keep it simple: your orange/navy brand colors, a dumbbell or similar mark.</p>
-    <p><strong>2+ phone screenshots</strong> — needs your action; Claude can't drive a running emulator on your behalf for store assets. Run the app and screenshot Home, an active Workout, Nutrition, and Progress — Android Studio's emulator toolbar has a built-in screenshot button, or use your phone's own screenshot gesture if you're running it there.</p>
+    <p><strong>App icon — 512×512 PNG.</strong> Needs your action (Claude can't generate images). Free options: Canva "app icon" template, or <a href="https://icon.kitchen" target="_blank" rel="noopener">icon.kitchen</a>. Keep it simple — the app's orange/navy colours, a dumbbell mark.</p>
+    <p><strong>Feature graphic — 1024×500 PNG.</strong> Same tools. App name + dumbbell mark on a solid background is fine.</p>
+    <p><strong>Phone screenshots — 2 to 8, PNG or JPG.</strong> The debug app is already installed on your phone. Open it and screenshot <em>Home</em>, an <em>active Workout</em> (rest timer visible), <em>Nutrition</em>, and <em>Progress</em>. Use your phone's screenshot gesture; transfer the files to your computer for upload.</p>
+  </section>
+
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">6</span>
+      <span class="phase-title">Fill out Play Console<span class="phase-who you">You</span></span>
+    </div>
+    <p>In <a href="https://play.google.com/console" target="_blank" rel="noopener">Play Console</a>: <strong>Create app</strong> → name "Free Gym Trainer", language English, type <strong>App</strong>, <strong>Free</strong>, accept the declarations.</p>
+    <p>Then work down the left sidebar. The ones with specifics for this app:</p>
+    <ul class="steps">
+      <li><strong>App content → Privacy policy</strong> — paste your <code>github.io</code> URL from Phase 1.</li>
+      <li><strong>App content → Ads</strong> — "Yes, my app contains ads."</li>
+      <li><strong>App content → Data safety</strong> — the app's own storage is all on-device, so the only thing to declare is what the Google Mobile Ads SDK does:
+        <ul class="steps">
+          <li>Data collected &amp; shared: <strong>Device or other IDs</strong> — purpose <em>Advertising or marketing</em>; not used for a user account; can't be deleted by the user.</li>
+          <li>Data is <strong>encrypted in transit</strong>: Yes.</li>
+          <li>Everything else (name, health info, photos, location, etc.): <strong>not collected</strong> — it never leaves the device.</li>
+        </ul>
+      </li>
+      <li><strong>App content → Content ratings</strong> — fill the questionnaire honestly: fitness/health app, no violence, no sex, no gambling, no user-generated content. Result is "Everyone / PEGI 3".</li>
+      <li><strong>App content → Target audience</strong> — target age <strong>13+</strong> (do not include under-13 — that triggers Google's Families policy and extra ad-SDK requirements you don't need).</li>
+      <li><strong>App content → Health apps declaration</strong> — it's a general fitness/wellness app, not a medical device, no health-data sharing. The in-app disclaimer ("general information, not medical advice") already covers this.</li>
+      <li><strong>App content → Government apps / News / COVID</strong> — No to all.</li>
+      <li><strong>Store settings → App category</strong> — Health &amp; Fitness.</li>
+      <li><strong>Main store listing</strong> — paste the text from Phase 5, upload icon + feature graphic + screenshots.</li>
+    </ul>
   </section>
 
   <section class="phase">
     <div class="phase-head">
       <span class="phase-num">7</span>
-      <span class="phase-title">Fill out Play Console<span class="phase-who you">You</span></span>
+      <span class="phase-title">Closed test → then Production<span class="phase-who you">You</span></span>
     </div>
-    <ol class="steps">
-      <li><strong>Create app</strong> → name "Free Gym Trainer" → Free → answer the standard declarations.</li>
-      <li><strong>App content</strong> (sidebar) — complete every item: Privacy policy (paste your <code>github.io</code> URL from Phase 1), Ads ("Yes, my app contains ads"), Data safety form (no personal data collected/shared beyond AdMob's own ad-serving disclosures), Content rating questionnaire (fitness app, no violence/gambling), Target audience (not primarily for children).</li>
-      <li><strong>Store listing</strong> — paste the descriptions above, upload the icon/screenshots/feature graphic from Phase 6.</li>
-    </ol>
     <div class="callout warn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0Z"/>
       </svg>
-      <p><strong>The step that catches every first-time developer off guard:</strong> a brand-new personal Play Console account cannot publish straight to Production. Google requires a <strong>closed test</strong> first — go to <strong>Testing → Closed testing</strong>, create a track, upload the same <code>app-release.aab</code>, and add at least <strong>12 testers</strong> by email (friends/family Gmail addresses are fine). Share the opt-in link Play Console gives you; each tester has to install the app and open it at least once. This track must stay active for <strong>14 continuous days</strong> before the Production track becomes available at all. Start this the same day you finish Phase 5 — it's the long pole in the whole timeline, not something to leave for last.</p>
+      <p><strong>A new personal Play Console account cannot publish straight to Production.</strong> Google requires a closed test first: <strong>at least 12 testers, opted in and keeping the app installed for 14 continuous days.</strong> This is the long pole — start it the day your <code>.aab</code> is ready, not last.</p>
     </div>
-    <p>Once the 14 days have passed and testers have opted in: <strong>Production → Create new release</strong> — upload <code>app-release.aab</code>, write release notes ("Initial release"), save, roll out. Google reviews new apps before they go live — typically a few hours to a few days on top of that.</p>
+    <ol class="steps">
+      <li><strong>Testing → Closed testing → Create track</strong> (the default "Alpha" track is fine).</li>
+      <li><strong>Testers</strong> tab → create an email list → add 12+ Gmail addresses (friends, family, other accounts of yours). On first upload, accept <strong>Play App Signing</strong> when prompted.</li>
+      <li><strong>Releases</strong> tab → <strong>Create release</strong> → upload <code>app-release.aab</code> → release name "1.0.0" → release notes "Initial release" → save &amp; roll out.</li>
+      <li>Copy the <strong>opt-in URL</strong> and send it to every tester. Each must open the link, tap "become a tester", install from Play, and open the app once. Ask them to leave it installed.</li>
+      <li>Wait <strong>14 days</strong> from when testing starts. Track the countdown on the closed-testing page.</li>
+      <li>After 14 days, Play Console unlocks <strong>Production</strong>. <strong>Production → Create release</strong> → upload the same <code>app-release.aab</code> (or a newer build) → roll out.</li>
+    </ol>
+    <p>Google reviews new apps before they go live — usually hours to a few days after you submit Production.</p>
   </section>
 
   <section class="phase">
@@ -369,16 +408,17 @@
       <span class="phase-title">After it's live<span class="phase-who you">You</span></span>
     </div>
     <ul class="steps">
-      <li>Real ads start serving and accumulating revenue immediately once Phase 3's real IDs are live — no separate "turn on ads" step.</li>
-      <li>In AdMob, add a <strong>payment profile</strong> (Payments → Set up payments) with your bank details and tax information — in India this means your PAN. Payouts run monthly once your balance crosses the regional threshold (commonly $100).</li>
-      <li>To update later: bump <code>versionCode</code>/<code>versionName</code> in <code>app/build.gradle.kts</code>, rebuild via Phase 5's wizard using the <strong>same</strong> keystore, upload as a new Play Console release — no new closed test required for updates to an app already in Production.</li>
+      <li>Real ads serve and accrue revenue automatically once the Production build (with Phase 2's IDs) is live — there's no "turn on ads" switch.</li>
+      <li><strong>AdMob → Payments → Set up payments</strong>: add your address, then your bank account and tax info (India: PAN). AdMob also mails or shows a <strong>verification PIN</strong> once you cross ~$10 — enter it or payments stall. Payouts are monthly after you pass the threshold (₹ equivalent of ~$100).</li>
+      <li><strong>Updates:</strong> bump <code>versionCode</code> to <code>2</code> and <code>versionName</code> to <code>"1.0.1"</code> in <code>app/build.gradle.kts</code>, rebuild with the <strong>same</strong> keystore, upload as a new Production release. No new closed test needed once the app is in Production.</li>
+      <li>Keep <code>targetSdk</code> current — Google raises the required API level every year around August.</li>
     </ul>
   </section>
 
   <hr class="divider" />
 
   <footer>
-    Questions about this guide?
+    Free Gym Trainer · Play Store publishing guide
     <div class="contact">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/>
@@ -386,8 +426,7 @@
       mrityunjaykumar579@gmail.com
     </div>
     <div class="links">
-      Privacy policy source file (host this per Phase 1, don't link Claude's copy from Play Console):
-      <a href="#">store-listing/privacy-policy/index.html — in your project</a>
+      Privacy policy to host (Phase 1): <code>store-listing/privacy-policy/index.html</code> in your project.
     </div>
   </footer>
 

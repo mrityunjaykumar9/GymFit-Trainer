@@ -51,7 +51,7 @@ reg("Leg Curl", [
     key(0.0, (0, .27), -90, fkleg(91, 83, ft=100), handrel(.06, -.08), label="Legs extended", cue="Hips pressed into the bench"),
     key(0.5, (0, .27), -90, fkleg(91, -12, ft=5), handrel(.06, -.08), label="Curl heels to glutes", cue="Squeeze hamstrings, control the way down"),
 ], [prop_line((-0.55, 0.195), (0.20, 0.195), .05), prop_line((-0.48, 0.17), (-0.48, 0.02), .03), prop_line((0.10, 0.17), (0.10, 0.02), .03),
-    prop_circle(at("ankleN", (.05, -.02)), .035, "metal", True, 1)],
+    prop_circle(at("ankleN", (.02, .015)), .025, "metal", True, 1)],
     [meas("Knee", "hip", "kneeN", "ankleN")], ["hamstrings"], dur=3000, view=[-0.7, 0.6, -0.08, 0.8])
 
 #  At the old hip height (.27) the "knees bent" foot (toes pointed down at ft=165) computed below
@@ -64,7 +64,7 @@ reg("Leg Extension", [
     key(0.0, (-.06, .36), -4, fkleg(90, 178, ft=150), hiprel(.10, .03), label="Knees bent", cue="Back flat against the pad"),
     key(0.5, (-.06, .36), -4, fkleg(90, 98, ft=80), hiprel(.10, .03), label="Extend & squeeze", cue="Pause with quads tight, lower slowly"),
 ], [prop_line((-.2, .29), (.08, .29), .05), prop_line((-.17, .31), (-.17, .89), .05), prop_line((-.02, .26), (-.02, 0), .03),
-    prop_circle(at("ankleN", (-.08, .03)), .04, "metal", True, 1)],
+    prop_circle(at("ankleN", (.03, .05)), .028, "metal", True, 1)],
     [KNEE()], ["thigh"], dur=3000, view=[-0.5, 0.6, -0.08, 1.1])
 
 # ---------------------------------------------------------------- LUNGES

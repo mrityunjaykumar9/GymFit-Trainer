@@ -19,7 +19,8 @@ object FoodSeedData {
         keyNutrients = nutrients, highlight = highlight
     )
 
-    val all: List<Food> = listOf(
+    /** The original 53 foods; [all] adds the second batch from [MoreFoodSeedData]. */
+    private val base: List<Food> = listOf(
         // Indian staples
         f("Cooked White Rice", "Grains", 130f, 2.7f, 28f, 0.3f, 0.4f, 150f,
             listOf("Manganese", "Thiamine (B1)"),
@@ -183,4 +184,6 @@ object FoodSeedData {
             listOf("Niacin", "Vitamin B6", "Selenium"),
             "Extremely lean protein - even lower in fat than chicken breast.")
     )
+
+    val all: List<Food> by lazy { base + MoreFoodSeedData.all }
 }

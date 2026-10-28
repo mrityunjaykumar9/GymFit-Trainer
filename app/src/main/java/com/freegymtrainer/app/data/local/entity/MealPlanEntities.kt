@@ -4,8 +4,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * One day of a reference meal plan (a suggestion, not a log) - seeded once from
- * MealPlanSeedData and never edited by the user, the same way workout templates work.
+ * LEGACY: one day of the fixed veg / non-veg weekly plan used by older app versions. Diet plans are
+ * now generated on the device from the person's goal (see domain/nutrition/PlanGenerator), so nothing
+ * reads or writes these tables any more; they stay in the schema so existing databases keep opening
+ * without a migration.
  */
 @Entity(tableName = "meal_plan_days")
 data class MealPlanDay(

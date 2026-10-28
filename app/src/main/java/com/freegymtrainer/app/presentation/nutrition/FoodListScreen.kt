@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,14 +24,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freegymtrainer.app.ads.AD_FEED_INTERVAL
+import com.freegymtrainer.app.ads.AdBanner
+import com.freegymtrainer.app.ads.shouldShowTrailingAd
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.isVeg
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.EmptyState
+import com.freegymtrainer.app.presentation.components.FoodIcon
+import com.freegymtrainer.app.presentation.components.foodIconFile
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.freegymtrainer.app.presentation.components.LoadingState
-import com.freegymtrainer.app.presentation.components.rememberAssetImageBitmap
 
 private enum class DietFilter { ALL, VEG, NON_VEG }
 
@@ -112,10 +119,17 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit, onOpenFood: (Lon
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(filtered, key = { it.id }) { food ->
+                    itemsIndexed(filtered, key = { _, it -> it.id }) { index, food ->
                         FoodRow(food, onClick = { onOpenFood(food.id) })
+                        // In-feed ad every AD_FEED_INTERVAL rows - see ExerciseListScreen for why.
+                        if ((index + 1) % AD_FEED_INTERVAL == 0) {
+                            Spacer(Modifier.height(4.dp))
+                            AdBanner()
+                        }
                     }
-                    item { Spacer(Modifier.height(8.dp)) }
+                    if (shouldShowTrailingAd(filtered.size)) {
+                        item { AdBanner() }
+                    }
                 }
             }
         }
@@ -124,28 +138,18 @@ fun FoodListScreen(container: AppContainer, onBack: () -> Unit, onOpenFood: (Lon
 
 @Composable
 private fun FoodDatabaseHero(itemCount: Int) {
-    val photo = rememberAssetImageBitmap("nutrients_pics/nutrients.jpg")
-
     Box(
         Modifier
             .fillMaxWidth()
             .height(140.dp)
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
     ) {
-        if (photo != null) {
-            Image(bitmap = photo, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            Box(
+        Box(
                 Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.3f), Color.Black.copy(alpha = 0.8f)))
+                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, androidx.compose.ui.graphics.lerp(MaterialTheme.colorScheme.primary, Color.Black, 0.6f)))
                 )
             )
-        } else {
-            Box(
-                Modifier.fillMaxSize().background(
-                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary))
-                )
-            )
-        }
+        
         Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
             Text("Food Database", style = MaterialTheme.typography.headlineSmall, color = Color.White)
             Spacer(Modifier.height(2.dp))
@@ -162,18 +166,20 @@ private fun FoodDatabaseHero(itemCount: Int) {
 private fun FoodRow(food: Food, onClick: () -> Unit) {
     ElevatedCard(onClick = onClick, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(14.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(if (food.isVeg()) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.errorContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    if (food.isVeg()) Icons.Filled.Eco else Icons.Filled.Egg,
-                    contentDescription = if (food.isVeg()) "Vegetarian" else "Non-vegetarian",
-                    tint = if (food.isVeg()) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(20.dp)
+            Box {
+                FoodIcon(foodIconFile(food.name, food.category), size = 52.dp)
+                // Standard Indian-food veg (green) / non-veg (red) marker.
+                val vegColor = if (food.isVeg()) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                Box(
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(3.dp)
+                        .clip(CircleShape)
+                        .background(vegColor)
+                        .semantics { contentDescription = if (food.isVeg()) "Vegetarian" else "Non-vegetarian" }
                 )
             }
             Spacer(Modifier.width(12.dp))

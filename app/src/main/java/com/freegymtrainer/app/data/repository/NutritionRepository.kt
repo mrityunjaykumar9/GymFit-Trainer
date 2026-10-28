@@ -3,14 +3,12 @@ package com.freegymtrainer.app.data.repository
 import com.freegymtrainer.app.data.local.AppDatabase
 import com.freegymtrainer.app.data.local.entity.Food
 import com.freegymtrainer.app.data.local.entity.MealLogEntry
-import com.freegymtrainer.app.data.local.entity.MealPlanDay
+import com.freegymtrainer.app.domain.nutrition.PlanItem
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
 
-data class MealPlanItemDetail(val food: Food, val grams: Float)
-data class MealPlanMealDetail(val mealType: String, val items: List<MealPlanItemDetail>)
-data class MealPlanDayDetail(val day: MealPlanDay, val meals: List<MealPlanMealDetail>)
-
+/** Food database search and the daily meal log. Diet plans themselves come from [NutritionPlanner]. */
 class NutritionRepository(private val db: AppDatabase) {
     fun searchFoods(query: String?): Flow<List<Food>> = db.foodDao().search(query?.takeIf { it.isNotBlank() })
     suspend fun getFood(id: Long): Food? = db.foodDao().getById(id)
@@ -19,40 +17,41 @@ class NutritionRepository(private val db: AppDatabase) {
     suspend fun logMeal(entry: MealLogEntry) = db.mealLogDao().insert(entry)
     suspend fun deleteMeal(entry: MealLogEntry) = db.mealLogDao().delete(entry)
 
-    suspend fun getMealPlanForDay(dietType: String, dayOfWeek: Int): MealPlanDayDetail? {
-        val day = db.mealPlanDao().getDay(dietType, dayOfWeek) ?: return null
-        val items = db.mealPlanDao().getItemsForDay(day.id)
-        val foodsById = items.map { it.foodId }.distinct().associateWith { db.foodDao().getById(it) }
-
-        val meals = items
-            .groupBy { it.mealType }
-            .map { (mealType, mealItems) ->
-                MealPlanMealDetail(
-                    mealType = mealType,
-                    items = mealItems.sortedBy { it.orderIndex }.mapNotNull { item ->
-                        foodsById[item.foodId]?.let { food -> MealPlanItemDetail(food, item.grams) }
-                    }
-                )
-            }
-        return MealPlanDayDetail(day, meals)
+    /** Everything logged in the last [days] days (today included), for the weekly insights. */
+    fun getRecentMeals(days: Int = 7): Flow<List<MealLogEntry>> {
+        val today = LocalDate.now().toEpochDay()
+        return db.mealLogDao().getRange(today - (days - 1), today)
     }
 
-    /** Copies a planned meal's items into today's actual log in one action. */
-    suspend fun logPlannedMeal(mealType: String, items: List<MealPlanItemDetail>) {
-        val entries = items.map { (food, grams) ->
+    /** The foods eaten most recently, newest first. */
+    fun recentFoods(limit: Int = 10): Flow<List<Food>> =
+        combine(db.mealLogDao().recentFoodIds(limit), db.mealLogDao().recentFoodsUnordered(limit)) { ids, foods ->
+            val byId = foods.associateBy { it.id }
+            ids.mapNotNull { byId[it] }
+        }
+
+    /** Copies everything logged yesterday into today. Returns how many entries were copied. */
+    suspend fun copyYesterdayToToday(): Int {
+        val today = LocalDate.now().toEpochDay()
+        val yesterday = db.mealLogDao().getForDayOnce(today - 1)
+        if (yesterday.isEmpty()) return 0
+        db.mealLogDao().insertAll(yesterday.map { it.copy(id = 0, dateEpochDay = today) })
+        return yesterday.size
+    }
+
+    suspend fun getFoodsByNames(names: Collection<String>): Map<String, Food> =
+        db.foodDao().getByNames(names.toList()).associateBy { it.name }
+
+    /** Logs a generated-plan meal into today. */
+    suspend fun logPlanMeal(slot: String, items: List<PlanItem>) {
+        val today = LocalDate.now().toEpochDay()
+        db.mealLogDao().insertAll(items.map { (food, grams) ->
             val factor = grams / 100f
             MealLogEntry(
-                dateEpochDay = LocalDate.now().toEpochDay(),
-                mealType = mealType,
-                foodId = food.id,
-                foodName = food.name,
-                servingGrams = grams,
-                calories = food.caloriesPer100g * factor,
-                protein = food.proteinPer100g * factor,
-                carbs = food.carbsPer100g * factor,
-                fat = food.fatPer100g * factor
+                dateEpochDay = today, mealType = slot, foodId = food.id, foodName = food.name, servingGrams = grams,
+                calories = food.caloriesPer100g * factor, protein = food.proteinPer100g * factor,
+                carbs = food.carbsPer100g * factor, fat = food.fatPer100g * factor
             )
-        }
-        db.mealLogDao().insertAll(entries)
+        })
     }
 }

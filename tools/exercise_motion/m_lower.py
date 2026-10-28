@@ -45,11 +45,12 @@ reg("Romanian Deadlift", [
 #  "ft" (the foot bearing) is a compass angle, not an angle relative to the shin - holding it at the
 #  same 100 for both keys while the shin bearing itself swings 83 -> -12 (95deg) meant the ankle
 #  joint was silently rotating by that same 95deg over the rep, even though the ankle is meant to
-#  stay relaxed/neutral throughout a leg curl. ft=5 keeps the foot at the same ~17deg angle off the
-#  shin at both ends, so only the knee moves.
+#  stay relaxed/neutral throughout a leg curl. Holding a constant ft-minus-shin diff keeps the foot
+#  at the same angle off the shin at both ends, so only the knee moves - ft=38 keeps it at the same
+#  ~50deg, bent enough to read as a natural relaxed/flexed ankle instead of a straight "peg leg".
 reg("Leg Curl", [
-    key(0.0, (0, .27), -90, fkleg(91, 83, ft=100), handrel(.06, -.08), label="Legs extended", cue="Hips pressed into the bench"),
-    key(0.5, (0, .27), -90, fkleg(91, -12, ft=5), handrel(.06, -.08), label="Curl heels to glutes", cue="Squeeze hamstrings, control the way down"),
+    key(0.0, (0, .27), -90, fkleg(91, 83, ft=133), handrel(.06, -.08), label="Legs extended", cue="Hips pressed into the bench"),
+    key(0.5, (0, .27), -90, fkleg(91, -12, ft=38), handrel(.06, -.08), label="Curl heels to glutes", cue="Squeeze hamstrings, control the way down"),
 ], [prop_line((-0.55, 0.195), (0.20, 0.195), .05), prop_line((-0.48, 0.17), (-0.48, 0.02), .03), prop_line((0.10, 0.17), (0.10, 0.02), .03),
     prop_circle(at("ankleN", (.02, .015)), .025, "metal", True, 1)],
     [meas("Knee", "hip", "kneeN", "ankleN")], ["hamstrings"], dur=3000, view=[-0.7, 0.6, -0.08, 0.8])
@@ -61,8 +62,8 @@ reg("Leg Curl", [
 #  Raising the seat height and easing the toe-down angle keeps the foot clear for the whole rep,
 #  so nothing ever needs correcting and the hip stays exactly where it's authored to be.
 reg("Leg Extension", [
-    key(0.0, (-.06, .36), -4, fkleg(90, 178, ft=150), hiprel(.10, .03), label="Knees bent", cue="Back flat against the pad"),
-    key(0.5, (-.06, .36), -4, fkleg(90, 98, ft=80), hiprel(.10, .03), label="Extend & squeeze", cue="Pause with quads tight, lower slowly"),
+    key(0.0, (-.06, .36), -4, fkleg(90, 178, ft=100), hiprel(.10, .03), label="Knees bent", cue="Back flat against the pad"),
+    key(0.5, (-.06, .36), -4, fkleg(90, 98, ft=20), hiprel(.10, .03), label="Extend & squeeze", cue="Pause with quads tight, lower slowly"),
 ], [prop_line((-.2, .29), (.08, .29), .05), prop_line((-.17, .31), (-.17, .89), .05), prop_line((-.02, .26), (-.02, 0), .03),
     prop_circle(at("ankleN", (.03, .05)), .028, "metal", True, 1)],
     [KNEE()], ["thigh"], dur=3000, view=[-0.5, 0.6, -0.08, 1.1])

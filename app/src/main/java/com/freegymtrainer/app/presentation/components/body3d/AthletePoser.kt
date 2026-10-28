@@ -183,6 +183,24 @@ internal class AthletePoser(private val rest: List<RestBone>) {
                         val theta = atan2(now.cross(want).dot(d2), now.dot(want))
                         q = Q.axisAngle(d2, theta * FOREARM_TWIST_SHARE) * q
                     }
+                } else {
+                    // The knee is a hinge: it should never twist relative to the thigh above it, but
+                    // Q.fromTo's shortest-arc rotation is recomputed fresh every frame from a fixed
+                    // rest direction, with no continuity constraint on roll - on a deep bend like a
+                    // leg curl that drifts and reads as the shin twisting mid-rep. Lock its roll to
+                    // the thigh's own current roll instead.
+                    val d2 = (end - pos).unit()
+                    // "want" has to go through the bone's own rest-local-to-parent rotation first -
+                    // comparing raw world axes directly ignores that the calf's and thigh's local
+                    // frames aren't the same to start with, which silently no-opped the first version
+                    // of this fix (the two reference vectors it compared weren't even in the same
+                    // frame, so there was nothing meaningful to cancel).
+                    val now = flat(q.rotate(V3.X), d2)
+                    val want = flat(wq[p].rotate(b.localQ.rotate(V3.X)), d2)
+                    if (now != null && want != null) {
+                        val theta = atan2(now.cross(want).dot(d2), now.dot(want))
+                        q = Q.axisAngle(d2, theta) * q
+                    }
                 }
                 worldQ = q
             } else if (worldQ == null && b.name.startsWith("hand_")) {
@@ -203,7 +221,18 @@ internal class AthletePoser(private val rest: List<RestBone>) {
                 val dip = atan2(-restDir.y, hypot(restDir.x, restDir.z))
                 val f = (footToe[side] ?: V3.Z).unit(V3.Z)
                 val n = (V3.Y - f * V3.Y.dot(f)).unit(V3.Y)
-                worldQ = Q.fromTo(restDir, f * cos(dip) - n * sin(dip)) * b.worldQ
+                val target = f * cos(dip) - n * sin(dip)
+                var footQ = Q.fromTo(restDir, target) * b.worldQ
+                // Same fix as the knee above: lock the ankle's roll to the calf's current roll
+                // instead of Q.fromTo's independently-recomputed shortest arc, which was letting the
+                // foot twist on its own as the leg swung through a big range (e.g. mid leg-curl).
+                val now = flat(footQ.rotate(V3.X), target)
+                val want = flat(wq[p].rotate(b.localQ.rotate(V3.X)), target)
+                if (now != null && want != null) {
+                    val theta = atan2(now.cross(want).dot(target), now.dot(want))
+                    footQ = Q.axisAngle(target, theta) * footQ
+                }
+                worldQ = footQ
             }
 
             var localQ = if (worldQ != null) wq[p].conj() * worldQ else b.localQ

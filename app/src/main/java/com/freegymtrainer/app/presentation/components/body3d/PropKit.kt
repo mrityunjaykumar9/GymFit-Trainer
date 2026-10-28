@@ -295,10 +295,15 @@ internal object PropBuilder {
                 // symmetric grip like this - mirroring the near hand across the body's centre
                 // line is reliable where gripF isn't, and every "bar" exercise today is a
                 // symmetric two-handed grip, so this holds exactly.
-                val barN = n
-                val barF = V3(-n.x, n.y, n.z)
+                // On a close grip the hand itself sits right against the thigh, so the rod drawn
+                // exactly at hand depth clips into the leg - nudge the whole rod forward (the pose's
+                // own "forward" axis, not a guessed world axis) clear of the body, and extend it
+                // further past each hand so a visible stub of rod actually pokes out of the fist.
+                val fwd = c.poser.dirToModel(V3(1f, 0f, 0f)) * (0.035f * S)
+                val barN = n + fwd + V3(0f, 0.018f * S, 0f)
+                val barF = V3(-barN.x, barN.y, barN.z)
                 val barMid = V3.lerp(barN, barF, 0.5f)
-                val half = max(abs(barN.x) + 0.06f, 0.12f)
+                val half = max(abs(barN.x) + 0.1f, 0.16f)
                 out += Prim.Cyl(Kind.CYL_CHROME, barMid + V3(-half, 0f, 0f), barMid + V3(half, 0f, 0f), 0.016f)
                 out += Prim.Cyl(Kind.CYL_STEEL, from, barMid, wire)
             }

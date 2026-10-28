@@ -18,9 +18,9 @@ class WorkoutRepository(private val db: AppDatabase) {
 
     fun getAllTemplates(): Flow<List<WorkoutTemplate>> = db.workoutTemplateDao().getAllTemplates()
 
-    /** The single seeded "Yoga & Flexibility" program - excluded from [getAllTemplates] since
-     * that's the gym-focused Workouts tab. Backs the dedicated Yoga tab instead. */
-    fun getYogaTemplate(): Flow<WorkoutTemplate?> = db.workoutTemplateDao().getYogaTemplate()
+    /** The single seeded "Warm-Up & Mobility" program - excluded from [getAllTemplates] since
+     * that's the gym-focused Workouts tab. Backs the dedicated Warm-Up tab instead. */
+    fun getMobilityTemplate(): Flow<WorkoutTemplate?> = db.workoutTemplateDao().getMobilityTemplate()
 
     suspend fun getTemplateDays(templateId: Long): List<WorkoutTemplateDay> =
         db.workoutTemplateDao().getDaysForTemplate(templateId)
@@ -70,6 +70,16 @@ class WorkoutRepository(private val db: AppDatabase) {
             }
         )
         return dayId
+    }
+
+    /**
+     * Saves a ready-made routine (for example "Back - Beginner") under "My Workouts", replacing the
+     * earlier copy with the same title so starting the same routine twice does not pile up duplicates.
+     */
+    suspend fun createOrReplaceCustomDay(title: String, muscleGroupsSummary: String, exercises: List<CustomExerciseInput>): Long {
+        val template = getOrCreateCustomTemplate()
+        db.workoutTemplateDao().findDayByTitle(template.id, title)?.let { deleteCustomDay(it.id) }
+        return createCustomDay(title, muscleGroupsSummary, exercises)
     }
 
     /** Removes a custom day and its exercise slots. Only meaningful for days under "My

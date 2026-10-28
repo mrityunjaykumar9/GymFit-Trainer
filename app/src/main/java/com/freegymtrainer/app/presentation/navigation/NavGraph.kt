@@ -14,15 +14,13 @@ import com.freegymtrainer.app.presentation.home.HomeScreen
 import com.freegymtrainer.app.presentation.nutrition.FoodDetailScreen
 import com.freegymtrainer.app.presentation.nutrition.FoodListScreen
 import com.freegymtrainer.app.presentation.nutrition.NutritionScreen
+import com.freegymtrainer.app.presentation.nutrition.NutritionGuideScreen
 import com.freegymtrainer.app.presentation.onboarding.OnboardingScreen
-import com.freegymtrainer.app.presentation.progress.ProgressScreen
+import com.freegymtrainer.app.presentation.exercises.BodyPartWorkoutScreen
 import com.freegymtrainer.app.presentation.settings.SettingsScreen
-import com.freegymtrainer.app.presentation.workouts.CustomWorkoutBuilderScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutDayDetailScreen
+import com.freegymtrainer.app.presentation.warmup.WarmupScreen
 import com.freegymtrainer.app.presentation.workouts.WorkoutExecutionScreen
-import com.freegymtrainer.app.presentation.workouts.WorkoutHistoryScreen
-import com.freegymtrainer.app.presentation.workouts.WorkoutListScreen
-import com.freegymtrainer.app.presentation.yoga.YogaScreen
 
 @Composable
 fun NavGraph(
@@ -42,32 +40,40 @@ fun NavGraph(
         }
 
         composable(Screen.Home.route) {
+            fun openTab(route: String) = navController.navigate(route) {
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
             HomeScreen(
                 container = container,
-                onStartWorkout = { dayId -> navController.navigate(Screen.WorkoutExecution.createRoute(dayId)) },
                 onOpenSettings = { navController.navigate(Screen.Settings.route) },
                 onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) },
-                onOpenWorkouts = {
-                    navController.navigate(Screen.Workouts.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                onOpenYoga = {
-                    navController.navigate(Screen.Yoga.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                onOpenBodyPart = { id -> navController.navigate(Screen.BodyPart.createRoute(id)) },
+                onOpenExercises = { openTab(Screen.Exercises.route) },
+                onOpenWarmup = { openTab(Screen.Warmup.route) },
+                onOpenNutrition = { openTab(Screen.Nutrition.route) }
             )
         }
 
         composable(Screen.Exercises.route) {
             ExerciseListScreen(
                 container = container,
-                onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) }
+                onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) },
+                onOpenBodyPart = { id -> navController.navigate(Screen.BodyPart.createRoute(id)) }
+            )
+        }
+
+        composable(
+            Screen.BodyPart.route,
+            arguments = listOf(navArgument("partId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val partId = backStackEntry.arguments?.getString("partId").orEmpty()
+            BodyPartWorkoutScreen(
+                container = container, partId = partId,
+                onBack = { navController.popBackStack() },
+                onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) },
+                onStartWorkout = { dayId -> navController.navigate(Screen.WorkoutExecution.createRoute(dayId)) }
             )
         }
 
@@ -79,36 +85,11 @@ fun NavGraph(
             ExerciseDetailScreen(container = container, exerciseId = id, onBack = { navController.popBackStack() })
         }
 
-        composable(Screen.Workouts.route) {
-            WorkoutListScreen(
+        composable(Screen.Warmup.route) {
+            WarmupScreen(
                 container = container,
                 onOpenDay = { dayId -> navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) },
-                onOpenHistory = { navController.navigate(Screen.WorkoutHistory.route) },
-                onCreateWorkout = { navController.navigate(Screen.CustomWorkoutBuilder.route) }
-            )
-        }
-
-        composable(Screen.WorkoutHistory.route) {
-            WorkoutHistoryScreen(container = container, onBack = { navController.popBackStack() })
-        }
-
-        composable(Screen.CustomWorkoutBuilder.route) {
-            CustomWorkoutBuilderScreen(
-                container = container,
-                onBack = { navController.popBackStack() },
-                onSaved = { dayId ->
-                    navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) {
-                        popUpTo(Screen.Workouts.route) { inclusive = false }
-                    }
-                }
-            )
-        }
-
-        composable(Screen.Yoga.route) {
-            YogaScreen(
-                container = container,
-                onOpenDay = { dayId -> navController.navigate(Screen.WorkoutDayDetail.createRoute(dayId)) },
-                onOpenPose = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) }
+                onOpenExercise = { id -> navController.navigate(Screen.ExerciseDetail.createRoute(id)) }
             )
         }
 
@@ -140,8 +121,13 @@ fun NavGraph(
             NutritionScreen(
                 container = container,
                 settings = settings,
-                onOpenFoodList = { navController.navigate(Screen.FoodList.route) }
+                onOpenFoodList = { navController.navigate(Screen.FoodList.route) },
+                onOpenGuide = { navController.navigate(Screen.NutritionGuide.route) }
             )
+        }
+
+        composable(Screen.NutritionGuide.route) {
+            NutritionGuideScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Screen.FoodList.route) {
@@ -158,10 +144,6 @@ fun NavGraph(
         ) { backStackEntry ->
             val foodId = backStackEntry.arguments?.getLong("foodId") ?: 0L
             FoodDetailScreen(container = container, foodId = foodId, onBack = { navController.popBackStack() })
-        }
-
-        composable(Screen.Progress.route) {
-            ProgressScreen(container = container)
         }
 
         composable(Screen.Settings.route) {

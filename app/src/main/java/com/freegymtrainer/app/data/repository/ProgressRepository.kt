@@ -19,5 +19,6 @@ class ProgressRepository(private val db: AppDatabase) {
     fun getWaterForToday(): Flow<List<WaterLog>> = db.waterLogDao().getForDay(LocalDate.now().toEpochDay())
     suspend fun addWater(amountMl: Int) =
         db.waterLogDao().insert(WaterLog(dateEpochDay = LocalDate.now().toEpochDay(), amountMl = amountMl))
+    suspend fun undoLastWater() = db.waterLogDao().deleteLastForDay(LocalDate.now().toEpochDay())
     suspend fun getTotalWaterToday(): Int = db.waterLogDao().getTotalForDay(LocalDate.now().toEpochDay())
 }

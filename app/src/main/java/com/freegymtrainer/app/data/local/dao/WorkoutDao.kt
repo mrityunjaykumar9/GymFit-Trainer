@@ -29,9 +29,8 @@ interface WorkoutTemplateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTemplateExercises(exercises: List<WorkoutTemplateExercise>)
 
-    // Excludes yoga programs - gym-goers and yoga practitioners are different audiences (see
-    // the dedicated Yoga tab / getYogaTemplate below), so this - the Workouts tab and
-    // onboarding's default-plan picker - stays gym-only.
+    // Excludes the Warm-Up & Mobility program - it has its own dedicated tab/getMobilityTemplate
+    // below, so this (the Workouts tab and onboarding's default-plan picker) stays gym-only.
     @Query("SELECT * FROM workout_templates WHERE isYoga = 0 ORDER BY name ASC")
     fun getAllTemplates(): Flow<List<WorkoutTemplate>>
 
@@ -42,13 +41,16 @@ interface WorkoutTemplateDao {
     suspend fun getCustomTemplate(): WorkoutTemplate?
 
     @Query("SELECT * FROM workout_templates WHERE isYoga = 1 LIMIT 1")
-    fun getYogaTemplate(): Flow<WorkoutTemplate?>
+    fun getMobilityTemplate(): Flow<WorkoutTemplate?>
 
     @Query("SELECT * FROM workout_template_days WHERE templateId = :templateId ORDER BY orderIndex ASC")
     suspend fun getDaysForTemplate(templateId: Long): List<WorkoutTemplateDay>
 
     @Query("SELECT COUNT(*) FROM workout_template_days WHERE templateId = :templateId")
     suspend fun countDaysForTemplate(templateId: Long): Int
+
+    @Query("SELECT * FROM workout_template_days WHERE templateId = :templateId AND title = :title LIMIT 1")
+    suspend fun findDayByTitle(templateId: Long, title: String): WorkoutTemplateDay?
 
     @Query("SELECT * FROM workout_template_days WHERE id = :dayId")
     suspend fun getTemplateDay(dayId: Long): WorkoutTemplateDay?
@@ -71,8 +73,8 @@ interface WorkoutTemplateDao {
     @Query("DELETE FROM workout_template_exercises WHERE templateDayId = :dayId")
     suspend fun deleteExercisesForDay(dayId: Long)
 
-    // Excludes yoga days - Home's Quick Start is the gym-hero's companion picker; yoga gets
-    // started from its own dedicated tab instead, keeping the two audiences' entry points apart.
+    // Excludes Warm-Up & Mobility days - Home's Quick Start is the gym-focused workout picker;
+    // mobility content starts from its own dedicated tab instead.
     @Query(
         """
         SELECT d.id AS id, d.title AS title, d.muscleGroupsSummary AS muscleGroupsSummary,

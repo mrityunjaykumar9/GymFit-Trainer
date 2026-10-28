@@ -31,7 +31,7 @@ import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.AppTopBar
 import com.freegymtrainer.app.presentation.components.ErrorState
-import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
+import com.freegymtrainer.app.presentation.components.ExerciseDemoCard
 import com.freegymtrainer.app.presentation.components.LoadingState
 import com.freegymtrainer.app.presentation.theme.orangeSoftContainer
 
@@ -111,6 +111,9 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
         if (state.isResting) {
             RestTimerContent(
                 secondsRemaining = state.restSecondsRemaining,
+                nextExercise = currentExercise?.exercise,
+                nextSetNumber = state.currentSetIndex + 1,
+                setCount = currentExercise?.sets?.size ?: 0,
                 onSkip = { viewModel.skipRest() },
                 modifier = Modifier.padding(padding)
             )
@@ -124,12 +127,7 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-            ElevatedCard(
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-            ) {
-                ExerciseAutoMedia(exercise = currentExercise.exercise, modifier = Modifier.fillMaxSize(), showAllSteps = true)
-            }
+            ExerciseDemoCard(exercise = currentExercise.exercise, compact = true)
             Spacer(Modifier.height(16.dp))
 
             Text(
@@ -168,22 +166,24 @@ fun WorkoutExecutionScreen(container: AppContainer, dayId: Long, onFinished: () 
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.height(12.dp))
-                    // Yoga poses are held, not lifted - showing a weight input for "Tree Pose"
-                    // would just be confusing, so it's dropped entirely for that category and
-                    // the remaining field is relabeled from reps to hold time.
-                    val isYoga = currentExercise.exercise.category == "Yoga"
+                    // Held poses (static stretches in Warm-Up & Mobility) aren't lifted - showing
+                    // a weight input for "Tree Pose" would just be confusing, so it's dropped
+                    // entirely for those and the remaining field is relabeled from reps to hold
+                    // time. Dynamic warm-up drills (Arm Circles, Jumping Jacks, ...) still count
+                    // in reps like any gym exercise - see Exercise.isHeldPose.
+                    val isHeldPose = currentExercise.exercise.isHeldPose
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         OutlinedTextField(
                             value = if (currentSet.actualReps == 0) "" else currentSet.actualReps.toString(),
                             onValueChange = { viewModel.updateCurrentSetReps(it.filter { c -> c.isDigit() }.take(3).toIntOrNull() ?: 0) },
-                            label = { Text(if (isYoga) "Hold (s)" else "Reps") },
+                            label = { Text(if (isHeldPose) "Hold (s)" else "Reps") },
                             placeholder = { Text(currentExercise.templateExercise.reps) },
-                            leadingIcon = { Icon(if (isYoga) Icons.Filled.Timer else Icons.Filled.Repeat, contentDescription = null) },
+                            leadingIcon = { Icon(if (isHeldPose) Icons.Filled.Timer else Icons.Filled.Repeat, contentDescription = null) },
                             singleLine = true,
                             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.weight(1f)
                         )
-                        if (!isYoga) {
+                        if (!isHeldPose) {
                             OutlinedTextField(
                                 value = if (currentSet.weightKg == 0.0) "" else currentSet.weightKg.toString(),
                                 onValueChange = { viewModel.updateCurrentSetWeight(it.filter { c -> c.isDigit() || c == '.' }.toDoubleOrNull() ?: 0.0) },
@@ -252,20 +252,48 @@ private fun SetChip(number: Int, completed: Boolean, current: Boolean, onClick: 
 }
 
 @Composable
-private fun RestTimerContent(secondsRemaining: Int, onSkip: () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("REST", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(8.dp))
-            val minutes = secondsRemaining / 60
-            val seconds = secondsRemaining % 60
+private fun RestTimerContent(
+    secondsRemaining: Int,
+    nextExercise: com.freegymtrainer.app.data.local.entity.Exercise?,
+    nextSetNumber: Int,
+    setCount: Int,
+    onSkip: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(16.dp))
+        Text("REST", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(8.dp))
+        val minutes = secondsRemaining / 60
+        val seconds = secondsRemaining % 60
+        Text(
+            "%d:%02d".format(minutes, seconds),
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            fontSize = 64.sp
+        )
+        Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = onSkip) { Text("Skip Rest") }
+
+        if (nextExercise != null) {
+            Spacer(Modifier.height(28.dp))
             Text(
-                "%d:%02d".format(minutes, seconds),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                fontSize = 64.sp
+                "UP NEXT  ·  SET $nextSetNumber OF $setCount",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(Modifier.height(32.dp))
-            OutlinedButton(onClick = onSkip) { Text("Skip Rest") }
+            Spacer(Modifier.height(2.dp))
+            Text(nextExercise.name, style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Use the rest to review the movement.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(12.dp))
+            ExerciseDemoCard(exercise = nextExercise, compact = true)
         }
     }
 }

@@ -15,9 +15,11 @@ data class WorkoutTemplate(
     // user builds themselves via the workout builder - lets the UI/queries distinguish it from
     // the seeded programs without fragile name-matching.
     val isCustom: Boolean = false,
-    // True only for the seeded "Yoga & Flexibility" program. Gym-goers and yoga practitioners
-    // are largely different audiences (see the dedicated Yoga tab) - this keeps yoga programs
-    // out of the Workouts tab and the onboarding default-plan picker, both of which are
+    // True only for the single seeded "Warm-Up & Mobility" program (dynamic warm-up drills plus
+    // static stretches - see the dedicated tab). Column name kept as "isYoga" from before that
+    // section was reframed from a standalone Yoga tab; renaming the column itself would need a
+    // migration for zero user-facing benefit, so only the meaning changed, not the name. Keeps
+    // this content out of the Workouts tab and the onboarding default-plan picker, both
     // gym-focused, without fragile name-matching.
     val isYoga: Boolean = false
 )

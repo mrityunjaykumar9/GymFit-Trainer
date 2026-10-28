@@ -11,10 +11,10 @@ interface WeightDao {
     @Insert
     suspend fun insert(entry: WeightEntry): Long
 
-    @Query("SELECT * FROM weight_history ORDER BY dateEpochDay ASC")
+    @Query("SELECT * FROM weight_history ORDER BY dateEpochDay ASC, id ASC")
     fun getAll(): Flow<List<WeightEntry>>
 
-    @Query("SELECT * FROM weight_history ORDER BY dateEpochDay DESC LIMIT 1")
+    @Query("SELECT * FROM weight_history ORDER BY dateEpochDay DESC, id DESC LIMIT 1")
     suspend fun getLatest(): WeightEntry?
 }
 
@@ -34,6 +34,9 @@ interface WaterLogDao {
 
     @Query("SELECT * FROM water_logs WHERE dateEpochDay = :day ORDER BY id ASC")
     fun getForDay(day: Long): Flow<List<WaterLog>>
+
+    @Query("DELETE FROM water_logs WHERE id = (SELECT MAX(id) FROM water_logs WHERE dateEpochDay = :day)")
+    suspend fun deleteLastForDay(day: Long)
 
     @Query("SELECT COALESCE(SUM(amountMl), 0) FROM water_logs WHERE dateEpochDay = :day")
     suspend fun getTotalForDay(day: Long): Int

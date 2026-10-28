@@ -2,55 +2,36 @@ package com.freegymtrainer.app.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.freegymtrainer.app.data.local.dao.DayOption
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.data.local.entity.UserProfile
 import com.freegymtrainer.app.di.AppContainer
-import com.freegymtrainer.app.domain.usecase.NutritionCalculator
+import com.freegymtrainer.app.domain.training.BodyPart
+import com.freegymtrainer.app.domain.training.BodyPartPlans
+import com.freegymtrainer.app.domain.training.TrainingLevel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 data class HomeUiState(
     val loading: Boolean = true,
     val profile: UserProfile? = null,
-    val todayDayTitle: String = "Rest Day",
-    val todayMuscleGroups: String = "",
+    /** The muscle group suggested for today (a simple weekly split), and how many exercises its routine has. */
+    val todayPart: BodyPart? = null,
     val todayExerciseCount: Int = 0,
-    val todayEstimatedMinutes: Int = 0,
-    val todayTemplateDayId: Long? = null,
-    val isRestDay: Boolean = true,
-    val workoutStreak: Int = 0,
-    val workoutsThisWeek: Int = 0,
-    val waterTodayMl: Int = 0,
-    val waterTargetMl: Int = 3000,
-    val proteinTodayG: Int = 0,
-    val proteinTargetG: Int = 140,
+    val isRestDay: Boolean = false,
     val calorieTarget: Int = 2200,
     val latestWeightKg: Float? = null,
     val weightTrendKg: Float? = null, // negative = down since last month
-    val recommendedExercises: List<Exercise> = emptyList(),
-    val isManualSkip: Boolean = false, // today was a scheduled workout the user chose to skip
-    val dayOptions: List<DayOption> = emptyList() // every workout day, for "Quick Start"
-)
-
-private data class PlanSnapshot(
-    val profile: UserProfile?,
-    val weeklyPlan: List<com.freegymtrainer.app.data.local.entity.WeeklyPlanEntry>,
-    val sessions: List<com.freegymtrainer.app.data.local.entity.WorkoutSession>,
-    val override: com.freegymtrainer.app.data.local.entity.DailyOverride?,
-    val dayOptions: List<DayOption>
+    /** "Exercise of the day": shown as a live 3D demo. */
+    val featured: Exercise? = null
 )
 
 /**
- * Every stat here is collected from a live Flow and recombined into a fresh [HomeUiState]
- * whenever any of them change - logging water/food, finishing a workout, or logging weight
- * from any other screen updates Home immediately instead of only on next app launch (this
- * screen's ViewModel survives tab switches, so a one-shot load on init would otherwise go
- * stale the moment you leave and come back).
+ * Home is a launch pad, not a dashboard: suggest what to train today, let the person pick any muscle in one
+ * tap, and show one exercise being performed in 3D. Everything here comes from live flows so a weight logged
+ * elsewhere shows up immediately.
  */
 class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
@@ -60,102 +41,36 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
     init { observe() }
 
     private fun observe() {
-        val todayDow = LocalDate.now().dayOfWeek.value // 1=Mon..7=Sun
-
-        val planAndSessions = combine(
-            container.userRepository.observeProfile(),
-            container.workoutRepository.getWeeklyPlan(),
-            container.workoutRepository.getAllSessions(),
-            container.workoutRepository.observeTodayOverride(),
-            container.workoutRepository.getAllDayOptions()
-        ) { profile, weeklyPlan, sessions, override, dayOptions -> PlanSnapshot(profile, weeklyPlan, sessions, override, dayOptions) }
-
-        val nutritionAndWeight = combine(
-            container.progressRepository.getWaterForToday(),
-            container.nutritionRepository.getMealsForToday(),
-            container.progressRepository.getWeightHistory()
-        ) { water, meals, weightHistory -> Triple(water, meals, weightHistory) }
-
         viewModelScope.launch {
-            combine(planAndSessions, nutritionAndWeight) { plan, (waterLogs, meals, weightHistory) ->
-                val (profile, weeklyPlan, sessions, override, dayOptions) = plan
-                val planEntry = weeklyPlan.firstOrNull { it.dayOfWeek == todayDow }
-                val skippedToday = override?.skipWorkout == true
+            val showcase = container.exerciseRepository.getByNames(FEATURED_NAMES)
+            combine(
+                container.userRepository.observeProfile(),
+                container.progressRepository.getWeightHistory()
+            ) { profile, weightHistory ->
+                val today = LocalDate.now()
+                val partId = WEEKLY_SPLIT[today.dayOfWeek.value - 1]
+                val part = partId?.let { BodyPartPlans.byId(it) }
+                val level = TrainingLevel.fromProfile(profile?.experienceLevel ?: "Beginner")
 
-                var dayTitle = "Rest Day"
-                var muscleGroups = ""
-                var exerciseCount = 0
-                var estimatedMinutes = 0
-                var templateDayId: Long? = null
-                var isRest = true
+                val targets = if (profile != null) container.nutritionPlanner.resolve()?.targets else null
 
-                if (!skippedToday && planEntry != null && !planEntry.isRestDay && planEntry.templateDayId != null) {
-                    val detail = container.workoutRepository.getTemplateDayDetail(planEntry.templateDayId)
-                    if (detail != null) {
-                        dayTitle = detail.day.title
-                        muscleGroups = detail.day.muscleGroupsSummary
-                        exerciseCount = detail.exercises.size
-                        estimatedMinutes = estimateMinutes(detail.exercises.sumOf { it.first.sets })
-                        templateDayId = detail.day.id
-                        isRest = false
-                    }
-                }
-                // A skipped scheduled day still reads as "rest" above, but the UI needs to
-                // know it was a deliberate skip (to offer "undo") rather than a normal rest day.
-                val isManualSkip = skippedToday && planEntry != null && !planEntry.isRestDay
+                val latest = weightHistory.maxWithOrNull(compareBy({ it.dateEpochDay }, { it.id }))
+                val monthAgoEpoch = today.minusDays(30).toEpochDay()
+                val monthAgo = weightHistory.filter { it.dateEpochDay <= monthAgoEpoch }.maxWithOrNull(compareBy({ it.dateEpochDay }, { it.id }))
 
-                val completedSessions = sessions.filter { it.completed }
-                val streak = calculateStreak(completedSessions.map { it.dateEpochDay })
-                val weekAgoMillis = System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000
-                val workoutsThisWeek = completedSessions.count { it.startTimeMillis >= weekAgoMillis }
-
-                val waterToday = waterLogs.sumOf { it.amountMl }
-                val proteinToday = meals.sumOf { it.protein.toDouble() }.toInt()
-
-                var nutritionTargets: NutritionTargetsSnapshot? = null
-                if (profile != null) {
-                    val targets = NutritionCalculator.calculateTargets(
-                        weightKg = profile.weightKg, heightCm = profile.heightCm,
-                        ageYears = estimateAge(profile), gender = profile.gender,
-                        activityLevel = profile.activityLevel, goal = profile.goal
-                    )
-                    nutritionTargets = NutritionTargetsSnapshot(targets.calorieTarget, targets.proteinGrams, targets.waterMl)
-                }
-
-                val latestWeight = weightHistory.maxByOrNull { it.dateEpochDay }
-                val monthAgoEpoch = LocalDate.now().minusDays(30).toEpochDay()
-                val monthAgoEntry = weightHistory.filter { it.dateEpochDay <= monthAgoEpoch }.maxByOrNull { it.dateEpochDay }
-                val trend = if (latestWeight != null && monthAgoEntry != null) latestWeight.weightKg - monthAgoEntry.weightKg else null
-
-                val allExercises = container.exerciseRepository.getAll().first()
-                val recommended = allExercises
-                    .filter { it.primaryMuscle == (muscleGroups.split(",").firstOrNull()?.trim() ?: "") }
-                    .take(3)
-                    .ifEmpty { allExercises.take(3) }
-
+                val featuredName = FEATURED_NAMES[(today.toEpochDay() % FEATURED_NAMES.size).toInt()]
                 HomeUiState(
                     loading = false,
                     profile = profile,
-                    todayDayTitle = dayTitle,
-                    todayMuscleGroups = muscleGroups,
-                    todayExerciseCount = exerciseCount,
-                    todayEstimatedMinutes = estimatedMinutes,
-                    todayTemplateDayId = templateDayId,
-                    isRestDay = isRest,
-                    workoutStreak = streak,
-                    workoutsThisWeek = workoutsThisWeek,
-                    waterTodayMl = waterToday,
-                    waterTargetMl = nutritionTargets?.waterMl ?: 3000,
-                    proteinTodayG = proteinToday,
-                    proteinTargetG = nutritionTargets?.proteinGrams ?: 140,
-                    calorieTarget = nutritionTargets?.calorieTarget ?: 2200,
-                    latestWeightKg = latestWeight?.weightKg,
-                    weightTrendKg = trend,
-                    recommendedExercises = recommended,
-                    isManualSkip = isManualSkip,
-                    dayOptions = dayOptions
+                    todayPart = part,
+                    todayExerciseCount = part?.plan(level)?.size ?: 0,
+                    isRestDay = part == null,
+                    calorieTarget = targets?.calorieTarget ?: 2200,
+                    latestWeightKg = latest?.weightKg,
+                    weightTrendKg = if (latest != null && monthAgo != null) latest.weightKg - monthAgo.weightKg else null,
+                    featured = showcase[featuredName]
                 )
-            }.collect { newState -> _uiState.value = newState }
+            }.collect { _uiState.value = it }
         }
     }
 
@@ -163,32 +78,14 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.progressRepository.addWeightEntry(weightKg) }
     }
 
-    fun setSkipToday(skip: Boolean) {
-        viewModelScope.launch { container.workoutRepository.setSkipToday(skip) }
+    companion object {
+        /** Monday..Sunday. null = rest day. A classic push / pull / legs flavoured week. */
+        private val WEEKLY_SPLIT = listOf("chest", "back", "legs", "shoulders", "biceps", "abs", null)
+
+        /** Exercises worth showing off on Home, rotated daily. */
+        val FEATURED_NAMES = listOf(
+            "Barbell Bench Press", "Barbell Back Squat", "Deadlift", "Pull Ups",
+            "Overhead Press", "Barbell Curl", "Lat Pulldown"
+        )
     }
-
-    private fun estimateMinutes(totalSets: Int): Int = (totalSets * 3.5).toInt().coerceAtLeast(15)
-
-    private fun estimateAge(profile: UserProfile): Int {
-        // MVP simplification: date of birth collection was optional during onboarding, so we
-        // fall back to a reasonable adult default when it wasn't provided.
-        return 28
-    }
-
-    private fun calculateStreak(completedEpochDays: List<Long>): Int {
-        if (completedEpochDays.isEmpty()) return 0
-        val daySet = completedEpochDays.toSet()
-        val today = LocalDate.now().toEpochDay()
-        // If today has no session yet, start counting from yesterday so the streak doesn't
-        // reset to zero simply because the user hasn't trained *yet today*.
-        var cursor = if (daySet.contains(today)) today else today - 1
-        var streak = 0
-        while (daySet.contains(cursor)) {
-            streak++
-            cursor--
-        }
-        return streak
-    }
-
-    private data class NutritionTargetsSnapshot(val calorieTarget: Int, val proteinGrams: Int, val waterMl: Int)
 }

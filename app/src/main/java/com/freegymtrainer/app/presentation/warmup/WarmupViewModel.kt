@@ -1,4 +1,4 @@
-package com.freegymtrainer.app.presentation.yoga
+package com.freegymtrainer.app.presentation.warmup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,41 +10,41 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-data class YogaUiState(
+data class WarmupUiState(
     val loading: Boolean = true,
     val templateDescription: String = "",
     val flowDays: List<DayWithExerciseCount> = emptyList(),
-    val poses: List<Exercise> = emptyList()
+    val exercises: List<Exercise> = emptyList()
 )
 
 /**
- * Backs the dedicated Yoga tab - a genuinely separate section from Exercises/Workouts, not
- * just a filter within them, since gym-goers and yoga practitioners are largely different
- * audiences and shouldn't have to wade through each other's content. Reuses the same
- * WorkoutDayDetail/ExerciseDetail screens for drilling into a flow or a pose - only the top-
- * level browsing surface is dedicated, not the whole feature stack.
+ * Backs the dedicated Warm-Up & Mobility tab - a genuinely separate section from
+ * Exercises/Workouts (not just a filter within them), pitched at prepping/recovering around a
+ * gym session rather than a standalone practice for a different audience. Reuses the same
+ * WorkoutDayDetail/ExerciseDetail screens for drilling into a routine or a single exercise -
+ * only the top-level browsing surface is dedicated, not the whole feature stack.
  */
-class YogaViewModel(private val container: AppContainer) : ViewModel() {
-    private val _uiState = MutableStateFlow(YogaUiState())
-    val uiState: StateFlow<YogaUiState> = _uiState
+class WarmupViewModel(private val container: AppContainer) : ViewModel() {
+    private val _uiState = MutableStateFlow(WarmupUiState())
+    val uiState: StateFlow<WarmupUiState> = _uiState
 
     init {
         viewModelScope.launch {
             combine(
-                container.exerciseRepository.getAllYoga(),
-                container.workoutRepository.getYogaTemplate()
-            ) { poses, template -> poses to template }
-                .collect { (poses, template) ->
+                container.exerciseRepository.getAllMobility(),
+                container.workoutRepository.getMobilityTemplate()
+            ) { exercises, template -> exercises to template }
+                .collect { (exercises, template) ->
                     val days = template?.let { t ->
                         container.workoutRepository.getTemplateDays(t.id).map { day ->
                             DayWithExerciseCount(day, container.workoutRepository.countExercisesForDay(day.id))
                         }
                     } ?: emptyList()
-                    _uiState.value = YogaUiState(
+                    _uiState.value = WarmupUiState(
                         loading = false,
                         templateDescription = template?.description.orEmpty(),
                         flowDays = days,
-                        poses = poses
+                        exercises = exercises
                     )
                 }
         }

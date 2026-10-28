@@ -19,12 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.data.local.entity.WorkoutTemplateExercise
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
 import com.freegymtrainer.app.presentation.components.AppTopBar
-import com.freegymtrainer.app.presentation.components.ExerciseAutoMedia
+import com.freegymtrainer.app.presentation.components.ExerciseThumb
 import com.freegymtrainer.app.presentation.components.LoadingState
 
 @Composable
@@ -106,7 +107,7 @@ fun WorkoutDayDetailScreen(
                 ) {
                     Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(56.dp).clip(RoundedCornerShape(10.dp))) {
-                            ExerciseAutoMedia(exercise = exercise, modifier = Modifier.fillMaxSize())
+                            ExerciseThumb(exercise = exercise, modifier = Modifier.fillMaxSize())
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
@@ -128,6 +129,8 @@ fun WorkoutDayDetailScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
+            AdBanner(modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -188,7 +191,7 @@ private fun SwapExerciseSheet(currentExercise: Exercise, candidates: List<SwapCa
                 ) {
                     Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(48.dp).clip(RoundedCornerShape(10.dp))) {
-                            ExerciseAutoMedia(exercise = exercise, modifier = Modifier.fillMaxSize())
+                            ExerciseThumb(exercise = exercise, modifier = Modifier.fillMaxSize())
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {

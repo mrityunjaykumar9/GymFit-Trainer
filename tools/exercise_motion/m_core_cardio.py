@@ -33,16 +33,20 @@ reg("Plank", [
 ], [FLOOR_MAT], [meas("Body line", "shoulder", "hip", "ankleN"), meas("Elbow", "shoulder", "elbowN", "wristN")], ["abs"], dur=4200, view=[-0.85, 0.6, -0.08, 0.7])
 
 # ---------------------------------------------------------------- ABS
-def head_hands(hip, T, head, dx=0.0, dy=0.0):
+def head_hands(hip, T, head, frac=0.7):
+    # A fixed world-space (dx, dy) offset from the head broke at the "lie back" key: the head itself
+    # sits barely above the floor when T=-90 (lying flat), so subtracting a fixed dy to pull the hand
+    # down toward ear height instead pulled it down to floor level. Going a fraction of the way along
+    # the shoulder->head axis instead keeps the hand at ear height (short of the crown) relative to
+    # the head's own orientation, so it still works once the torso angle changes as the rep curls up.
     sh = sh_of(hip, T)
-    hd = add(sh, vec(T + head), HEAD_D)
-    return hand(hd[0] + dx, hd[1] + dy, b=-1)
+    return hand(*add(sh, vec(T + head), HEAD_D * frac), b=-1)
 
 
 _cr_hip = (0.0, 0.075)
 reg("Crunch", [
-    key(0.0, _cr_hip, -90, foot(.30, .04), head_hands(_cr_hip, -90, 0, -.02, .04), label="Lie back", cue="Lower back stays pressed into the floor"),
-    key(0.5, _cr_hip, -58, foot(.30, .04), head_hands(_cr_hip, -58, 18, -.02, .04), spine=-0.04, head=18, label="Curl up", cue="Lift shoulder blades only, don't pull on your neck"),
+    key(0.0, _cr_hip, -90, foot(.30, .04), head_hands(_cr_hip, -90, 0), label="Lie back", cue="Lower back stays pressed into the floor"),
+    key(0.5, _cr_hip, -58, foot(.30, .04), head_hands(_cr_hip, -58, 18), spine=-0.04, head=18, label="Curl up", cue="Lift shoulder blades only, don't pull on your neck"),
 ], [FLOOR_MAT], [], ["abs"], dur=2800, view=[-0.7, 0.55, -0.08, 0.7])
 
 _hb = fkleg(184, 186)

@@ -80,7 +80,7 @@ L("Hip Thrust", grip=.17, stance=.09)
 L("Glute Bridge", grip=.13, stance=.08)
 # ------------------------------------------------------------------ core & cardio
 L("Plank", grip=.105, stance=.06)
-L("Crunch", grip=.06, stance=.09)
+L("Crunch", grip=.075, stance=.09)
 L("Hanging Leg Raise", grip=.22, stance=.04)
 L("Cable Crunch", grip=.06, stance=.09)
 L("Running", stance=.08)

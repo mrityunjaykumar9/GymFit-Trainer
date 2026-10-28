@@ -9,17 +9,22 @@ plugins {
 
 android {
     namespace = "com.freegymtrainer.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.freegymtrainer.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        targetSdk = 36
+        versionCode = 11
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+    }
+
+    // Lets the migration test read the exported Room schemas (app/schemas) from the test APK.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
 
     signingConfigs {
@@ -51,12 +56,11 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // TODO: Replace with YOUR real AdMob App ID / Ad Unit IDs before publishing.
-            // Get these from https://apps.admob.com after creating your app + ad units.
-            buildConfigField("String", "ADMOB_APP_ID", "\"ca-app-pub-3940256099942544~3347511713\"")
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
-            manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+            // Real AdMob App ID / Ad Unit IDs (apps.admob.com - "Free Gym Trainer" app).
+            buildConfigField("String", "ADMOB_APP_ID", "\"ca-app-pub-1772325777930064~2981801767\"")
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-1772325777930064/3504545949\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-1772325777930064/9353348002\"")
+            manifestPlaceholders["admobAppId"] = "ca-app-pub-1772325777930064~2981801767"
             if (rootProject.file("keystore.properties").exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -70,7 +74,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
         freeCompilerArgs += listOf(
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            // FlowRow/FlowColumn - used so chip rows (goal tags, muscle groups, nutrients) wrap
+            // onto a new line on narrow screens instead of a plain Row squeezing them into
+            // unreadable, letter-per-line text.
+            "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi"
         )
     }
 
@@ -133,14 +141,21 @@ dependencies {
 
     // AdMob (ads-based free monetization)
     implementation("com.google.android.gms:play-services-ads:23.2.0")
-
-    // ExoPlayer (media3) - plays exercise demonstration clips once mediaUrl is populated;
-    // falls back to the icon placeholder when an exercise has no clip yet.
-    implementation("androidx.media3:media3-exoplayer:1.3.1")
-    implementation("androidx.media3:media3-ui:1.3.1")
+    // play-services-ads/play-services-basement transitively pull in androidx.fragment:1.1.0
+    // (2019) - this app has no Fragments of its own, but Gradle's default "highest version
+    // wins" resolution means declaring a current version directly here is enough to override
+    // the stale transitive one and clear Play Console's "outdated SDK" technical-quality flag.
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
+    // User Messaging Platform - EEA/UK ad-consent + DMA message, required by AdMob's EU User
+    // Consent Policy before any ad request goes out to a user in that region. See ConsentManager.
+    implementation("com.google.android.ump:user-messaging-platform:4.0.0")
 
     // WorkManager (background reminder scheduling)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // Filament: physically based 3D renderer for the skinned athlete model (presentation/components/body3d).
+    implementation("com.google.android.filament:filament-android:1.69.5")
+    implementation("com.google.android.filament:gltfio-android:1.69.5")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -148,6 +163,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test:core:1.6.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

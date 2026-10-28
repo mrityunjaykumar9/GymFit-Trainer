@@ -19,10 +19,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.ShowChart
-import androidx.compose.material.icons.filled.Spa
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,11 +29,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.freegymtrainer.app.ads.ConsentManager
+import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.SettingsDataStore
+import com.freegymtrainer.app.presentation.components.body3d.DebugView
 import com.freegymtrainer.app.presentation.navigation.NavGraph
 import com.freegymtrainer.app.presentation.navigation.Screen
 import com.freegymtrainer.app.presentation.theme.FreeGymTrainerTheme
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
 
@@ -53,6 +55,19 @@ class MainActivity : ComponentActivity() {
             val themeMode by settingsStore.themeMode.collectAsState(initial = "dark")
             FreeGymTrainerTheme(themeMode = themeMode) {
                 AppRoot(container = app.container, settings = settingsStore, seedingReady = app.seedingReady)
+            }
+        }
+
+        // EEA/UK ad-consent (required by AdMob's EU User Consent Policy) must resolve before any
+        // ad request goes out. MobileAds.initialize() - and therefore every AdBanner / interstitial
+        // load - waits for this; see ConsentManager. This runs AFTER setContent on purpose: when
+        // cached consent info lets UMP answer synchronously it touches the activity window, and
+        // doing that before setContent intermittently crashed startup (NPE inside setContent).
+        ConsentManager.gatherConsent(this) {
+            if (ConsentManager.canRequestAds(this)) {
+                MobileAds.initialize(this) {
+                    InterstitialAdManager.preload(this)
+                }
             }
         }
     }
@@ -90,6 +105,21 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
     }
 
     val navController = rememberNavController()
+    if (BuildConfig.DEBUG) {
+        // Developer shortcut: adb shell am start -n ...debug/...MainActivity --es debug_exercise "Barbell Curl" --ef debug_yaw -35 --ef debug_t 0.5
+        val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
+        LaunchedEffect(destination) {
+            val extras = activity?.intent?.extras ?: return@LaunchedEffect
+            val name = extras.getString("debug_exercise") ?: return@LaunchedEffect
+            DebugView.yaw = if (extras.containsKey("debug_yaw")) extras.getFloat("debug_yaw") else null
+            DebugView.pitch = if (extras.containsKey("debug_pitch")) extras.getFloat("debug_pitch") else null
+            DebugView.clean = extras.getBoolean("debug_clean", false)
+            DebugView.t = if (extras.containsKey("debug_t")) extras.getFloat("debug_t") else null
+            container.exerciseRepository.getByNames(listOf(name))[name]?.let {
+                navController.navigate(Screen.ExerciseDetail.createRoute(it.id))
+            }
+        }
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val showBottomBar = Screen.bottomNavItems.any { it.route == currentRoute }
@@ -105,10 +135,8 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
                     val items = listOf(
                         Triple(Screen.Home, Icons.Filled.Home, "Home"),
                         Triple(Screen.Exercises, Icons.Filled.FitnessCenter, "Exercises"),
-                        Triple(Screen.Workouts, Icons.Filled.List, "Workouts"),
-                        Triple(Screen.Yoga, Icons.Filled.Spa, "Yoga"),
-                        Triple(Screen.Nutrition, Icons.Filled.Restaurant, "Nutrition"),
-                        Triple(Screen.Progress, Icons.Filled.ShowChart, "Progress")
+                        Triple(Screen.Warmup, Icons.Filled.SelfImprovement, "Warm-Up"),
+                        Triple(Screen.Nutrition, Icons.Filled.Restaurant, "Nutrition")
                     )
                     items.forEach { (screen, icon, label) ->
                         NavigationBarItem(

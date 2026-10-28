@@ -1,13 +1,12 @@
 package com.freegymtrainer.app
 
 import android.app.Application
-import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.data.local.AppDatabase
 import com.freegymtrainer.app.data.repository.SeedRepository
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.notifications.NotificationHelper
 import com.freegymtrainer.app.notifications.ReminderScheduler
-import com.google.android.gms.ads.MobileAds
+import com.freegymtrainer.app.presentation.components.motion.ExerciseMotionLibrary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -37,10 +36,12 @@ class GymTrainerApp : Application() {
         container = AppContainer(this)
 
         NotificationHelper.createChannel(this)
-        MobileAds.initialize(this) {
-            // AdMob SDK ready - banners created after this point will serve ads.
-            InterstitialAdManager.preload(this)
-        }
+        // AdMob's MobileAds.initialize() is deliberately NOT called here - it must wait for the
+        // EEA/UK consent flow (ConsentManager), which needs an Activity to show its dialog over.
+        // MainActivity.onCreate runs that flow and initializes ads once it resolves.
+
+        // Parse the bundled exercise animations off the main thread so the first exercise screen opens instantly.
+        applicationScope.launch { ExerciseMotionLibrary.preload(this@GymTrainerApp) }
 
         seedingReady = applicationScope.async {
             container.seedRepository.seedIfNeeded()
@@ -62,6 +63,9 @@ class GymTrainerApp : Application() {
                 }
                 if (settings.nutritionReminderEnabled) {
                     ReminderScheduler.scheduleNutritionReminder(context)
+                }
+                if (settings.mealRemindersEnabled) {
+                    ReminderScheduler.scheduleMealReminders(context, settings)
                 }
             }
         }

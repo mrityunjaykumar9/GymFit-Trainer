@@ -51,7 +51,7 @@ object WorkoutTemplateSeedData {
                 )),
                 SeedTemplateDay("Leg Day", "Quadriceps, Hamstrings, Glutes, Calves", listOf(
                     te("Barbell Back Squat", 4, "6-8", 120), te("Romanian Deadlift", 3, "8-10", 90),
-                    te("Leg Press", 3, "10-12", 90), te("Leg Curl", 3, "10-12", 60),
+                    te("Leg Press", 3, "10-12", 90), te("Walking Lunges", 3, "10 each leg", 75),
                     te("Calf Raise", 4, "12-15", 45)
                 ))
             )

@@ -19,7 +19,7 @@ internal object HandModes {
     private val neutral = setOf(
         "cable_fly", "pec_deck", "t_bar_row", "seated_cable_row", "rear_delt_fly", "face_pull", "hammer_curl",
         "tricep_pushdown", "overhead_tricep_extension", "walking_lunges", "bulgarian_split_squat", "calf_raise",
-        "farmers_carry", "cable_crunch", "jump_rope", "running", "leg_press", "leg_curl", "leg_extension"
+        "farmers_carry", "cable_crunch", "jump_rope", "running", "leg_press", "leg_extension"
     )
     private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing")
 

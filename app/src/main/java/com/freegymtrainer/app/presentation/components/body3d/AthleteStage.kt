@@ -326,7 +326,7 @@ internal class AthleteStage(private val context: Context) {
 
     companion object {
         private var initialized = false
-        private val PRONE_EXERCISES = setOf("Leg Curl")
+        private val PRONE_EXERCISES = emptySet<String>()
         private const val FLOOR_RADIUS = 2.6f
         private val FLOOR_COLOR = floatArrayOf(0.085f, 0.09f, 0.12f, 1f)
     }

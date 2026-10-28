@@ -86,8 +86,6 @@ object ExerciseCoach {
             "Lower back stays flat on the pad", "Lower until knees reach about 90°", "Press up, don't lock your knees"),
         "romanian_deadlift" to c("Hamstrings and glutes.",
             "Soft knees, shoulders back", "Push your hips back, bar slides down your legs", "Stop at a stretch, back stays flat"),
-        "leg_curl" to c("Hamstrings, the back of the thigh.",
-            "Hips pressed into the bench", "Curl your heels to your glutes", "Lower slowly under control"),
         "leg_extension" to c("Quads, the front of the thigh.",
             "Back flat against the pad", "Extend until your legs are straight", "Pause, then lower slowly"),
         "walking_lunges" to c("Legs and glutes, plus balance.",

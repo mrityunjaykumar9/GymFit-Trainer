@@ -103,7 +103,7 @@ internal fun Pose3D.withHead(h: V3) = Pose3D(
     hipN, kneeN, ankleN, toeN, hipF, kneeF, ankleF, toeF
 )
 
-/** The same pose with the body turned over (chest down instead of up), for exercises done prone like the leg curl. */
+/** The same pose with the body turned over (chest down instead of up), for exercises done lying face down. */
 internal fun Pose3D.flippedFacing() = Pose3D(
     hip, neckBase, head, up, fwd * -1f, spineBulge,
     shoulderN, elbowN, wristN, shoulderF, elbowF, wristF,

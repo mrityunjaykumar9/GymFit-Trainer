@@ -201,7 +201,7 @@ object BodyPartPlans {
             listOf(
                 "Train legs 1-2 times a week - they are your biggest muscles and respond to heavy work.",
                 "Squat or press to at least parallel, knees tracking over your toes.",
-                "Include a hamstring movement (curl or Romanian deadlift) as well as quads.",
+                "Include a hamstring movement (Romanian deadlift) as well as quads.",
                 "Do not skip calves: straight-leg and bent-knee raises with a full stretch."
             ),
             levels(
@@ -209,14 +209,13 @@ object BodyPartPlans {
                     s("Leg Press", 3, "10-12", 90, "Feet shoulder-width, do not lock your knees at the top."),
                     s("Walking Lunges", 3, "10 each leg", 75, "Long steps, torso upright."),
                     s("Leg Extension", 3, "12-15", 60, "Squeeze at the top for a second."),
-                    s("Leg Curl", 3, "12-15", 60, "Slow on the way back."),
+                    s("Romanian Deadlift", 3, "10-12", 75, "Hips back, soft knees, feel the hamstring stretch."),
                     s("Calf Raise", 3, "15-20", 45, "Full stretch at the bottom, pause at the top.")
                 ),
                 listOf(
                     s("Barbell Back Squat", 4, "6-10", 150, "Brace your core, sit between your hips, drive up through the mid-foot."),
                     s("Romanian Deadlift", 3, "8-10", 120, "Hips back, soft knees, feel the hamstring stretch."),
                     s("Leg Press", 3, "10-12", 90, "Do not let your lower back round."),
-                    s("Leg Curl", 3, "12-15", 60, "Control the weight."),
                     s("Leg Extension", 3, "12-15", 60, "Pause at the top."),
                     s("Calf Raise", 4, "12-20", 45, "Slow and with a full range.")
                 ),
@@ -225,7 +224,6 @@ object BodyPartPlans {
                     s("Front Squat", 3, "6-10", 120, "Elbows high, upright torso."),
                     s("Romanian Deadlift", 4, "6-10", 120, "Keep the bar close to your legs."),
                     s("Bulgarian Split Squat", 3, "8-10 each leg", 90, "Stay tall and control the descent."),
-                    s("Leg Curl", 3, "10-15", 60, "Squeeze at the top."),
                     s("Calf Raise", 4, "12-20", 45, "Finish with burning calves.")
                 )
             )

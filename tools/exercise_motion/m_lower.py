@@ -42,19 +42,6 @@ reg("Romanian Deadlift", [
 ], [plate("wristN", .085)], [BACK(), KNEE()], ["hamstrings", "glutes", "back"], dur=3600)
 
 # ---------------------------------------------------------------- MACHINES
-#  "ft" (the foot bearing) is a compass angle, not an angle relative to the shin - holding it at the
-#  same 100 for both keys while the shin bearing itself swings 83 -> -12 (95deg) meant the ankle
-#  joint was silently rotating by that same 95deg over the rep, even though the ankle is meant to
-#  stay relaxed/neutral throughout a leg curl. Holding a constant ft-minus-shin diff keeps the foot
-#  at the same angle off the shin at both ends, so only the knee moves - ft=38 keeps it at the same
-#  ~50deg, bent enough to read as a natural relaxed/flexed ankle instead of a straight "peg leg".
-reg("Leg Curl", [
-    key(0.0, (0, .27), -90, fkleg(91, 83, ft=133), handrel(.06, -.08), label="Legs extended", cue="Hips pressed into the bench"),
-    key(0.5, (0, .27), -90, fkleg(91, -12, ft=38), handrel(.06, -.08), label="Curl heels to glutes", cue="Squeeze hamstrings, control the way down"),
-], [prop_line((-0.55, 0.195), (0.20, 0.195), .05), prop_line((-0.48, 0.17), (-0.48, 0.02), .03), prop_line((0.10, 0.17), (0.10, 0.02), .03),
-    prop_circle(at("ankleN", (.02, .015)), .025, "metal", True, 1)],
-    [meas("Knee", "hip", "kneeN", "ankleN")], ["hamstrings"], dur=3000, view=[-0.7, 0.6, -0.08, 0.8])
-
 #  At the old hip height (.27) the "knees bent" foot (toes pointed down at ft=165) computed below
 #  floor level, so the renderer's own "keep every limb above the floor" safety lifted the WHOLE
 #  seated body to compensate - and let go of that lift as the leg extended and the foot rose back

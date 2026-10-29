@@ -21,7 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.freegymtrainer.app.presentation.components.motion.MotionDef
+import com.freegymtrainer.app.presentation.components.motion.drawGuides
 import com.google.android.filament.android.UiHelper
 import kotlinx.coroutines.launch
 
@@ -36,6 +39,8 @@ object DebugView {
     var t: Float? = null
     /** Hides UI chrome (labels) so screenshots can be cut into clean pictures. */
     var clean: Boolean = false
+    /** In clean mode the coaching guides are hidden (so pictures come out plain) unless this is set (`debug_guides`). */
+    var guides: Boolean = false
 }
 
 /**
@@ -48,7 +53,9 @@ fun Athlete3DCanvas(
     progress: () -> Float,
     orbit: OrbitState,
     modifier: Modifier = Modifier,
-    exerciseName: String? = null
+    exerciseName: String? = null,
+    /** Draws the coaching guides (dashed lines, rings, angle readouts) over the athlete. */
+    showGuides: Boolean = false
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -110,6 +117,20 @@ fun Athlete3DCanvas(
                 }
             }
         )
+        if (showGuides && (!DebugView.clean || DebugView.guides) && motion.guides.isNotEmpty()) {
+            val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+            val style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, color = Color.White
+            )
+            androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+                stage.frameTick.intValue
+                val space = stage.guideSpace(size.width, size.height) ?: return@Canvas
+                val p = DebugView.t ?: progress()
+                val pulse = 0.5f + 0.5f * kotlin.math.sin(p * 4f * Math.PI.toFloat())
+                val layout = com.freegymtrainer.app.presentation.components.motion.PillLayout()
+                drawGuides(motion.guides, space, pulse, measurer, style, layout)
+            }
+        }
         if (!stage.ready) {
             Text(
                 "3D model unavailable",

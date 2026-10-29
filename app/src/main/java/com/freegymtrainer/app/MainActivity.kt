@@ -114,6 +114,7 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
             DebugView.yaw = if (extras.containsKey("debug_yaw")) extras.getFloat("debug_yaw") else null
             DebugView.pitch = if (extras.containsKey("debug_pitch")) extras.getFloat("debug_pitch") else null
             DebugView.clean = extras.getBoolean("debug_clean", false)
+            DebugView.guides = extras.getBoolean("debug_guides", false)
             DebugView.t = if (extras.containsKey("debug_t")) extras.getFloat("debug_t") else null
             container.exerciseRepository.getByNames(listOf(name))[name]?.let {
                 navController.navigate(Screen.ExerciseDetail.createRoute(it.id))

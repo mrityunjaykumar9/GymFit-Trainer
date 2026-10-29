@@ -19,3 +19,14 @@ viewer (Warrior II, Triangle, Tree, Lateral Raise - there pose +x is the body's 
 the character's left). Distances are pose units (1.0 = standing height, 0.135 = shoulder width). After changing it run
 `python build.py`, then check the exercise in the app from the Front and Side chips (or with the debug intent in
 CLAUDE.md).
+
+## Coaching guides (`m_guides.py`)
+
+People look at the animation, they don't read the text. `m_guides.py` (runs last, after `m_lateral.py`) adds up to
+three marks per exercise that are drawn over BOTH the 3D athlete and the 2D side view when the "Guides" chip is on:
+`plumb(joint, label)` vertical line to the floor (wrist over elbow, bar over mid-foot), `level(joint, label)`
+horizontal line (elbows at shoulder height), `line(a, b, label)` straight line between two joints (head to heels),
+`ring(joint, label)` pulsing marker (elbow stays pinned) and `tilt(a, b, label)` the angle of a segment against the
+horizontal with a live degree readout (back angle). Keep labels short (about 20 characters). The kotlin side is
+`GuideOverlay.kt` (drawing, label placement) with the 3D joint projection in `AthleteStage.guideSpace`. `build.py`
+rejects unknown joints or more than three guides.

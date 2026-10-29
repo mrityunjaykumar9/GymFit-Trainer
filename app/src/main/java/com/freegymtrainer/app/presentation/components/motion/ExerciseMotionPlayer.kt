@@ -73,6 +73,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.freegymtrainer.app.data.local.entity.Exercise
 import com.freegymtrainer.app.presentation.components.body3d.Athlete3DCanvas
 import com.freegymtrainer.app.presentation.components.body3d.isAthleteModelAvailable
@@ -238,9 +239,11 @@ private fun DrawScope.drawMotion(
 
     motion.props.forEach { drawProp(it, 1) }
 
+    if (showAngles && motion.guides.isNotEmpty()) {
+        drawGuides(motion.guides, FlatGuideSpace(sk, sc, ::s), pulse, measurer, labelStyle.copy(fontSize = 11.sp, color = Color.White))
+    }
     if (showAngles && motion.hasMeasures) {
         motion.measures.firstOrNull { !it.isLean }?.let { drawAngleGuide(sk, it, ::s, sc, pal, measurer, labelStyle) }
-        drawAngleHud(motion, sk, pal, measurer, labelStyle)
     }
 }
 
@@ -283,7 +286,6 @@ private fun DrawScope.drawAngleGuide(
     val bl = hypot(bis.x, bis.y)
     bis = if (bl < 0.2f) Offset(-u1.y, u1.x) else Offset(bis.x / bl, bis.y / bl)
     val labelCenter = Offset(b.x + bis.x * (r + 22.dp.toPx()), b.y + bis.y * (r + 22.dp.toPx()))
-    drawLabelPill("${sk.measure(m).roundToInt()}°", labelCenter, pal, measurer, style)
 }
 
 private fun DrawScope.drawAngleHud(
@@ -389,7 +391,7 @@ fun ExerciseMotionPlayer(
                 .aspectRatio(if (view3d) (if (compact) 1.3f else 1.0f) else frameRatio)
                 .clip(RoundedCornerShape(16.dp))
         ) {
-            if (view3d) Athlete3DCanvas(motion = motion, progress = { progress.floatValue }, orbit = orbit, exerciseName = exercise.name)
+            if (view3d) Athlete3DCanvas(motion = motion, progress = { progress.floatValue }, orbit = orbit, exerciseName = exercise.name, showGuides = showAngles)
             else ExerciseMotionCanvas(
                 motion = motion,
                 progress = { progress.floatValue },
@@ -404,6 +406,9 @@ fun ExerciseMotionPlayer(
                 modifier = Modifier.align(Alignment.TopEnd).padding(10.dp)
             )
         }
+
+        // The words for the numbered badges on the animation (kept out of the picture so the athlete stays visible).
+        if (showAngles && motion.hasGuides) GuideLegend(motion, { progress.floatValue })
 
         if (view3d) {
             Spacer(Modifier.height(8.dp))
@@ -428,30 +433,35 @@ fun ExerciseMotionPlayer(
             Spacer(Modifier.height(6.dp))
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilledTonalIconButton(onClick = { playing = !playing }) {
+        // A wrapping row: with the Guides chip the controls no longer fit on one line on narrow phones in the 2D view.
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            FilledTonalIconButton(onClick = { playing = !playing }, modifier = Modifier.align(Alignment.CenterVertically)) {
                 Icon(
                     if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                     contentDescription = if (playing) "Pause animation" else "Play animation"
                 )
             }
-            FilledTonalIconButton(onClick = { progress.floatValue = 0f; playing = true }) {
+            FilledTonalIconButton(onClick = { progress.floatValue = 0f; playing = true }, modifier = Modifier.align(Alignment.CenterVertically)) {
                 Icon(Icons.Filled.Replay, contentDescription = "Restart animation")
             }
-            Spacer(Modifier.weight(1f))
-            FilterChip(selected = view3d, onClick = { view3d = !view3d }, label = { Text("3D") })
+            FilterChip(selected = view3d, onClick = { view3d = !view3d }, label = { Text("3D") }, modifier = Modifier.align(Alignment.CenterVertically))
             if (!view3d) FilterChip(
+                modifier = Modifier.align(Alignment.CenterVertically),
                 selected = mirrored,
                 onClick = { mirrored = !mirrored; rememberedMirror = mirrored },
                 label = { Text("Flip") },
                 leadingIcon = { Icon(Icons.Filled.SwapHoriz, contentDescription = "Flip direction", modifier = Modifier.size(18.dp)) }
             )
-            FilterChip(selected = slow, onClick = { slow = !slow }, label = { Text("0.5×") })
-            if (motion.hasMeasures) {
+            FilterChip(selected = slow, onClick = { slow = !slow }, label = { Text("0.5×") }, modifier = Modifier.align(Alignment.CenterVertically))
+            if (motion.hasGuides) {
                 FilterChip(
+                    modifier = Modifier.align(Alignment.CenterVertically),
                     selected = showAngles,
                     onClick = { showAngles = !showAngles },
-                    label = { Text("Angles") },
+                    label = { Text("Guides") },
                     leadingIcon = { Icon(Icons.Filled.Straighten, contentDescription = null, modifier = Modifier.size(18.dp)) }
                 )
             }

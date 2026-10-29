@@ -2,7 +2,7 @@
 from engine import ANKLE_H
 
 MOTIONS = {}
-STAND_HIP = 0.52  # hip height with legs (almost) straight, feet flat
+STAND_HIP = 0.5295  # hip height with legs (almost) straight, feet flat
 
 
 def key(t, hip, T, legN, armN, legF=None, armF=None, head=0, spine=0, sl=0, label="", cue="", lat=None, grip=None, stance=None):

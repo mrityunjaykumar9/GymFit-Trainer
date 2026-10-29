@@ -24,12 +24,13 @@ def plank_key(t, alpha, label, cue):
     hip, T, ankle = pushup_geom(alpha, -0.62)
     sh = sh_of(hip, T)
     legs = foot(ankle[0], ankle[1], ft=150)
-    return key(t, hip, T, legs, fkarm(180, 90), label=label, cue=cue)
+    # head=6: neutral neck, gaze on the floor just ahead of the hands; upper arm a touch behind vertical so the 3D elbow lands under the shoulder
+    return key(t, hip, T, legs, fkarm(190, 90), head=6, label=label, cue=cue)
 
 
 reg("Plank", [
-    plank_key(0.0, 8.0, "Hold", "Straight line from head to heels, glutes squeezed"),
-    plank_key(0.5, 6.4, "Keep breathing", "Don't let your hips sag or pike up"),
+    plank_key(0.0, 8.0, "Hold", "Elbows under shoulders, forearms parallel, body in one straight line from head to heels, glutes and abs tight"),
+    plank_key(0.5, 6.4, "Keep breathing", "Keep breathing. Don't let your hips sag or pike up, and look at the floor"),
 ], [FLOOR_MAT], [meas("Body line", "shoulder", "hip", "ankleN"), meas("Elbow", "shoulder", "elbowN", "wristN")], ["abs"], dur=4200, view=[-0.85, 0.6, -0.08, 0.7])
 
 # ---------------------------------------------------------------- ABS
@@ -50,12 +51,12 @@ reg("Crunch", [
 ], [FLOOR_MAT], [], ["abs"], dur=2800, view=[-0.7, 0.55, -0.08, 0.7])
 
 _hb = fkleg(184, 186)
-_hang = hand(0.05, 1.32)
+_hang = hand(0.05, 1.40)
 reg("Hanging Leg Raise", [
-    key(0.0, (0.0, 0.67), 3, fkleg(184, 188), _hang, label="Dead hang", cue="Shoulders active, no swinging"),
-    key(0.5, (-0.02, 0.67), -9, fkleg(96, 90), _hang, spine=-0.02, label="Raise legs to bar height", cue="Curl your pelvis up, control the descent"),
-], [prop_line((-0.55, 1.32), (0.55, 1.32), .022, "metal"), prop_line((-0.55, 1.32), (-0.55, 0), .03), prop_line((0.55, 1.32), (0.55, 0), .03)],
-    [meas("Hip", "shoulder", "hip", "kneeN")], ["abs"], dur=3400, view=[-0.7, 0.7, -0.08, 1.5])
+    key(0.0, (0.0, 0.75), 3, fkleg(184, 188), _hang, label="Dead hang", cue="Shoulders active, no swinging"),
+    key(0.5, (-0.02, 0.75), -9, fkleg(96, 90), _hang, spine=-0.02, label="Raise legs to bar height", cue="Curl your pelvis up, control the descent"),
+], [prop_line((-0.55, 1.40), (0.55, 1.40), .022, "metal"), prop_line((-0.55, 1.40), (-0.55, 0), .03), prop_line((0.55, 1.40), (0.55, 0), .03)],
+    [meas("Hip", "shoulder", "hip", "kneeN")], ["abs"], dur=3400, view=[-0.7, 0.7, -0.08, 1.58])
 
 _cc_hip = (0.0, 0.29)
 _kn = fkleg(180, 270, ft=270)
@@ -75,7 +76,7 @@ reg("Cable Crunch", [
 
 
 # ---------------------------------------------------------------- WALK / RUN cycle
-def gait(name, stride, lift, lean, swing, bob, stance, hold=None, arms=True, props=(), measure=(), focus=(), dur=1400, y0=0.52, view=None, tip=""):
+def gait(name, stride, lift, lean, swing, bob, stance, hold=None, arms=True, props=(), measure=(), focus=(), dur=1400, y0=0.5295, view=None, tip=""):
     keys = []
     N = 8
     for i in range(N):
@@ -104,12 +105,12 @@ def gait(name, stride, lift, lean, swing, bob, stance, hold=None, arms=True, pro
 
 gait("Running", stride=.20, lift=.20, lean=10, swing=40, bob=.018, stance=.38, dur=1000,
      measure=[meas("Knee", "hip", "kneeN", "ankleN")], focus=["thigh", "shin"], view=[-0.6, 0.6, -0.08, 1.3])
-gait("Farmer's Carry", stride=.12, lift=.05, lean=0, swing=0, bob=.008, stance=.5, hold=handrel(0.0, -.34), dur=2200,
+gait("Farmer's Carry", stride=.12, lift=.05, lean=0, swing=0, bob=.008, stance=.5, hold=handrel(0.0, -.347), dur=2200,
      props=DBS, focus=["farm", "traps"], view=[-0.6, 0.6, -0.08, 1.3])
 
 # ---------------------------------------------------------------- JUMP ROPE
 def rope_key(t, jump, arm_phase):
-    hip = (0.0, 0.525 + jump)
+    hip = (0.0, .5295 + jump)
     sw = 14 * math.sin(arm_phase)
     return key(t, hip, 2, foot(0.0, 0.04 + jump * .85, b=1), fkarm(170 + sw, 100 + sw), armF=fkarm(170 + sw, 100 + sw),
                label="Light bounce", cue="Small hops on the balls of your feet, wrists turn the rope")
@@ -198,7 +199,7 @@ def abs_hand(hip, T, off):
 
 
 reg("Burpees", [
-    key(0.00, (0, .525), 0, foot(0.0), abs_hand((0, .525), 0, (0.02, -.34)), label="Stand", cue="Feet shoulder width"),
+    key(0.00, (0, .5295), 0, foot(0.0), abs_hand((0, .5295), 0, (0.02, -.34)), label="Stand", cue="Feet shoulder width"),
     squat_hand_key(0.14, (-.14, .31), 62, "Squat, hands down", "Hands flat on the floor"),
     key(0.30, _plank_hip, _T22, foot(*_plank_ankle, ft=150), _FLOORHAND, label="Kick back to plank", cue="Land in a strong plank"),
     squat_hand_key(0.50, (-.14, .31), 62, "Jump feet in", "Feet land outside your hands"),
@@ -212,9 +213,9 @@ reg("Kettlebell/Barbell Clean and Press", [
     key(0.00, (-.12, .50), 32, foot(0.0), handrel(.02, -.35), label="Hang", cue="Hinge at the hips, flat back, bar close to legs"),
     key(0.16, (0.02, .53), 0, foot(0.0), handrel(.08, -.10), label="Explode", cue="Jump the hips through, elbows high"),
     key(0.30, (0.0, .47), 2, foot(0.0), handrel(.07, .03), label="Catch in rack", cue="Dip and catch the bar on your shoulders"),
-    key(0.45, (0.0, .525), 0, foot(0.0), handrel(.06, .03), label="Stand", cue="Squeeze glutes, ribs down"),
-    key(0.65, (0.0, .525), -3, foot(0.0), handrel(.0, .35), label="Press overhead", cue="Lock out with biceps by your ears"),
-    key(0.80, (0.0, .525), 0, foot(0.0), handrel(.06, .03), label="Lower to rack", cue="Control the bar down"),
+    key(0.45, (0.0, .5295), 0, foot(0.0), handrel(.06, .03), label="Stand", cue="Squeeze glutes, ribs down"),
+    key(0.65, (0.0, .5295), -3, foot(0.0), handrel(.0, .35), label="Press overhead", cue="Lock out with biceps by your ears"),
+    key(0.80, (0.0, .5295), 0, foot(0.0), handrel(.06, .03), label="Lower to rack", cue="Control the bar down"),
     key(0.90, (-.08, .50), 15, foot(0.0), handrel(.03, -.28), label="Return", cue="Slide the bar back to your thighs"),
 ], [plate("wristN", .08)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Elbow", "shoulder", "elbowN", "wristN")], ["thigh", "glutes", "shoulder"], dur=5000, view=[-0.6, 0.6, -0.08, 1.55])
 

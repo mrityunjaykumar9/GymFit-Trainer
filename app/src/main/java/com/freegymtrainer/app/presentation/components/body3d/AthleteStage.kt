@@ -20,7 +20,11 @@ import com.google.android.filament.gltfio.FilamentInstance
 import com.google.android.filament.gltfio.Gltfio
 import com.google.android.filament.gltfio.ResourceLoader
 import com.google.android.filament.gltfio.UbershaderProvider
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.geometry.Offset
+import com.freegymtrainer.app.presentation.components.motion.GuideSpace
 import com.freegymtrainer.app.presentation.components.motion.MotionDef
+import com.freegymtrainer.app.presentation.components.motion.Tilt
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.math.cos
@@ -64,6 +68,16 @@ internal class AthleteStage(private val context: Context) {
     private var floorTop = 0f
     var exerciseName: String? = null
     private var last = FloatArray(4) { Float.NaN }
+
+    /** Bumped after every drawn frame so the guide overlay (a Compose Canvas above the 3D view) redraws in step. */
+    val frameTick = mutableIntStateOf(0)
+    private var camEye = V3.ZERO
+    private var camRight = V3.X
+    private var camUp = V3.Y
+    private var camFwd = V3.Z
+    private var camTan = 0.27f
+    private var camAspect = 1f
+    private var camFrontal = false
 
     /** True once the athlete model loaded (false if the asset is missing from the APK). */
     val ready: Boolean get() = athlete != null
@@ -236,6 +250,7 @@ internal class AthleteStage(private val context: Context) {
             renderer.render(view)
             renderer.endFrame()
         }
+        frameTick.intValue++
         return true
     }
 
@@ -292,6 +307,11 @@ internal class AthleteStage(private val context: Context) {
         val dx = -sin(yaw) * cos(pitch); val dy = sin(pitch); val dz = cos(yaw) * cos(pitch)
         val dirModel = if (m.frontal) V3(dx, dy, dz) else V3(-dz, dy, dx)
         val eye = target + dirModel * dist
+        camEye = eye
+        camFwd = (target - eye).unit(V3.Z)
+        camRight = camFwd.cross(V3.Y).unit(V3.X)
+        camUp = camRight.cross(camFwd).unit(V3.Y)
+        camTan = tanHalf; camAspect = aspect; camFrontal = m.frontal
         camera.setProjection(fov, aspect.toDouble(), 0.1, 40.0, Camera.Fov.VERTICAL)
         camera.lookAt(eye.x.toDouble(), eye.y.toDouble(), eye.z.toDouble(), target.x.toDouble(), target.y.toDouble(), target.z.toDouble(), 0.0, 1.0, 0.0)
 
@@ -305,6 +325,83 @@ internal class AthleteStage(private val context: Context) {
         lm.setDirection(lm.getInstance(lights[1]), fill.x, fill.y, fill.z)
         // the floor follows the focus point under the athlete
         floor?.let { tm.setTransform(tm.getInstance(it.root), composeMatrix(V3(target.x, 0f, target.z), Q.IDENTITY, FLOOR_RADIUS, 1f, FLOOR_RADIUS)) }
+    }
+
+    /** Screen geometry for the coaching guides, from the athlete's real joints and the current camera. Null before the model loads. */
+    fun guideSpace(w: Float, h: Float): GuideSpace? =
+        if (athlete == null || !::poser.isInitialized || w < 8f || h < 8f) null else StageGuideSpace(w, h)
+
+    private inner class StageGuideSpace(val w: Float, val h: Float) : GuideSpace {
+        private fun bone(name: String): String? {
+            val near = if (camFrontal) "l" else "r"
+            val far = if (camFrontal) "r" else "l"
+            return when (name) {
+                "hip" -> "thigh_$near"
+                "shoulder" -> "upperarm_$near"
+                "head" -> "Head"
+                "elbowN" -> "lowerarm_$near"
+                "wristN" -> "hand_$near"
+                "kneeN" -> "calf_$near"
+                "ankleN" -> "foot_$near"
+                "toeN" -> "ball_$near"
+                "elbowF" -> "lowerarm_$far"
+                "wristF" -> "hand_$far"
+                "kneeF" -> "calf_$far"
+                "ankleF" -> "foot_$far"
+                "toeF" -> "ball_$far"
+                else -> null
+            }
+        }
+
+        private fun p3(name: String): V3? = bone(name)?.takeIf { poser.has(it) }?.let { poser.position(it) }
+
+        private fun project(p: V3): Offset? {
+            val v = p - camEye
+            val z = v.dot(camFwd)
+            if (z < 0.05f) return null
+            val x = v.dot(camRight) / (z * camTan * camAspect)
+            val y = v.dot(camUp) / (z * camTan)
+            return Offset((x + 1f) / 2f * w, (1f - y) / 2f * h)
+        }
+
+        override fun joint(name: String) = p3(name)?.let(::project)
+
+        override fun floorBelow(name: String) = p3(name)?.let { project(V3(it.x, floorTop, it.z)) }
+
+        override fun levelEnds(name: String): Pair<Offset, Offset>? {
+            val p = p3(name) ?: return null
+            // a reference height reads best as a line across the screen, whichever way the athlete is turned
+            val d = V3(camRight.x, 0f, camRight.z).unit(V3.X) * (0.30f * AthletePoser.SCALE)
+            val a = project(p - d) ?: return null
+            val b = project(p + d) ?: return null
+            return a to b
+        }
+
+        override fun ringRadius(name: String): Float {
+            val p = p3(name) ?: return 0f
+            val a = project(p) ?: return 0f
+            val b = project(p + camRight * (0.075f * AthletePoser.SCALE)) ?: return 0f
+            return kotlin.math.hypot(b.x - a.x, b.y - a.y)
+        }
+
+        override fun tilt(a: String, b: String): Tilt? {
+            val pa = p3(a) ?: return null
+            val pb = p3(b) ?: return null
+            val xDir = poser.dirToModel(V3.X)
+            val dx = (pb - pa).dot(xDir)
+            val dy = pb.y - pa.y
+            if (kotlin.math.hypot(dx, dy) < 1e-3f) return null
+            val sign = if (dx >= 0f) 1f else -1f
+            val ang = kotlin.math.atan2(kotlin.math.abs(dy), kotlin.math.abs(dx))
+            val r = 0.14f * AthletePoser.SCALE
+            val arc = ArrayList<Offset>()
+            for (i in 0..12) {
+                val th = ang * i / 12f * (if (dy >= 0f) 1f else -1f)
+                arc += project(pa + (xDir * (sign * cos(th)) + V3.Y * sin(th)) * r) ?: return null
+            }
+            val end = project(pa + xDir * (sign * 0.22f * AthletePoser.SCALE)) ?: return null
+            return Tilt(arc, end, Math.toDegrees(ang.toDouble()).toFloat())
+        }
     }
 
     fun destroy() {

@@ -108,10 +108,19 @@ internal class Measure(val name: String, val joints: List<String>) {
     val isLean get() = joints.size == 1
 }
 
+/**
+ * A coaching mark drawn on top of the animation (both the 2D and 3D views), so people can SEE what to watch
+ * instead of reading: [kind] is "plumb" (vertical line from joint [j] to the floor), "level" (horizontal line
+ * through [j]), "line" (straight line from joint [j] to joint [a], extended a little past both), "ring" (a
+ * marker around [j]) or "tilt" (the angle of the segment [j] -> [a] against the horizontal, with a live readout).
+ */
+internal class Guide(val kind: String, val j: String, val a: String?, val label: String)
+
 class MotionDef internal constructor(
     internal val keys: List<KeyPose>,
     internal val props: List<Prop>,
     internal val measures: List<Measure>,
+    internal val guides: List<Guide>,
     internal val focus: List<String>,
     val durationMs: Int,
     private val smooth: Boolean,
@@ -132,6 +141,7 @@ class MotionDef internal constructor(
     fun phaseLabel(index: Int) = keys[index].label
     fun phaseCue(index: Int) = keys[index].cue
     val hasMeasures get() = measures.isNotEmpty()
+    val hasGuides get() = guides.isNotEmpty() || measures.isNotEmpty()
 
     /**
      * Camera rectangle [minX, maxX, minY, maxY] that frames the whole movement: the bounding box of
@@ -397,11 +407,17 @@ private fun parseMotion(o: JSONObject): MotionDef {
         val j = m.getJSONArray("j")
         Measure(m.getString("name"), (0 until j.length()).map { j.getString(it) })
     }
+    val guidesJson = o.optJSONArray("guides") ?: JSONArray()
+    val guides = (0 until guidesJson.length()).map { i ->
+        val g = guidesJson.getJSONObject(i)
+        Guide(g.getString("k"), g.getString("j"), g.optString("a").ifBlank { null }, g.optString("l", ""))
+    }
     val focusJson = o.optJSONArray("focus") ?: JSONArray()
     return MotionDef(
         keys = keys,
         props = props,
         measures = measures,
+        guides = guides,
         focus = (0 until focusJson.length()).map { focusJson.getString(it) },
         durationMs = o.optInt("dur", 3000),
         smooth = o.optString("ease", "smooth") == "smooth",

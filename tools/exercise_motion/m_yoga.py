@@ -5,7 +5,7 @@ from engine import vec, add
 FLAT = foot(0.0)
 MAT = prop_line((-.75, .02), (.75, .02), .03)
 STAND_ARMS = fkarm(180, 180)
-STAND = lambda t, arms=STAND_ARMS, T=0, **kw: key(t, (0, .525), T, FLAT, arms, **kw)
+STAND = lambda t, arms=STAND_ARMS, T=0, **kw: key(t, (0, .5295), T, FLAT, arms, **kw)
 HIPANG = lambda: meas("Hip", "shoulder", "hip", "kneeN")
 
 # ---------------------------------------------------------------- STANDING
@@ -22,12 +22,12 @@ _wr_back = fkleg(233.7, 233.7, ft=90)
 _st_far = fkleg(180, 180)
 
 reg("Warrior I (Virabhadrasana I)", [
-    key(0.0, (0, .525), 0, FLAT, fkarm(180, 180), legF=_st_far, armF=fkarm(180, 180), label="Stand", cue="Feet together, arms by sides"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(180, 180), legF=_st_far, armF=fkarm(180, 180), label="Stand", cue="Feet together, arms by sides"),
     key(0.5, _wr_hip, -3, _wr_front, fkarm(4, 2), legF=_wr_back, armF=fkarm(4, 2), head=-12, label="Lunge, arms up", cue="Front knee over ankle, back leg strong, hips square"),
 ], [MAT], [meas("Front knee", "hip", "kneeN", "ankleN")], ["thigh", "shoulder"], dur=4600, view=[-0.65, 0.6, -0.08, 1.4])
 
 reg("Warrior II (Virabhadrasana II)", [
-    key(0.0, (0, .525), 0, FLAT, fkarm(180, 180), legF=_st_far, armF=fkarm(180, 180), label="Stand", cue="Feet together, arms by sides"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(180, 180), legF=_st_far, armF=fkarm(180, 180), label="Stand", cue="Feet together, arms by sides"),
     key(0.5, _wr_hip, 0, _wr_front, fkarm(90, 90), legF=_wr_back, armF=fkarm(270, 270), head=8, label="Wide arms, deep lunge", cue="Gaze over front hand, shoulders stacked over hips"),
 ], [MAT], [meas("Front knee", "hip", "kneeN", "ankleN")], ["thigh", "shoulder"], dur=4600, view=[-0.8, 0.8, -0.08, 1.2])
 
@@ -61,8 +61,8 @@ reg("Cobra Pose (Bhujangasana)", [
 _br_s = (-.30, .075)
 _br_hip = lambda T: add(_br_s, vec(T), -.30)
 reg("Bridge Pose (Setu Bandhasana)", [
-    key(0.0, _br_hip(-90), -90, foot(.27, .04), hand(-.02, .04), label="Lie back", cue="Feet hip-width apart, close to your hips"),
-    key(0.5, _br_hip(-122), -122, foot(.27, .04), hand(-.02, .04), spine=-.0, label="Lift hips high", cue="Press into feet and arms, keep knees over ankles"),
+    key(0.0, _br_hip(-90), -90, foot(.34, .04), fkarm(96, 96), label="Lie back", cue="Feet hip-width apart, close to your hips"),
+    key(0.5, _br_hip(-114), -114, foot(.34, .04), fkarm(96, 96), spine=-.0, head=24, label="Lift hips high", cue="Press into feet and arms, keep knees over ankles"),
 ], [MAT], [meas("Knee", "hip", "kneeN", "ankleN")], ["glutes", "back"], dur=4600, view=[-0.65, 0.55, -0.08, 0.7])
 
 _ps_hip = (-.10, .065)
@@ -70,7 +70,7 @@ _ps_a = shoulder_of(_ps_hip, 0)
 _ps_b = shoulder_of(_ps_hip, 80)
 reg("Seated Forward Bend (Paschimottanasana)", [
     key(0.0, _ps_hip, 0, fkleg(90, 90, ft=35), hand(_ps_a[0] + .02, _ps_a[1] + .34), label="Sit tall", cue="Legs straight, lengthen your spine first"),
-    key(0.5, _ps_hip, 80, fkleg(90, 90, ft=35), hand(.37, .09), spine=-.03, head=24, label="Hinge forward", cue="Fold from the hips, hold shins or feet, soft knees if needed"),
+    key(0.5, _ps_hip, 80, fkleg(90, 90, ft=35), hand(.47, .09), spine=-.03, head=24, label="Hinge forward", cue="Fold from the hips, hold shins or feet, soft knees if needed"),
 ], [MAT], [meas("Hip", "shoulder", "hip", "kneeN")], ["hamstrings", "back"], dur=5000, view=[-0.55, 0.65, -0.08, 0.7])
 
 reg("Relaxation Pose", [

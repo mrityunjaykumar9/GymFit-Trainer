@@ -142,7 +142,7 @@ no limb leaves it.
   and `Athlete3DCanvas.kt` is the Compose wrapper (TextureView; drag to orbit). Debug builds accept
   `adb shell am start ... --es debug_exercise "Barbell Curl" --ef debug_yaw -35 --ef debug_t 0.5` to open an exercise
   frozen at a camera angle/time (see `DebugView`) for screenshot review. The old 2D side-view canvas remains
-  (`motion/`) as the player's "3D off" mode. `Exercise.mediaUrl` can still point at a remote clip later.
+  (`motion/`) as the player's "3D off" mode. `Exercise.mediaUrl` can still point at a remote clip later. Coaching guides (dashed lines, rings, live angle labels) are authored in `tools/exercise_motion/m_guides.py` and drawn over both views by `motion/GuideOverlay.kt`; the 3D side projects the real bone positions in `AthleteStage.guideSpace`.
 - No photos or video anywhere in the app (removed on purpose to keep it small and fully original): exercise pictures
   are tiny WebPs rendered from the 3D athlete itself (`assets/exercise_pics/<slug>_a|b.webp`, start / peak of the
   rep; regenerate with `tools/athlete_model/make_pics.py` from debug-build screenshots). Muscle diagrams are drawn in

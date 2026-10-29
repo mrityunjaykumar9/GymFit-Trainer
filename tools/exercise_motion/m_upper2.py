@@ -10,8 +10,8 @@ SIDE_TIP = "Raise your arms out to the SIDES. The side view makes the arm look s
 
 # ---------------------------------------------------------------- CHEST (non-press)
 reg("Cable Fly", [
-    key(0.0, (0.0, .525), 12, foot(-.04), fkarm(172, 168), legF=foot(.10), label="Arms wide", cue="Slight elbow bend, chest open"),
-    key(0.5, (0.0, .525), 12, foot(-.04), fkarm(98, 96), legF=foot(.10), label="Squeeze", cue="Hug a big tree - hands meet in front of chest"),
+    key(0.0, (0.0, .5295), 12, foot(-.04), fkarm(172, 168), legF=foot(.10), label="Arms wide", cue="Slight elbow bend, chest open"),
+    key(0.5, (0.0, .5295), 12, foot(-.04), fkarm(98, 96), legF=foot(.10), label="Squeeze", cue="Hug a big tree - hands meet in front of chest"),
 ], [cable([-.16, 1.15], "wristN", g="handle")],
     [], ["chest"], dur=3000, view=[-0.75, 0.75, -0.08, 1.3])
 
@@ -19,7 +19,7 @@ reg("Pec Deck", [
     key(0.0, (-.06, .27), 0, foot(.22, .04), handrel(-.03, .03), label="Open", cue="Elbows level with shoulders, chest tall"),
     key(0.5, (-.06, .27), 0, foot(.22, .04), handrel(.30, .02), label="Squeeze", cue="Bring the pads together, pause 1 second"),
 ], SEAT + [prop_line(at("wristN", (0, -.10)), at("wristN", (0, .14)), .045, "metal", 1)],
-    [ELB()], ["chest"], dur=3000, view=[-0.65, 0.65, -0.08, 1.15])
+    [], ["chest"], dur=3000, view=[-0.65, 0.65, -0.08, 1.15])
 
 
 def pushup_pose(alpha_deg, toe_x=-0.55):
@@ -30,7 +30,7 @@ def pushup_pose(alpha_deg, toe_x=-0.55):
     return hip, 90 - alpha_deg, 270 - alpha_deg
 
 
-_PU_TOP_ALPHA = 20
+_PU_TOP_ALPHA = 21.6
 _h_top, _T_top, _ = pushup_pose(_PU_TOP_ALPHA)
 _sh_top = shoulder_of(_h_top, _T_top)
 # At the old alpha=22 the hand-to-shoulder distance (0.3525) was *past* the arm's actual max reach
@@ -48,17 +48,17 @@ def pushup_key(t, alpha, label="", cue=""):
 
 reg("Push Ups", [
     pushup_key(0.0, _PU_TOP_ALPHA, "Top", "Body in one straight line, core tight"),
-    pushup_key(0.5, 1, "Chest to floor", "Elbows ~45° from your body, don't flare"),
+    pushup_key(0.5, 12, "Chest to floor", "Elbows ~45° from your body, don't flare"),
 ], [], [ELB(), meas("Body line", "shoulder", "hip", "ankleN")], ["chest", "uarm"], dur=2800, view=[-0.8, 0.8, -0.08, 0.8])
 
 # ---------------------------------------------------------------- BACK
-_hang_hand = hand(0.05, 1.32)
+_hang_hand = hand(0.05, 1.40)
 _hang_legs = fkleg(188, 212)
 reg("Pull Ups", [
-    key(0.0, (0.0, 0.66), 2, _hang_legs, _hang_hand, label="Dead hang", cue="Arms fully straight, shoulders packed down"),
-    key(0.5, (0.0, 0.90), 8, _hang_legs, hand(0.05, 1.32, b=1), label="Chin over bar", cue="Lead with your chest, elbows drive down and back"),
-], [prop_line((-0.55, 1.32), (0.55, 1.32), .022, "metal"), prop_line((-0.55, 1.32), (-0.55, 0), .03), prop_line((0.55, 1.32), (0.55, 0), .03)],
-    [ELB()], ["back", "uarm"], dur=3400, view=[-0.7, 0.7, -0.08, 1.5])
+    key(0.0, (0.0, 0.74), 2, _hang_legs, _hang_hand, label="Dead hang", cue="Arms fully straight, shoulders packed down"),
+    key(0.5, (0.0, 0.98), 8, _hang_legs, hand(0.05, 1.40, b=1), label="Chin over bar", cue="Lead with your chest, elbows drive down and back"),
+], [prop_line((-0.55, 1.40), (0.55, 1.40), .022, "metal"), prop_line((-0.55, 1.40), (-0.55, 0), .03), prop_line((0.55, 1.40), (0.55, 0), .03)],
+    [ELB()], ["back", "uarm"], dur=3400, view=[-0.7, 0.7, -0.08, 1.58])
 
 _sh_ld = shoulder_of((-.05, .27), -10)
 reg("Lat Pulldown", [
@@ -68,16 +68,16 @@ reg("Lat Pulldown", [
     cable([.08, 1.5], "wristN", g="bar")],
     [ELB()], ["back"], dur=3200, view=[-0.6, 0.6, -0.08, 1.55])
 
-_sh_row = shoulder_of((-.22, .50), 58)
+_sh_row = shoulder_of((-.22, .47), 58)
 _hang_row = hand(_sh_row[0], _sh_row[1] - .35)
 reg("Barbell Row", [
-    key(0.0, (-.22, .50), 58, foot(0.0), _hang_row, label="Arms hang", cue="Hinge at hips, flat back, neutral neck"),
-    key(0.5, (-.22, .50), 58, foot(0.0), hand(_sh_row[0] - .02, _sh_row[1] - .13), label="Row to lower ribs", cue="Drive elbows back, squeeze shoulder blades"),
+    key(0.0, (-.22, .47), 58, foot(0.0), _hang_row, label="Arms hang", cue="Hinge at hips, flat back, neutral neck"),
+    key(0.5, (-.22, .47), 58, foot(0.0), hand(_sh_row[0] - .02, _sh_row[1] - .13), label="Row to lower ribs", cue="Drive elbows back, squeeze shoulder blades"),
 ], [plate("wristN", .09)], [ELB(), meas("Back lean", "lean")], ["back"], dur=3000)
 
 reg("T-Bar Row", [
-    key(0.0, (-.22, .50), 58, foot(0.0), hand(_sh_row[0] + .03, _sh_row[1] - .35), label="Arms hang", cue="Chest up, back flat, knees soft"),
-    key(0.5, (-.22, .50), 58, foot(0.0), hand(_sh_row[0] + .0, _sh_row[1] - .14), label="Pull to chest", cue="Elbows close to body, pause at the top"),
+    key(0.0, (-.22, .47), 58, foot(0.0), hand(_sh_row[0] + .03, _sh_row[1] - .35), label="Arms hang", cue="Chest up, back flat, knees soft"),
+    key(0.5, (-.22, .47), 58, foot(0.0), hand(_sh_row[0] + .0, _sh_row[1] - .14), label="Pull to chest", cue="Elbows close to body, pause at the top"),
 ], [prop_line((-.85, .06), "wristN", .03, "metal"), plate(at("wristN", (-.12, -.03)), .085)],
     [ELB(), meas("Back lean", "lean")], ["back"], dur=3000, view=[-0.95, 0.6, -0.08, 1.1])
 
@@ -92,14 +92,14 @@ reg("Seated Cable Row", [
 
 reg("Deadlift", [
     key(0.0, (-.25, .40), 58, foot(0.0), handrel(0.0, -.35), label="Set up", cue="Bar over mid-foot, chest up, back flat"),
-    key(0.5, (0.0, .525), 4, foot(0.0), handrel(0.03, -.35), label="Stand tall", cue="Hips and shoulders rise together, squeeze glutes"),
+    key(0.5, (0.0, .5295), 4, foot(0.0), handrel(0.03, -.35), label="Stand tall", cue="Hips and shoulders rise together, squeeze glutes"),
 ], [plate("wristN", .12)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Back lean", "lean")], ["back", "glutes", "thigh"], dur=3600)
 
 # ---------------------------------------------------------------- SHOULDERS
-_ohp_sh = shoulder_of((0.0, .525), 0)
+_ohp_sh = shoulder_of((0.0, .5295), 0)
 reg("Overhead Press", [
-    key(0.0, (0, .525), 0, FLAT, hand(.06, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
-    key(0.5, (0, .525), -3, FLAT, hand(.0, _ohp_sh[1] + .35), label="Lockout overhead", cue="Head through the window, bar over mid-foot"),
+    key(0.0, (0, .5295), 0, FLAT, hand(.06, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
+    key(0.5, (0, .5295), -3, FLAT, hand(.0, _ohp_sh[1] + .35), label="Lockout overhead", cue="Head through the window, bar over mid-foot"),
 ], [plate("wristN", .085)], [ELB()], ["shoulder", "uarm"], dur=3000)
 
 _dsp = shoulder_of((-.06, .27), 0)
@@ -109,29 +109,29 @@ reg("Dumbbell Shoulder Press", [
 ], SEAT + [db("wristN", .05)], [ELB()], ["shoulder", "uarm"], dur=3000, view=[-0.65, 0.65, -0.08, 1.35])
 
 reg("Lateral Raise", [
-    key(0.0, (0, .525), 0, FLAT, fkarm(184, 182), armF=fkarm(176, 178), label="Arms at sides", cue="Slight elbow bend, palms facing down"),
-    key(0.5, (0, .525), 0, FLAT, fkarm(98, 94), armF=fkarm(262, 266), label="Raise to shoulder height", cue="Lead with your elbows, stop at shoulder level"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(176, 178), label="Arms at sides", cue="Slight elbow bend, palms facing down"),
+    key(0.5, (0, .5295), 0, FLAT, fkarm(98, 94), armF=fkarm(262, 266), label="Raise to shoulder height", cue="Lead with your elbows, stop at shoulder level"),
 ], [db("wristN", .045), db("wristF", .045)], [], ["shoulder"], dur=3000)
 
 reg("Front Raise", [
-    key(0.0, (0, .525), 0, FLAT, fkarm(180, 180), label="Dumbbells at thighs", cue="Brace your core, no swinging"),
-    key(0.5, (0, .525), 0, FLAT, fkarm(92, 90), label="Raise to eye level", cue="Straight arms, stop at shoulder height"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(180, 180), label="Dumbbells at thighs", cue="Brace your core, no swinging"),
+    key(0.5, (0, .5295), 0, FLAT, fkarm(92, 90), label="Raise to eye level", cue="Straight arms, stop at shoulder height"),
 ], [db("wristN", .045)], [meas("Arm lift", "hip", "shoulder", "wristN")], ["shoulder"], dur=3000)
 
 reg("Rear Delt Fly", [
-    key(0.0, (-.2, .50), 68, foot(0.0), fkarm(180, 180), label="Arms hang", cue="Hinge forward, flat back"),
+    key(0.0, (-.2, .475), 68, foot(0.0), fkarm(180, 180), label="Arms hang", cue="Hinge forward, flat back"),
     # The free-swing that carries the arm out to the side (see m_lateral.py) rotates the whole,
     # still-2D-straight arm toward the camera axis by the lat angle - at a swing this wide, that
     # flattens almost any 2D elbow bend down to a couple of degrees in the final 3D pose, so the
     # old forearm bearing (174, only 6deg off the upper arm's 180) rendered as a dead-locked elbow.
     # A bigger 2D bend here is what survives the swing as the "soft elbow" the cue calls for.
-    key(0.5, (-.2, .50), 68, foot(0.0), fkarm(180, 145), label="Open arms wide", cue="Squeeze shoulder blades, elbows soft"),
+    key(0.5, (-.2, .475), 68, foot(0.0), fkarm(180, 145), label="Open arms wide", cue="Squeeze shoulder blades, elbows soft"),
 ], [db("wristN", .045)], [meas("Back lean", "lean")], ["shoulder", "back"], dur=3000)
 
 # Face pull: stand tall (leaning back a touch as you pull), rope at eye level, pull to the face with the
 # elbows high and BEHIND the hands, hands finishing beside the ears. Cable height = eye height.
-_FP_A = ((-.03, .525), -2)
-_FP_B = ((-.045, .525), -8)
+_FP_A = ((-.03, .5295), -2)
+_FP_B = ((-.045, .5295), -8)
 _sfa = shoulder_of(*_FP_A)
 _sfb = shoulder_of(*_FP_B)
 _EYE = _sfa[1] + .115
@@ -148,8 +148,8 @@ reg("Face Pull", [
     tip="Pull the rope toward your face and split it so your hands end up beside your ears, elbows at shoulder height.")
 
 reg("Barbell Shrug", [
-    key(0.0, (0, .525), 0, FLAT, handrel(.06, -.34), sl=0.0, label="Arms straight", cue="Bar at thighs, shoulders relaxed"),
-    key(0.5, (0, .525), 0, FLAT, handrel(.06, -.34), sl=0.05, label="Shrug up", cue="Lift straight up toward your ears, no rolling"),
+    key(0.0, (0, .5295), 0, FLAT, handrel(.06, -.342), sl=0.0, label="Arms straight", cue="Bar at thighs, shoulders relaxed"),
+    key(0.5, (0, .5295), 0, FLAT, handrel(.06, -.342), sl=0.05, label="Shrug up", cue="Lift straight up toward your ears, no rolling"),
 ], [plate("wristN", .085)], [], ["traps"], dur=2400)
 
 
@@ -157,8 +157,8 @@ reg("Barbell Shrug", [
 def curl_keys(top_f, bottom_f, alternate=False, legs=FLAT, u=182, cue_top="Elbows stay glued to your sides"):
     near_b, near_t = fkarm(u, bottom_f), fkarm(u, top_f)
     far_b, far_t = (near_t, near_b) if alternate else (near_b, near_t)
-    return [key(0.0, (0, .525), 0, legs, near_b, armF=far_b, label="Lower slowly", cue="Full stretch, control the descent"),
-            key(0.5, (0, .525), 0, legs, near_t, armF=far_t, label="Squeeze", cue=cue_top)]
+    return [key(0.0, (0, .5295), 0, legs, near_b, armF=far_b, label="Lower slowly", cue="Full stretch, control the descent"),
+            key(0.5, (0, .5295), 0, legs, near_t, armF=far_t, label="Squeeze", cue=cue_top)]
 
 
 reg("Barbell Curl", curl_keys(28, 178), [plate("wristN", .08)], [ELB()], ["uarm"], dur=2800)
@@ -183,8 +183,8 @@ reg("Wrist Curl", [
 
 # ---------------------------------------------------------------- TRICEPS
 reg("Tricep Pushdown", [
-    key(0.0, (0, .525), 4, FLAT, fkarm(180, 62), label="Elbows bent", cue="Elbows pinned to your sides"),
-    key(0.5, (0, .525), 4, FLAT, fkarm(180, 155), label="Press down & squeeze", cue="Lock out, keep upper arms still"),
+    key(0.0, (0, .5295), 4, FLAT, fkarm(180, 62), label="Elbows bent", cue="Elbows pinned to your sides"),
+    key(0.5, (0, .5295), 4, FLAT, fkarm(180, 177), label="Press down & squeeze", cue="Lock out, keep upper arms still"),
 ], [cable([.12, 1.48], "wristN", g="rope")],
     [ELB()], ["uarm"], dur=2800, view=[-0.5, 0.6, -0.08, 1.6])
 
@@ -194,6 +194,6 @@ reg("Skull Crushers", [
 ], BENCH + [plate("wristN", .07)], [ELB()], ["uarm"], dur=3000, view=[-0.75, 0.55, -0.08, 0.9])
 
 reg("Overhead Tricep Extension", [
-    key(0.0, (0, .525), 0, FLAT, fkarm(-4, 2), label="Extended", cue="Biceps by your ears, core tight"),
-    key(0.5, (0, .525), 0, FLAT, fkarm(-14, -165), label="Lower behind head", cue="Elbows point forward, don't flare"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(-4, 2), label="Extended", cue="Biceps by your ears, core tight"),
+    key(0.5, (0, .5295), 0, FLAT, fkarm(-14, -165), label="Lower behind head", cue="Elbows point forward, don't flare"),
 ], [db("wristN", .06)], [ELB()], ["uarm"], dur=3000, view=[-0.6, 0.6, -0.08, 1.45])

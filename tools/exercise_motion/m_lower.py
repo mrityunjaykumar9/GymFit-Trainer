@@ -9,9 +9,13 @@ DBS = [db("wristN", .045), db("wristF", .045)]
 
 # ---------------------------------------------------------------- SQUATS
 reg("Barbell Back Squat", [
-    key(0.0, (-.02, .5295), 8, FLAT, fkarm(205, 22, rel=True), label="Stand tall", cue="Bar on upper back, brace your core"),
-    key(0.5, (-.16, .33), 40, FLAT, fkarm(205, 22, rel=True), label="Hips back & down", cue="Knees track over toes, chest up, thighs to parallel"),
-], [plate({"p": "shoulder", "off": [-.055, .035]}, .085)], [KNEE(), BACK()], ["thigh", "glutes"], dur=3600)
+    # The bar used to be anchored to a fixed shoulder offset, independent of where the hands actually
+    # grip - it drifted out of sync with the arm and ended up floating by the head. Anchoring it to the
+    # wrists (like every other barbell exercise) keeps it glued to the hands; the arm angles below were
+    # then retuned so the grip sits behind the head at trap height instead of overlapping the face.
+    key(0.0, (-.02, .5295), 8, FLAT, fkarm(195, -25, rel=True), label="Stand tall", cue="Bar on upper back, brace your core"),
+    key(0.5, (-.16, .33), 40, FLAT, fkarm(195, -25, rel=True), label="Hips back & down", cue="Knees track over toes, chest up, thighs to parallel"),
+], [plate("wristN", .085)], [KNEE(), BACK()], ["thigh", "glutes"], dur=3600)
 
 _fr = {"p": "shoulder", "off": [.07, .04]}
 reg("Front Squat", [

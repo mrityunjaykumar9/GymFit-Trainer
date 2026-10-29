@@ -148,8 +148,15 @@ reg("Face Pull", [
     tip="Pull the rope toward your face and split it so your hands end up beside your ears, elbows at shoulder height.")
 
 reg("Barbell Shrug", [
-    key(0.0, (0, .5295), 0, FLAT, handrel(.06, -.342), sl=0.0, label="Arms straight", cue="Bar at thighs, shoulders relaxed"),
-    key(0.5, (0, .5295), 0, FLAT, handrel(.06, -.342), sl=0.05, label="Shrug up", cue="Lift straight up toward your ears, no rolling"),
+    # The old target was 99% of max arm reach (l1+l2) - fine for the near arm, but the far hand's
+    # own 3D distance (after the grip-width lateral offset gets lifted into 3D) came out just over
+    # max reach, so its IK clamped to a different, asymmetric elbow bend than the near arm, and the
+    # near-degenerate triangle also read as an odd kinked elbow instead of a straight hanging arm.
+    # Pulling the target in to ~90% of reach fixes both and leaves room for a bigger, clearly visible
+    # shrug (the model has no separate shoulder-raise bone, so the lift has to come from the arm
+    # reaching higher toward a now-closer target rather than a static one).
+    key(0.0, (0, .5295), 0, FLAT, handrel(.07, -.31), sl=0.0, label="Arms straight", cue="Bar at thighs, shoulders relaxed"),
+    key(0.5, (0, .5295), 0, FLAT, handrel(.07, -.31), sl=0.16, label="Shrug up", cue="Lift straight up toward your ears, no rolling"),
 ], [plate("wristN", .085)], [], ["traps"], dur=2400)
 
 

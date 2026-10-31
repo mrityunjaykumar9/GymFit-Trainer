@@ -222,11 +222,14 @@ reg("Kettlebell/Barbell Clean and Press", [
     # plate real clearance at every rack-position keyframe.
     key(0.30, (0.0, .47), 2, foot(0.0), handrel(.15, .02), label="Catch in rack", cue="Dip and catch the bar on your shoulders"),
     key(0.45, (0.0, .5295), 0, foot(0.0), handrel(.15, .02), label="Stand", cue="Squeeze glutes, ribs down"),
-    # A straight-line path from the rack to overhead still passes close to the head at the midpoint,
-    # so it needs to swing further out in front of the face to clear it, same as the real lift.
-    key(0.55, (0.0, .5295), -1, foot(0.0), handrel(.20, .14), label="Drive past your face", cue="Punch the bar up and forward, clear of your chin"),
+    # A real strict press keeps the BAR on a close-to-straight line from the rack to overhead - it's
+    # the lifter's head that moves (tips back, "through the window") to let the bar pass, not the bar
+    # swinging out around the face. Swinging the bar itself forward read as an odd forward-then-up
+    # curve instead of a direct press. This keyframe sits almost exactly on the straight line between
+    # the rack and the lockout (barely nudged forward) and tilts the head back instead for clearance.
+    key(0.55, (0.0, .5295), -1, foot(0.0), handrel(.115, .185), head=-22, label="Drive past your face", cue="Tip your head back slightly, press the bar straight up"),
     key(0.65, (0.0, .5295), -3, foot(0.0), handrel(.0, .35), label="Press overhead", cue="Lock out with biceps by your ears"),
-    key(0.72, (0.0, .5295), -1, foot(0.0), handrel(.20, .14), label="Lower past your face", cue="Control the bar down, clear of your chin"),
+    key(0.72, (0.0, .5295), -1, foot(0.0), handrel(.115, .185), head=-22, label="Lower past your face", cue="Tip your head back slightly, lower the bar straight down"),
     key(0.80, (0.0, .5295), 0, foot(0.0), handrel(.15, .02), label="Lower to rack", cue="Control the bar down"),
     key(0.90, (-.08, .50), 15, foot(0.0), handrel(.03, -.28), label="Return", cue="Slide the bar back to your thighs"),
 ], [plate("wristN", .08)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Elbow", "shoulder", "elbowN", "wristN")], ["thigh", "glutes", "shoulder"], dur=5000, view=[-0.6, 0.6, -0.08, 1.55])

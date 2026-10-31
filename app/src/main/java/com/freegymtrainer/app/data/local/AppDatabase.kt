@@ -31,7 +31,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -143,6 +143,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v11 -> v12: same situation as v9->v10 and v10->v11. Leg Curl (ankle/pad-clipping issues
+         * that several rounds of pose fixes couldn't resolve) and Jump Rope (its own pose issues)
+         * were dropped from the seed data in earlier commits, but - unlike those two prior removals -
+         * without a matching migration, so an already-seeded device kept the stale rows instead of
+         * losing them. This migration is the cleanup those two commits should have shipped with.
+         */
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "DELETE FROM workout_template_exercises WHERE exerciseId IN " +
+                        "(SELECT id FROM exercises WHERE name IN ('Leg Curl', 'Jump Rope'))"
+                )
+                db.execSQL("DELETE FROM exercises WHERE name IN ('Leg Curl', 'Jump Rope')")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -150,7 +167,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
                 )
-                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                     // Only installs older than v7 (before schema export began) may still be wiped.
                     // Every newer schema change MUST ship a real Migration above - a missing one
                     // fails loudly in testing instead of silently deleting users' data.

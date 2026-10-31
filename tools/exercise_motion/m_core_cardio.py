@@ -217,7 +217,12 @@ reg("Kettlebell/Barbell Clean and Press", [
     key(0.16, (0.02, .53), 0, foot(0.0), handrel(.08, -.10), label="Explode", cue="Jump the hips through, elbows high"),
     key(0.30, (0.0, .47), 2, foot(0.0), handrel(.07, .03), label="Catch in rack", cue="Dip and catch the bar on your shoulders"),
     key(0.45, (0.0, .5295), 0, foot(0.0), handrel(.06, .03), label="Stand", cue="Squeeze glutes, ribs down"),
+    # A straight-line path from the rack to overhead passes almost straight through the head at the
+    # midpoint (small forward offset, right at head height) - the bar needs to swing out in front of
+    # the face to clear it, same as the real lift.
+    key(0.55, (0.0, .5295), -1, foot(0.0), handrel(.22, .17), label="Drive past your face", cue="Punch the bar up and forward, clear of your chin"),
     key(0.65, (0.0, .5295), -3, foot(0.0), handrel(.0, .35), label="Press overhead", cue="Lock out with biceps by your ears"),
+    key(0.72, (0.0, .5295), -1, foot(0.0), handrel(.22, .17), label="Lower past your face", cue="Control the bar down, clear of your chin"),
     key(0.80, (0.0, .5295), 0, foot(0.0), handrel(.06, .03), label="Lower to rack", cue="Control the bar down"),
     key(0.90, (-.08, .50), 15, foot(0.0), handrel(.03, -.28), label="Return", cue="Slide the bar back to your thighs"),
 ], [plate("wristN", .08)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Elbow", "shoulder", "elbowN", "wristN")], ["thigh", "glutes", "shoulder"], dur=5000, view=[-0.6, 0.6, -0.08, 1.55])

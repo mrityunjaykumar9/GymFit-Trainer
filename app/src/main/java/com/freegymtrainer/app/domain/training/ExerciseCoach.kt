@@ -108,8 +108,6 @@ object ExerciseCoach {
         "cable_crunch" to c("Abs under heavy, controlled load.",
             "Kneel tall, rope beside your head", "Round your spine, elbows to thighs", "Hips stay still"),
         // ------------------------------------------------------------------ cardio & conditioning
-        "running" to c("Heart and lung fitness plus leg endurance.",
-            "Tall posture, slight forward lean", "Land under your hips, light steps", "Relaxed shoulders, arms swing front to back"),
         "farmers_carry" to c("Grip, traps and whole-body stability.",
             "Stand tall, shoulders back", "Short, steady steps", "Don't lean to either side"),
         "rowing_machine" to c("Full-body cardio with low impact.",

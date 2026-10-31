@@ -105,8 +105,6 @@ def gait(name, stride, lift, lean, swing, bob, stance, hold=None, arms=True, pro
     reg(name, keys, list(props), list(measure), list(focus), dur=dur, ease="linear", view=view, tip=tip)
 
 
-gait("Running", stride=.20, lift=.20, lean=10, swing=40, bob=.018, stance=.38, dur=1000,
-     measure=[meas("Knee", "hip", "kneeN", "ankleN")], focus=["thigh", "shin"], view=[-0.6, 0.6, -0.08, 1.3])
 gait("Farmer's Carry", stride=.12, lift=.05, lean=0, swing=0, bob=.008, stance=.5, hold=handrel(0.0, -.347), dur=2200,
      props=DBS, focus=["farm", "traps"], view=[-0.6, 0.6, -0.08, 1.3])
 

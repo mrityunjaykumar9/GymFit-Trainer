@@ -184,6 +184,46 @@ class DatabaseAndPlannerTest {
     }
 
     @Test
+    fun migrationFrom12DropsRunningAndRepointsItsTemplateRowToStationaryCycling() {
+        helper.createDatabase("migration-test-12-13", 12).apply {
+            execSQL(
+                "INSERT INTO exercises (id, name, primaryMuscle, secondaryMuscles, equipment, difficulty, category, goalTags, instructions, commonMistakes, safetyNotes, mediaUrl, isHeldPose) VALUES " +
+                    "(1, 'Running', 'Legs', '', 'Bodyweight', 'Beginner', 'Cardio', 'Fat loss', 'Run', 'Too fast', 'Build up', NULL, 0), " +
+                    "(2, 'Stationary Cycling', 'Legs', '', 'Machine', 'Beginner', 'Cardio', 'Fat loss', 'Pedal', 'Bad posture', 'Adjust seat', NULL, 0), " +
+                    "(3, 'Keep Me', 'Chest', '', 'Barbell', 'Beginner', 'Push', 'Strength', 'Press', 'Flare', 'Spot', NULL, 0)"
+            )
+            execSQL(
+                "INSERT INTO workout_templates (id, name, description, daysPerWeek, level, goalTag, isCustom, isYoga) VALUES " +
+                    "(1, 'Fat Loss Circuit', 'desc', 5, 'Intermediate', 'Fat loss', 0, 0)"
+            )
+            execSQL(
+                "INSERT INTO workout_template_days (id, templateId, orderIndex, title, muscleGroupsSummary) VALUES " +
+                    "(1, 1, 1, 'Cardio + Core', 'Cardio, Abs')"
+            )
+            execSQL(
+                "INSERT INTO workout_template_exercises (id, templateDayId, exerciseId, orderIndex, sets, reps, restSeconds) VALUES " +
+                    "(1, 1, 1, 1, 1, '20-25 min', 0), (2, 1, 3, 2, 1, '10', 10)"
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate("migration-test-12-13", 13, true, AppDatabase.MIGRATION_12_13)
+
+        db.query("SELECT name FROM exercises ORDER BY name").use { c ->
+            val names = generateSequence { if (c.moveToNext()) c.getString(0) else null }.toList()
+            assertEquals(listOf("Keep Me", "Stationary Cycling"), names)
+        }
+        db.query("SELECT COUNT(*) FROM workout_template_exercises").use { c ->
+            c.moveToFirst(); assertEquals(2, c.getInt(0))
+        }
+        // the row that pointed at Running now points at Stationary Cycling instead of disappearing
+        db.query("SELECT exerciseId FROM workout_template_exercises ORDER BY id").use { c ->
+            c.moveToFirst(); assertEquals(2, c.getInt(0))
+            c.moveToNext(); assertEquals(3, c.getInt(0))
+        }
+    }
+
+    @Test
     fun plannerBuildsTargetsAPlanAndAReminderMeal() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()

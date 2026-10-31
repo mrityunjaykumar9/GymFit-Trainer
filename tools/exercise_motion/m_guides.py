@@ -77,7 +77,6 @@ G("Plank", line("shoulder", "ankleN", "Straight line"), plumb("shoulder", "Elbow
 G("Crunch", ring("hip", "Back stays down"), ring("head", "Don't pull neck"))
 G("Hanging Leg Raise", ring("shoulder", "No swinging"))
 G("Cable Crunch", ring("hip", "Hips stay still"))
-G("Running", plumb("hip", "Land under hips"))
 G("Farmer's Carry", plumb("shoulder", "Stand tall"))
 G("Rowing Machine", plumb("ankleN", "Shins vertical"))
 G("Stationary Cycling", ring("hip", "Hips steady"))

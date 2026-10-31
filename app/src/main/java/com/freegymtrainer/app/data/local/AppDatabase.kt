@@ -31,7 +31,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -160,6 +160,30 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v12 -> v13: Running dropped (redundant - everyone already knows how to run, it added no
+         * instructional value over the other cardio machines). The Fat Loss Circuit template's
+         * "Cardio + Core" day used it as its long-duration cardio piece; re-pointed that day's row
+         * to Stationary Cycling (already a seeded exercise) instead of just deleting it, so existing
+         * users keep a 4-exercise day rather than losing a slot. Falls back to a plain delete if that
+         * exercise isn't present for some reason, same as every prior removal.
+         */
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "UPDATE workout_template_exercises SET exerciseId = " +
+                        "(SELECT id FROM exercises WHERE name = 'Stationary Cycling') " +
+                        "WHERE exerciseId = (SELECT id FROM exercises WHERE name = 'Running') " +
+                        "AND EXISTS (SELECT 1 FROM exercises WHERE name = 'Stationary Cycling')"
+                )
+                db.execSQL(
+                    "DELETE FROM workout_template_exercises WHERE exerciseId IN " +
+                        "(SELECT id FROM exercises WHERE name = 'Running')"
+                )
+                db.execSQL("DELETE FROM exercises WHERE name = 'Running'")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -167,7 +191,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
                 )
-                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
                     // Only installs older than v7 (before schema export began) may still be wiped.
                     // Every newer schema change MUST ship a real Migration above - a missing one
                     // fails loudly in testing instead of silently deleting users' data.

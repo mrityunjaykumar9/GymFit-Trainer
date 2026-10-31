@@ -112,8 +112,6 @@ object ExerciseCoach {
             "Tall posture, slight forward lean", "Land under your hips, light steps", "Relaxed shoulders, arms swing front to back"),
         "farmers_carry" to c("Grip, traps and whole-body stability.",
             "Stand tall, shoulders back", "Short, steady steps", "Don't lean to either side"),
-        "jump_rope" to c("Cardio, coordination and calf endurance.",
-            "Small hops on the balls of your feet", "Turn the rope with your wrists", "Elbows close to your sides"),
         "rowing_machine" to c("Full-body cardio with low impact.",
             "Legs drive first, then lean back, then arms", "Back stays strong, handle to lower ribs", "Reverse the order to return"),
         "stationary_cycling" to c("Low-impact cardio for the legs.",

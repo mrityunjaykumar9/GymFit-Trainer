@@ -110,17 +110,6 @@ gait("Running", stride=.20, lift=.20, lean=10, swing=40, bob=.018, stance=.38, d
 gait("Farmer's Carry", stride=.12, lift=.05, lean=0, swing=0, bob=.008, stance=.5, hold=handrel(0.0, -.347), dur=2200,
      props=DBS, focus=["farm", "traps"], view=[-0.6, 0.6, -0.08, 1.3])
 
-# ---------------------------------------------------------------- JUMP ROPE
-def rope_key(t, jump, arm_phase):
-    hip = (0.0, .5295 + jump)
-    sw = 14 * math.sin(arm_phase)
-    return key(t, hip, 2, foot(0.0, 0.04 + jump * .85, b=1), fkarm(170 + sw, 100 + sw), armF=fkarm(170 + sw, 100 + sw),
-               label="Light bounce", cue="Small hops on the balls of your feet, wrists turn the rope")
-
-
-reg("Jump Rope", [rope_key(i / 6, .045 * max(0, math.sin(math.pi * 2 * i / 6)), 2 * math.pi * i / 6) for i in range(6)],
-    [{"k": "ropeloop", "at": "wristN", "rx": .2, "z": 0}], [], ["shin", "farm"], dur=800, ease="linear", view=[-0.55, 0.55, -0.08, 1.3])
-
 # ---------------------------------------------------------------- ROWING MACHINE
 def row_key(t, hipx, T, hand_off, label, cue, ankle=(.36, .15)):
     hip = (hipx, 0.27)

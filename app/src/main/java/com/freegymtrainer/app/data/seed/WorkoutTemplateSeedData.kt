@@ -81,7 +81,7 @@ object WorkoutTemplateSeedData {
                 SeedTemplateDay("Full Body HIIT", "Full Body, Cardio", listOf(
                     te("Burpees", 4, "12-15", 45), te("Mountain Climbers", 4, "20", 45),
                     te("Walking Lunges", 3, "12/leg", 60), te("Push Ups", 3, "AMRAP", 45),
-                    te("Jump Rope", 3, "60s", 45)
+                    te("Jumping Jacks", 3, "60s", 45)
                 )),
                 SeedTemplateDay("Cardio + Core", "Cardio, Abs", listOf(
                     te("Running", 1, "20-25 min", 0), te("Plank", 3, "30-45s", 30),

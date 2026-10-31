@@ -50,7 +50,7 @@ object ExerciseCoach {
         "lateral_raise" to c("Wider-looking shoulders (the side delts).",
             "Slight bend in the elbows", "Lift out to the sides, lead with elbows", "Stop at shoulder height, lower slowly"),
         "front_raise" to c("The front of the shoulders.",
-            "Brace your core, no swinging", "Lift to eye level with straight arms", "Lower slowly under control"),
+            "Brace your core, no swinging", "Lift to eye level with a slight bend in your elbows", "Lower slowly under control"),
         "rear_delt_fly" to c("Rear shoulders and upper back - great for posture.",
             "Hinge forward, flat back", "Open the arms wide, elbows slightly bent", "Squeeze your shoulder blades together"),
         "face_pull" to c("Rear shoulders and upper back; protects the shoulder joint.",

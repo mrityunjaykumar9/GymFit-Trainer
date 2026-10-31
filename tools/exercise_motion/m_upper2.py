@@ -114,8 +114,12 @@ reg("Lateral Raise", [
 ], [db("wristN", .045), db("wristF", .045)], [], ["shoulder"], dur=3000)
 
 reg("Front Raise", [
-    key(0.0, (0, .5295), 0, FLAT, fkarm(180, 180), label="Dumbbells at thighs", cue="Brace your core, no swinging"),
-    key(0.5, (0, .5295), 0, FLAT, fkarm(92, 90), label="Raise to eye level", cue="Straight arms, stop at shoulder height"),
+    # u and f were equal (zero relative bend) at both keys, so the elbow sat exactly on the
+    # shoulder-to-wrist line - a perfectly rigid rod with no visible joint. Lateral Raise (the same
+    # kind of raise, just out to the side) keeps a small but real bend throughout for exactly this
+    # reason; matching that here instead of a hard-locked elbow.
+    key(0.0, (0, .5295), 0, FLAT, fkarm(180, 178), label="Dumbbells at thighs", cue="Brace your core, no swinging"),
+    key(0.5, (0, .5295), 0, FLAT, fkarm(92, 88), label="Raise to eye level", cue="Slight elbow bend, stop at shoulder height"),
 ], [db("wristN", .045)], [meas("Arm lift", "hip", "shoulder", "wristN")], ["shoulder"], dur=3000)
 
 reg("Rear Delt Fly", [

@@ -187,8 +187,8 @@ reg("Preacher Curl", [
     [ELB()], ["uarm"], dur=3000, view=[-0.5, 0.6, -0.08, 0.9])
 
 reg("Wrist Curl", [
-    key(0.0, (-.12, .27), 28, foot(.2, .04), fkarm(155, 105), label="Lower", cue="Let the bar roll down to your fingertips"),
-    key(0.5, (-.12, .27), 28, foot(.2, .04), fkarm(155, 75), label="Curl up", cue="Only your wrists move, forearms stay on thighs"),
+    key(0.0, (-.12, .27), 28, foot(.2, .04), fkarm(155, 98), label="Lower", cue="Let the bar roll down to your fingertips"),
+    key(0.5, (-.12, .27), 28, foot(.2, .04), fkarm(155, 82), label="Curl up", cue="Only your wrists move, forearms stay on thighs"),
 ], [prop_line((-.26, .20), (.06, .20), .05), prop_line((-.10, .17), (-.10, 0), .03), plate("wristN", .06)],
     [], ["farm"], dur=2400, view=[-0.5, 0.6, -0.08, 0.9])
 

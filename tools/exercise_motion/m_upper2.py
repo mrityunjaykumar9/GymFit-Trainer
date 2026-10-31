@@ -194,8 +194,13 @@ reg("Wrist Curl", [
 
 # ---------------------------------------------------------------- TRICEPS
 reg("Tricep Pushdown", [
-    key(0.0, (0, .5295), 4, FLAT, fkarm(180, 62), label="Elbows bent", cue="Elbows pinned to your sides"),
-    key(0.5, (0, .5295), 4, FLAT, fkarm(180, 177), label="Press down & squeeze", cue="Lock out, keep upper arms still"),
+    # f=177 put the locked-out wrist 0.05 pose units BELOW the hip - the hand had pressed down past
+    # hip height into the thigh. A cable pushdown locks out with the hands at roughly hip height, not
+    # below it, so f is capped around there instead. T=4 (almost perfectly upright) also read as too
+    # stiff - a real pushdown leans forward slightly from the hips to brace against the cable, so both
+    # keys lean a bit more.
+    key(0.0, (0, .5295), 10, FLAT, fkarm(180, 62), label="Elbows bent", cue="Elbows pinned to your sides, slight forward lean"),
+    key(0.5, (0, .5295), 10, FLAT, fkarm(180, 128), label="Press down & squeeze", cue="Lock out at your hips, keep upper arms still"),
 ], [cable([.12, 1.48], "wristN", g="rope")],
     [ELB()], ["uarm"], dur=2800, view=[-0.5, 0.6, -0.08, 1.6])
 

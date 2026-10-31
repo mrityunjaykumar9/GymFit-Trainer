@@ -194,13 +194,14 @@ reg("Wrist Curl", [
 
 # ---------------------------------------------------------------- TRICEPS
 reg("Tricep Pushdown", [
-    # f=177 put the locked-out wrist 0.05 pose units BELOW the hip - the hand had pressed down past
-    # hip height into the thigh. A cable pushdown locks out with the hands at roughly hip height, not
-    # below it, so f is capped around there instead. T=4 (almost perfectly upright) also read as too
-    # stiff - a real pushdown leans forward slightly from the hips to brace against the cable, so both
-    # keys lean a bit more.
+    # f=177 put the locked-out wrist 0.054 pose units BELOW the hip - the hand pressed down past the
+    # hip and disappeared into the thigh. f=128 (the first fix) overcorrected the other way, stopping
+    # 0.012 units ABOVE the hip with a visible gap instead of reaching it. f=140 lands right at the
+    # hip/thigh line (0.011 below hip) - the hand reaches the thigh without sinking into it. T=4
+    # (almost perfectly upright) also read as too stiff - a real pushdown leans forward slightly from
+    # the hips to brace against the cable, so both keys lean a bit more.
     key(0.0, (0, .5295), 10, FLAT, fkarm(180, 62), label="Elbows bent", cue="Elbows pinned to your sides, slight forward lean"),
-    key(0.5, (0, .5295), 10, FLAT, fkarm(180, 128), label="Press down & squeeze", cue="Lock out at your hips, keep upper arms still"),
+    key(0.5, (0, .5295), 10, FLAT, fkarm(180, 140), label="Press down & squeeze", cue="Lock out at your hips, keep upper arms still"),
 ], [cable([.12, 1.48], "wristN", g="rope")],
     [ELB()], ["uarm"], dur=2800, view=[-0.5, 0.6, -0.08, 1.6])
 

@@ -63,9 +63,11 @@ _kn = fkleg(180, 270, ft=270)
 
 
 def cc_key(t, T, spine, head, label, cue):
-    sh = sh_of(_cc_hip, T)
-    hd = add(sh, vec(T + head), HEAD_D)
-    return key(t, _cc_hip, T, _kn, hand(hd[0] + .02, hd[1] - .03, b=-1), spine=spine, head=head, label=label, cue=cue)
+    # Same fix as Crunch's head_hands: a fixed offset from the head CENTER put the hand jutting out
+    # below the chin instead of beside the head, and broke across the torso-angle range this exercise
+    # covers (T=2 kneeling tall to T=62 crunched down). A fraction along the shoulder->head axis keeps
+    # it at ear height, relative to the head's own orientation, at every torso angle.
+    return key(t, _cc_hip, T, _kn, head_hands(_cc_hip, T, head), spine=spine, head=head, label=label, cue=cue)
 
 
 reg("Cable Crunch", [
@@ -180,17 +182,29 @@ reg("Stair Climbing", [stair_key(i / 8, i / 8) for i in range(8)], [
     [meas("Knee", "hip", "kneeN", "ankleN")], ["thigh", "glutes"], dur=1800, ease="linear", view=[-0.5, 0.65, -0.08, 1.2])
 
 # ---------------------------------------------------------------- BURPEES
-_h22, _T22, _a22 = pushup_geom(22, 0.0)
-_sh22 = sh_of(_h22, _T22)
+# alpha=22 (like Plank/Mountain Climbers use) puts the hand-to-shoulder distance at ~0.348 pose units -
+# just inside the arm's 0.35 max reach in this flat 2D math, but the 3D lift adds the grip's sideways
+# offset on top of that, which was tipping the real 3D distance past max reach: the IK then clamped
+# short of the floor, so the hand looked like it was floating instead of planted. A shallower fold
+# (alpha=18) leaves real slack.
+_h18, _T18, _a18 = pushup_geom(18, 0.0)
+_sh18 = sh_of(_h18, _T18)
 _handx = 0.22
-_dx = _handx - _sh22[0]
-_plank_hip = (_h22[0] + _dx, _h22[1])
-_plank_ankle = (_a22[0] + _dx, _a22[1])
+_dx = _handx - _sh18[0]
+_plank_hip = (_h18[0] + _dx, _h18[1])
+_plank_ankle = (_a18[0] + _dx, _a18[1])
 _FLOORHAND = hand(_handx, 0.035)
 
+# The squatted "hands down" position is a different body shape than the plank (hips dropped low, torso
+# folded forward over the feet, not stretched out) so it needs its own, closer hand target - reusing the
+# plank's far-away target put the hand well past the arm's actual max reach, so it hovered above the
+# floor with the arm rigid-straight instead of resting on the mat with a natural elbow bend.
+_squat_hip, _squat_T = (-.10, .17), 60
+_SQUATHAND = hand(.05, .035)
 
-def squat_hand_key(t, hip, T, label, cue):
-    return key(t, hip, T, foot(0.0, 0.04), _FLOORHAND, label=label, cue=cue)
+
+def squat_hand_key(t, label, cue):
+    return key(t, _squat_hip, _squat_T, foot(0.0, 0.04), _SQUATHAND, label=label, cue=cue)
 
 
 def abs_hand(hip, T, off):
@@ -200,9 +214,9 @@ def abs_hand(hip, T, off):
 
 reg("Burpees", [
     key(0.00, (0, .5295), 0, foot(0.0), abs_hand((0, .5295), 0, (0.02, -.34)), label="Stand", cue="Feet shoulder width"),
-    squat_hand_key(0.14, (-.14, .31), 62, "Squat, hands down", "Hands flat on the floor"),
-    key(0.30, _plank_hip, _T22, foot(*_plank_ankle, ft=150), _FLOORHAND, label="Kick back to plank", cue="Land in a strong plank"),
-    squat_hand_key(0.50, (-.14, .31), 62, "Jump feet in", "Feet land outside your hands"),
+    squat_hand_key(0.14, "Squat, hands down", "Hands flat on the floor"),
+    key(0.30, _plank_hip, _T18, foot(*_plank_ankle, ft=150), _FLOORHAND, label="Kick back to plank", cue="Land in a strong plank"),
+    squat_hand_key(0.50, "Jump feet in", "Feet land outside your hands"),
     key(0.68, (0.0, .50), 5, foot(0.0, 0.05), abs_hand((0.0, .50), 5, (0.0, .20)), label="Explode up", cue="Drive through your heels"),
     key(0.80, (0.0, .72), 0, foot(0.0, 0.25), abs_hand((0.0, .72), 0, (0.0, .34)), label="Jump, arms overhead", cue="Land softly"),
     key(0.92, (0.0, .46), 12, foot(0.0), abs_hand((0.0, .46), 12, (0.02, -.30)), label="Land softly", cue="Bend your knees to absorb"),

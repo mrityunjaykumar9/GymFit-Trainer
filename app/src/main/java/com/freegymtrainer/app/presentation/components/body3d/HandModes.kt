@@ -19,9 +19,15 @@ internal object HandModes {
     private val neutral = setOf(
         "cable_fly", "pec_deck", "t_bar_row", "seated_cable_row", "rear_delt_fly", "face_pull", "hammer_curl",
         "tricep_pushdown", "overhead_tricep_extension", "walking_lunges", "bulgarian_split_squat", "calf_raise",
-        "farmers_carry", "cable_crunch", "crunch", "running", "leg_press", "leg_extension"
+        "farmers_carry", "cable_crunch", "crunch", "running", "leg_press", "leg_extension",
+        // PALM_DOWN keeps the palm aimed at a near-fixed WORLD direction. For a frontal exercise
+        // (toModel maps pose.z straight to model depth, no axis swap) that fixed direction's small
+        // z-tilt sits right on the camera's depth axis, so as the arm swept this exercise's ~100deg
+        // range the hand visibly rocked forward and back through the rep instead of hanging straight.
+        // NEUTRAL's inward target has no z-component at all, so it can't introduce that wobble.
+        "lateral_raise"
     )
-    private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing")
+    private val palmsDown = setOf("front_raise", "stationary_cycling", "stair_climbing")
 
     fun modeOf(exerciseName: String?): HandMode {
         val slug = exerciseName?.let { exerciseSlug(it) } ?: return HandMode.AUTO

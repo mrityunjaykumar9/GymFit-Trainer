@@ -109,7 +109,7 @@ reg("Dumbbell Shoulder Press", [
 ], SEAT + [db("wristN", .05)], [ELB()], ["shoulder", "uarm"], dur=3000, view=[-0.65, 0.65, -0.08, 1.35])
 
 reg("Lateral Raise", [
-    key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(176, 178), label="Arms at sides", cue="Slight elbow bend, palms facing down"),
+    key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(176, 178), label="Arms at sides", cue="Slight elbow bend, palms facing your body"),
     key(0.5, (0, .5295), 0, FLAT, fkarm(98, 94), armF=fkarm(262, 266), label="Raise to shoulder height", cue="Lead with your elbows, stop at shoulder level"),
 ], [db("wristN", .045), db("wristF", .045)], [], ["shoulder"], dur=3000)
 

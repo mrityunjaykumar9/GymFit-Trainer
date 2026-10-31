@@ -338,7 +338,13 @@ internal class AthletePoser(private val rest: List<RestBone>) {
         // spin to catch up once the arm swung clear of that dead spot. A small forward tilt keeps
         // the palm reading as "down" at the top (where it matters) without ever lining up with the
         // forearm at the bottom.
-        val palmDown = V3(0f, -1f, 0.18f)
+        // For a frontal exercise there is no sagittal/model axis swap (toModel maps pose.z straight to
+        // model depth), so the usual z-axis tilt - which lands harmlessly on left-right for every other
+        // PALM_DOWN exercise - sits right on the camera's depth axis instead, and the hand (and the
+        // dumbbell with it) visibly rocked forward and back through the rep. Tilting on x instead (toward
+        // this side's own raised position) breaks the same bottom-of-rep degenerate alignment without
+        // ever moving the hand in depth.
+        val palmDown = if (frontal) V3(if (left) 0.18f else -0.18f, -1f, 0f) else V3(0f, -1f, 0.18f)
         return when (mode) {
             HandMode.FLOOR -> V3.Z to V3(0f, -1f, 0f)
             HandMode.BAR_OVER -> d2 to V3.X.cross(d2)

@@ -17,11 +17,24 @@ reg("Barbell Back Squat", [
     key(0.5, (-.16, .33), 40, FLAT, fkarm(195, -25, rel=True), label="Hips back & down", cue="Knees track over toes, chest up, thighs to parallel"),
 ], [plate("wristN", .085)], [KNEE(), BACK()], ["thigh", "glutes"], dur=3600)
 
-_fr = {"p": "shoulder", "off": [.07, .04]}
+# The equipment-alignment audit's original head-clearance scan only checked props anchored to a
+# plain joint name (like "wristN"); it missed this one because the bar is anchored to "shoulder"
+# plus a fixed offset. Checked properly, the offset put the bar clipping into the chin by 0.078
+# pose units at the bottom of the squat - fixed by moving the anchor forward and down (off the
+# shoulder point, not up toward the head) just enough to clear it.
+_fr = {"p": "shoulder", "off": [.14, -.03]}
 reg("Front Squat", [
     key(0.0, (-.02, .5295), 4, FLAT, fkarm(95, -50, rel=True), label="Stand tall", cue="Elbows high, bar resting on front shoulders"),
     key(0.5, (-.15, .33), 28, FLAT, fkarm(95, -50, rel=True), label="Sit straight down", cue="Keep elbows up and torso upright"),
 ], [plate(_fr, .08)], [KNEE(), BACK()], ["thigh", "glutes"], dur=3600)
+
+# Same squat leg path as Front Squat, but holding one dumbbell vertically at the chest instead of a
+# bar on the shoulders - rel=True glues the "cupped" forearm angle to the torso the same way the
+# bar-on-back/bar-on-shoulders arm specs do above.
+reg("Goblet Squat", [
+    key(0.0, (-.02, .5295), 4, FLAT, fkarm(182, 32, rel=True), label="Stand tall", cue="Hold the dumbbell vertically at your chest"),
+    key(0.5, (-.16, .33), 32, FLAT, fkarm(182, 32, rel=True), label="Sit down between your knees", cue="Elbows brush your inner knees at the bottom"),
+], [db("wristN", .05)], [KNEE(), BACK()], ["thigh", "glutes"], dur=3600)
 
 # leg press: sled along bearing 55
 _lp_hip = (-.25, .25)
@@ -44,6 +57,14 @@ reg("Romanian Deadlift", [
     _rdl_top,
     key(0.5, (-.24, .46), 75, FLAT, handrel(.02, -.35), label="Hinge back", cue="Push hips back, bar slides down your legs, flat back"),
 ], [plate("wristN", .085)], [BACK(), KNEE()], ["hamstrings", "glutes", "back"], dur=3600)
+
+# Same hip-hinge leg path as Romanian Deadlift, but the bar rests on the upper back (rel=True FK,
+# same mechanism Squat uses) instead of being held down at the hips - hands never move relative to
+# the torso, so the bar stays glued to the traps through the whole hinge.
+reg("Good Morning", [
+    key(0.0, (0, .5295), 6, FLAT, fkarm(195, -25, rel=True), label="Stand tall", cue="Bar on your upper back, soft knees"),
+    key(0.5, (-.24, .46), 75, FLAT, fkarm(195, -25, rel=True), label="Hinge forward", cue="Push hips back, flat back, bar over mid-foot"),
+], [plate("wristN", .08)], [BACK(), KNEE()], ["hamstrings", "glutes", "back"], dur=3600)
 
 # ---------------------------------------------------------------- MACHINES
 #  At the old hip height (.27) the "knees bent" foot (toes pointed down at ft=165) computed below
@@ -77,6 +98,19 @@ reg("Calf Raise", [
     key(0.0, (0, .5295), 0, foot(0.0, .04), handrel(0, -.347), armF=handrel(0, -.347), label="Heels down", cue="Full stretch at the bottom"),
     key(0.5, (0.05, .60), 0, foot(.05, .127, ft=150), handrel(0, -.347), armF=handrel(0, -.347), label="Rise onto toes", cue="Pause and squeeze the calves at the top"),
 ], DBS, [], ["shin"], dur=2600)
+
+# Same ankle-only motion as standing Calf Raise, but seated with the knee bent ~90deg under a pad -
+# the thigh angle (th=90, horizontal) stays fixed across both keys, only the ankle (ft) moves.
+reg("Seated Calf Raise", [
+    key(0.0, (-.05, .30), -2, fkleg(90, 175, ft=90), handrel(.04, -.07), label="Heels down", cue="Full stretch at the bottom"),
+    key(0.5, (-.05, .30), -2, fkleg(90, 175, ft=150), handrel(.04, -.07), label="Rise onto toes", cue="Pause and squeeze at the top"),
+    # A knee-pad prop was tried here two ways - plate() always renders a full barbell (bar + two
+    # end plates), and prop_circle()'s pinned-metal-roller branch only spans correctly between
+    # "ankleN"/"ankleF" (it's built for the leg extension/curl ankle pad), so pinning it to the
+    # knee instead drew an oversized, off-center cylinder. The seat + raised footrest already read
+    # clearly as a seated calf machine without it, so no knee-pad prop rather than a wrong one.
+], [prop_line((-.18, .25), (.10, .25), .05), prop_line((-.15, .27), (-.15, .85), .05), prop_line((.18, .06), (.18, 0), .03)],
+    [], ["shin"], dur=2600, view=[-0.5, 0.6, -0.08, 1.0])
 
 # ---------------------------------------------------------------- GLUTES
 _hs = (-.30, .29)

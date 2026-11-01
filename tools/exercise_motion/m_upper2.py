@@ -67,6 +67,14 @@ reg("Pull Ups", [
 ], [prop_line((-0.55, 1.40), (0.55, 1.40), .022, "metal"), prop_line((-0.55, 1.40), (-0.55, 0), .03), prop_line((0.55, 1.40), (0.55, 0), .03)],
     [ELB()], ["back", "uarm"], dur=3400, view=[-0.7, 0.7, -0.08, 1.58])
 
+# Identical mechanics to Pull Ups (same bar, same hip travel) - the only real difference is grip
+# (underhand, narrower), which lives in m_lateral.py and in the hand orientation (HandModes.kt).
+reg("Chin-Ups", [
+    key(0.0, (0.0, 0.74), 2, _hang_legs, _hang_hand, label="Dead hang", cue="Arms straight, palms facing you"),
+    key(0.5, (0.0, 0.98), 8, _hang_legs, hand(0.05, 1.40, b=1), label="Chin over bar", cue="Pull your chin above the bar"),
+], [prop_line((-0.55, 1.40), (0.55, 1.40), .022, "metal"), prop_line((-0.55, 1.40), (-0.55, 0), .03), prop_line((0.55, 1.40), (0.55, 0), .03)],
+    [ELB()], ["back", "uarm"], dur=3400, view=[-0.7, 0.7, -0.08, 1.58])
+
 _sh_ld = shoulder_of((-.05, .27), -10)
 reg("Lat Pulldown", [
     key(0.0, (-.05, .27), -10, foot(.20), hand(_sh_ld[0] + .09, _sh_ld[1] + .34), label="Arms stretched", cue="Chest up, slight lean back"),
@@ -100,6 +108,13 @@ reg("Seated Cable Row", [
 reg("Deadlift", [
     key(0.0, (-.25, .40), 58, foot(0.0), handrel(0.0, -.35), label="Set up", cue="Bar over mid-foot, chest up, back flat"),
     key(0.5, (0.0, .5295), 4, foot(0.0), handrel(0.03, -.35), label="Stand tall", cue="Hips and shoulders rise together, squeeze glutes"),
+], [plate("wristN", .12)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Back lean", "lean")], ["back", "glutes", "thigh"], dur=3600)
+
+# Same hinge/stand keyframes as Deadlift - the whole difference is a wide stance and a grip inside
+# the knees instead of outside them, which lives entirely in m_lateral.py.
+reg("Sumo Deadlift", [
+    key(0.0, (-.25, .40), 58, foot(0.0), handrel(0.0, -.35), label="Set up", cue="Wide stance, grip inside your knees"),
+    key(0.5, (0.0, .5295), 4, foot(0.0), handrel(0.03, -.35), label="Stand tall", cue="Hips and shoulders rise together, chest up"),
 ], [plate("wristN", .12)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Back lean", "lean")], ["back", "glutes", "thigh"], dur=3600)
 
 # ---------------------------------------------------------------- SHOULDERS
@@ -138,6 +153,14 @@ reg("Lateral Raise", [
     key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(176, 178), label="Arms at sides", cue="Slight elbow bend, palms facing down"),
     key(0.5, (0, .5295), 0, FLAT, fkarm(98, 94), armF=fkarm(262, 266), label="Raise to shoulder height", cue="Lead with your elbows, stop at shoulder level"),
 ], [db("wristN", .045), db("wristF", .045)], [], ["shoulder"], dur=3000)
+
+# Same arm path as Lateral Raise, done one arm at a time against a low cable pulley instead of a
+# dumbbell - a very common gym-floor variant people specifically look for. armF is pinned at the
+# side throughout (unlike Lateral Raise, which raises both arms together) since this is unilateral.
+reg("Cable Lateral Raise", [
+    key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(184, 182), label="Arm crosses the body", cue="Cable pulls your hand toward your other hip"),
+    key(0.5, (0, .5295), 0, FLAT, fkarm(98, 94), armF=fkarm(184, 182), label="Raise to shoulder height", cue="Lead with your elbow, stop at shoulder level"),
+], [cable([-.5, .15], "wristN", g="handle")], [], ["shoulder"], dur=3000)
 
 reg("Front Raise", [
     # u and f were equal (zero relative bend) at both keys, so the elbow sat exactly on the
@@ -189,6 +212,13 @@ reg("Barbell Shrug", [
     key(0.5, (0, .5295), 0, FLAT, handrel(.07, -.31), sl=0.16, label="Shrug up", cue="Lift straight up toward your ears, no rolling"),
 ], [plate("wristN", .085)], [], ["traps"], dur=2400)
 
+# Same "bar glued to the hands" IK as Barbell Shrug, pulled up close to the body instead of just
+# lifted straight - the bar finishes near the collarbone so the elbows end up leading well above it.
+reg("Upright Row", [
+    key(0.0, (0, .5295), 0, FLAT, handrel(.07, -.31), label="Arms straight", cue="Bar at thighs, shoulder-width grip"),
+    key(0.5, (0, .5295), 0, FLAT, handrel(.02, -.07), label="Pull up", cue="Elbows lead, bar stays close to your body"),
+], [plate("wristN", .07)], [], ["shoulder", "traps"], dur=2600)
+
 
 # ---------------------------------------------------------------- BICEPS
 def curl_keys(top_f, bottom_f, alternate=False, legs=FLAT, u=182, cue_top="Elbows stay glued to your sides"):
@@ -217,6 +247,14 @@ reg("Preacher Curl", [
     key(0.5, (-.12, .27), 14, foot(.16, .04), fkarm(138, 18), label="Squeeze", cue="Upper arms stay flat on the pad"),
 ], [prop_line((-.26, .20), (.04, .20), .05), prop_line((-.10, .17), (-.10, 0), .03), prop_line((-.01, .47), (.17, .30), .07), prop_line((.12, .34), (.12, 0), .03), db("wristN", .05)],
     [ELB()], ["uarm"], dur=3000, view=[-0.5, 0.6, -0.08, 0.9])
+
+#  Same fixed-upper-arm-angle curl as Preacher Curl, but seated on a plain bench with the elbow
+#  braced against the inner thigh instead of a pad - the defining single-arm concentration curl
+#  setup, so armF rests on the other knee instead of mirroring the working arm.
+reg("Concentration Curl", [
+    key(0.0, (-.10, .27), 25, foot(.18, .04), fkarm(145, 155), armF=fkarm(168, 172), label="Lower slowly", cue="Elbow braced against your inner thigh"),
+    key(0.5, (-.10, .27), 25, foot(.18, .04), fkarm(145, 22), armF=fkarm(168, 172), label="Squeeze", cue="Curl straight up, don't swing your torso"),
+], SEAT + [db("wristN", .05)], [ELB()], ["uarm"], dur=3000, view=[-0.5, 0.6, -0.08, 0.9])
 
 reg("Wrist Curl", [
     key(0.0, (-.12, .27), 28, foot(.2, .04), fkarm(155, 98), label="Lower", cue="Let the bar roll down to your fingertips"),

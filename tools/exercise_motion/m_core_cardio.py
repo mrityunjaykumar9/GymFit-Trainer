@@ -50,6 +50,13 @@ reg("Crunch", [
     key(0.5, _cr_hip, -58, foot(.30, .04), head_hands(_cr_hip, -58, 18), spine=-0.04, head=18, label="Curl up", cue="Lift shoulder blades only, don't pull on your neck"),
 ], [FLOOR_MAT], [], ["abs"], dur=2800, view=[-0.7, 0.55, -0.08, 0.7])
 
+# Same head_hands() mechanism as Crunch, just a much bigger range of motion - all the way up to
+# sitting nearly vertical instead of just curling the shoulder blades off the floor.
+reg("Sit-Ups", [
+    key(0.0, _cr_hip, -90, foot(.30, .04), head_hands(_cr_hip, -90, 0), label="Lie back", cue="Knees bent, feet flat on the floor"),
+    key(0.5, _cr_hip, -8, foot(.30, .04), head_hands(_cr_hip, -8, 10), spine=-0.05, head=10, label="Sit all the way up", cue="Chest toward your knees"),
+], [FLOOR_MAT], [], ["abs"], dur=3200, view=[-0.7, 0.6, -0.08, 0.85])
+
 _hb = fkleg(184, 186)
 _hang = hand(0.05, 1.40)
 reg("Hanging Leg Raise", [

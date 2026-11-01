@@ -13,15 +13,17 @@ internal object HandModes {
         "barbell_bench_press", "incline_barbell_bench_press", "close_grip_bench_press", "dumbbell_bench_press",
         "incline_dumbbell_press", "dumbbell_shoulder_press", "overhead_press", "pull_ups", "lat_pulldown",
         "barbell_row", "deadlift", "romanian_deadlift", "barbell_shrug", "skull_crushers", "barbell_back_squat",
-        "hanging_leg_raise", "hip_thrust", "rowing_machine", "kettlebell_barbell_clean_and_press"
+        "hanging_leg_raise", "hip_thrust", "rowing_machine", "kettlebell_barbell_clean_and_press",
+        "decline_bench_press", "sumo_deadlift", "good_morning", "upright_row"
     )
-    private val underhand = setOf("barbell_curl", "dumbbell_curl", "cable_curl", "preacher_curl", "wrist_curl", "front_squat")
+    private val underhand = setOf("barbell_curl", "dumbbell_curl", "cable_curl", "preacher_curl", "wrist_curl", "front_squat", "chin_ups")
     private val neutral = setOf(
         "cable_fly", "pec_deck", "t_bar_row", "seated_cable_row", "rear_delt_fly", "face_pull", "hammer_curl",
         "tricep_pushdown", "overhead_tricep_extension", "walking_lunges", "bulgarian_split_squat", "calf_raise",
-        "farmers_carry", "cable_crunch", "crunch", "leg_press", "leg_extension"
+        "farmers_carry", "cable_crunch", "crunch", "leg_press", "leg_extension",
+        "dips", "goblet_squat", "seated_calf_raise", "concentration_curl", "sit_ups"
     )
-    private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing")
+    private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing", "cable_lateral_raise")
 
     fun modeOf(exerciseName: String?): HandMode {
         val slug = exerciseName?.let { exerciseSlug(it) } ?: return HandMode.AUTO
@@ -44,7 +46,9 @@ internal object HandModes {
                 is Prop.Line -> pinned(p.a.joint) || pinned(p.b.joint)
                 else -> false
             }
-        } || (exerciseName?.let { it.contains("Pull Up", true) || it.contains("Hanging", true) } == true)
+        } || (exerciseName?.let {
+            it.contains("Pull Up", true) || it.contains("Hanging", true) || it.contains("Dip", true) || it.contains("Chin-Up", true)
+        } == true)
         val mode = modeOf(exerciseName)
         val fist = if (holds) 1f else 0.2f
         return Hands(mode, mode, fist)

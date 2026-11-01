@@ -118,11 +118,11 @@ reg("Deadlift", [
 # in both directions.
 _ohp_sh = shoulder_of((0.0, .5295), 0)
 reg("Overhead Press", [
-    key(0.0, (0, .5295), 0, FLAT, hand(.20, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
-    key(0.2, (0, .5295), -1.5, FLAT, hand(.14, _ohp_sh[1] + .19), head=-30, label="Drive past your face", cue="Tip your head back slightly, press the bar straight up"),
+    key(0.0, (0, .5295), 0, FLAT, hand(.15, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
+    key(0.2, (0, .5295), -1.5, FLAT, hand(.08, _ohp_sh[1] + .19), head=-34, label="Drive past your face", cue="Tip your head back slightly, press the bar straight up"),
     key(0.4, (0, .5295), -3, FLAT, hand(.0, _ohp_sh[1] + .35), label="Lockout overhead", cue="Head through the window, bar over mid-foot"),
-    key(0.6, (0, .5295), -1.5, FLAT, hand(.14, _ohp_sh[1] + .19), head=-30, label="Lower past your face", cue="Control the bar down, head tipped back"),
-    key(0.8, (0, .5295), 0, FLAT, hand(.20, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
+    key(0.6, (0, .5295), -1.5, FLAT, hand(.08, _ohp_sh[1] + .19), head=-34, label="Lower past your face", cue="Control the bar down, head tipped back"),
+    key(0.8, (0, .5295), 0, FLAT, hand(.15, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
 ], [plate("wristN", .085)], [ELB()], ["shoulder", "uarm"], dur=3000)
 
 _dsp = shoulder_of((-.06, .27), 0)

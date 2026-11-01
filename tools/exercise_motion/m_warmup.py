@@ -46,7 +46,13 @@ reg("Standing Side Bend", [
 
 reg("Standing Toe Touch", [
     key(0.00, (0, .5295), 0, FLAT, hand(0.045, 0.475), legF=FLAT, armF=hand(0.045, 0.475), label="Stand tall", cue="Feet hip-width apart"),
-    key(0.50, (-.10, .50), 130, foot(.0, .04, b=1), hand(.12, .07), legF=foot(-.03, .04, b=1), armF=hand(.10, .07), head=30,
+    # The old hand target (.12,.07) was only 68% of max arm reach from the shoulder - nowhere near
+    # straight, and well short of the feet (at x~0) too. Targeting the feet directly (same point as
+    # the foot target) and trimming T from 130 to 120 (which, with this hip position, actually
+    # brings the shoulder closer to the floor target, not further - the shallower hinge angle
+    # matters more here than the extra lean) gets the reach to 98% of max: a straight arm that
+    # actually reaches the shoes instead of stopping well short of them.
+    key(0.50, (-.10, .50), 120, foot(.0, .04, b=1), hand(0, .045), legF=foot(-.03, .04, b=1), armF=hand(0, .045), head=30,
         label="Hinge and reach", cue="Soft knees, hinge from the hips, reach toward your toes"),
 ], [MAT], [meas("Hip", "shoulder", "hip", "kneeN")], ["hamstrings", "back"], dur=3600, view=[-0.55, 0.6, -0.08, 1.35],
     tip="A dynamic hamstring stretch - bend your knees as much as you need to.")

@@ -106,6 +106,5 @@ G("Seated Forward Bend (Paschimottanasana)", ring("hip", "Hinge from the hips"))
 # ------------------------------------------------------------------ warm-up & mobility
 G("Leg Swings", plumb("hip", "Swing from hip"))
 G("High Knees", level("hip", "Knee to hip height"))
-G("Standing Side Bend", ring("hip", "Hips stay still"))
 G("Standing Toe Touch", ring("kneeN", "Soft knees"))
 G("Jumping Jacks", level("shoulder", "Hands overhead"))

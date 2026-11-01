@@ -134,9 +134,7 @@ object WorkoutTemplateSeedData {
                 SeedTemplateDay("Cool-Down & Recovery", "Flexibility, Full Body", listOf(
                     te("Seated Forward Bend", 2, "5-8 breaths", 10),
                     te("Bridge Pose", 2, "5 breaths", 10),
-                    te("Standing Side Bend", 1, "3 each side", 10),
-                    te("Child's Pose", 1, "5-10 breaths", 10),
-                    te("Relaxation Pose", 1, "1-5 min", 0)
+                    te("Child's Pose", 1, "5-10 breaths", 10)
                 ))
             ),
             isYoga = true

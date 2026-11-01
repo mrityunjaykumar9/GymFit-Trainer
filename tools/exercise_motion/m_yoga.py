@@ -88,8 +88,3 @@ reg("Seated Forward Bend (Paschimottanasana)", [
     key(0.0, _ps_hip, 0, fkleg(90, 90, ft=35), hand(_ps_a[0] + .02, _ps_a[1] + .34), label="Sit tall", cue="Legs straight, lengthen your spine first"),
     key(0.5, _ps_hip, 80, fkleg(90, 90, ft=35), hand(.47, .09), spine=-.03, head=24, label="Hinge forward", cue="Fold from the hips, hold shins or feet, soft knees if needed"),
 ], [MAT], [meas("Hip", "shoulder", "hip", "kneeN")], ["hamstrings", "back"], dur=5000, view=[-0.55, 0.65, -0.08, 0.7])
-
-reg("Relaxation Pose", [
-    key(0.0, (0, .07), -90, fkleg(92, 92, ft=100), fkarm(90, 90), spine=0.0, label="Exhale", cue="Let every muscle soften"),
-    key(0.5, (0, .07), -90, fkleg(92, 92, ft=100), fkarm(90, 90), spine=0.022, label="Inhale (belly rises)", cue="Breathe naturally, let the floor hold you"),
-], [MAT], [], ["back"], dur=5200, view=[-0.65, 0.6, -0.08, 0.65])

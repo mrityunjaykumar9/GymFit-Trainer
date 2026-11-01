@@ -114,13 +114,6 @@ L("Cat-Cow Stretch (Marjaryasana-Bitilasana)", grip=.15, stance=.09)
 L("Cobra Pose (Bhujangasana)", grip=.14, stance=.05)
 L("Bridge Pose (Setu Bandhasana)", grip=.13, stance=.08)
 L("Seated Forward Bend (Paschimottanasana)", stance=.06)
-# A static "stance" offset just shifts each foot sideways without rotating it - both feet stayed
-# standing bolt upright, soles flat to the mat, which reads as stiff rather than relaxed. A real
-# Savasana has the legs fall open from the hips, feet rolling outward. Swapping to the free-swing
-# "lat" mechanism for the legs (stance left unset so it applies) rotates each leg out from the hip
-# instead of just translating the foot - 12deg gives about the same width as the old stance=.09
-# but with the feet actually tipped open, not planted straight up.
-L("Relaxation Pose", grip=.15, lat=[0, 0, 12, 12])
 # ------------------------------------------------------------------ warm-up & mobility
 L("Leg Swings", stance=.08)
 # The free-swing "lat" degrees rotate the arm's existing 2D direction toward the side - at 70deg
@@ -132,7 +125,6 @@ L("Leg Swings", stance=.08)
 # bigger swing still reads as a wide jump-out stance rather than flipping direction entirely.
 L("Jumping Jacks", stance=.09, lat=[[0, 0, 0, 0], [18, 18, 55, 55]])
 L("High Knees", stance=.07, lat=[15, 15, 0, 0])
-L("Standing Side Bend", grip=.09, stance=.075, frontal=True)
 # grip offsets the hand sideways in 3D, but the shoulder itself sits at a FIXED sideways offset
 # (SHOULDER_HALF=.185) - a narrow grip like .09 leaves a .095 gap between the two, which becomes a
 # real sideways distance the 3D arm has to cover on top of its 2D reach. That pushed the true 3D

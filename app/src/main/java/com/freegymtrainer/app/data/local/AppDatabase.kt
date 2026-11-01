@@ -31,7 +31,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -232,6 +232,22 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v16 -> v17: Relaxation Pose and Standing Side Bend both dropped - asked to be removed.
+         * Relaxation Pose was the last exercise in the Warm-Up & Mobility template's "Cool-Down &
+         * Recovery" day; Standing Side Bend was in the same day. Both just lose their slot rather
+         * than being repointed, same reasoning as the Inchworm removal.
+         */
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "DELETE FROM workout_template_exercises WHERE exerciseId IN " +
+                        "(SELECT id FROM exercises WHERE name IN ('Relaxation Pose', 'Standing Side Bend'))"
+                )
+                db.execSQL("DELETE FROM exercises WHERE name IN ('Relaxation Pose', 'Standing Side Bend')")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -239,7 +255,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
                 )
-                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
                     // Only installs older than v7 (before schema export began) may still be wiped.
                     // Every newer schema change MUST ship a real Migration above - a missing one
                     // fails loudly in testing instead of silently deleting users' data.

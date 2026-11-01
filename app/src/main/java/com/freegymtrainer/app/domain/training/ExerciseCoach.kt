@@ -147,8 +147,6 @@ object ExerciseCoach {
             "Full arm raise overhead", "Land softly on the balls of your feet", "Steady, repeatable pace"),
         "high_knees" to c("Raises your heart rate and primes the hip flexors.",
             "Drive the knee to hip height", "Pump your arms with your legs", "Stay on the balls of your feet"),
-        "standing_side_bend" to c("Opens the side body before a session.",
-            "Reach straight overhead first", "Lean away from the reaching arm", "No bouncing - ease into it"),
         "standing_toe_touch" to c("A dynamic hamstring stretch to start a session.",
             "Soft bend in the knees", "Hinge from the hips, not the lower back", "Rise back up under control"),
         "mountain_pose" to c("Posture, balance and body awareness.",
@@ -168,8 +166,6 @@ object ExerciseCoach {
         "bridge_pose" to c("Glutes, back and chest opener.",
             "Feet hip-width, close to your hips", "Press into feet and arms to lift", "Keep knees over ankles"),
         "seated_forward_bend" to c("Stretches hamstrings and lower back.",
-            "Sit tall first, legs straight", "Fold forward from the hips", "Soft knees if the hamstrings are tight"),
-        "relaxation_pose" to c("Full-body relaxation and recovery.",
-            "Lie flat, arms relaxed by your sides", "Let every muscle soften", "Breathe slowly and naturally")
+            "Sit tall first, legs straight", "Fold forward from the hips", "Soft knees if the hamstrings are tight")
     )
 }

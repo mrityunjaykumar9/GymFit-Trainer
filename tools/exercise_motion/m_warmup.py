@@ -36,14 +36,6 @@ reg("High Knees", [
 ], [MAT], [], ["thigh", "abs"], dur=1800, view=[-0.5, 0.5, -0.08, 1.4],
     tip="Raises your heart rate and primes the hip flexors - 20-30 seconds is plenty.")
 
-_SB_HANG = fkarm(172, 172)
-reg("Standing Side Bend", [
-    key(0.00, (0, .5295), 0, FLAT, _SB_HANG, legF=FLAT, armF=_SB_HANG, label="Stand tall", cue="Feet hip-width, arms relaxed"),
-    key(0.50, (0, .50), 18, FLAT, fkarm(10, 5), legF=FLAT, armF=_SB_HANG, head=10,
-        label="Reach and lean", cue="Reach one arm overhead and lean away from it"),
-], [MAT], [meas("Side bend", "lean")], ["back"], dur=3400, view=[-0.55, 0.65, -0.08, 1.4], frontal=True,
-    tip="Opens the side body - switch sides halfway through your set.")
-
 reg("Standing Toe Touch", [
     key(0.00, (0, .5295), 0, FLAT, hand(0.045, 0.475), legF=FLAT, armF=hand(0.045, 0.475), label="Stand tall", cue="Feet hip-width apart"),
     # The old hand target (.12,.07) was only 68% of max arm reach from the shoulder - nowhere near

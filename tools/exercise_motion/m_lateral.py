@@ -40,7 +40,7 @@ L("Dumbbell Bench Press", grip=.15, stance=.11, lat=[40, 40, 0, 0])
 L("Incline Dumbbell Press", grip=.15, stance=.11, lat=[40, 40, 0, 0])
 L("Close Grip Bench Press", grip=.085, stance=.11, lat=[8, 8, 0, 0])
 L("Cable Fly", stance=.08, lat=[[82, 82, 0, 0], [-26, -26, 0, 0]])
-L("Pec Deck", grip=[.30, .05], stance=.09, lat=[[60, 60, 0, 0], [10, 10, 0, 0]])
+L("Pec Deck", stance=.09, lat=[[82, 82, 0, 0], [-20, -20, 0, 0]])
 L("Push Ups", grip=.17, stance=.06, lat=[30, 30, 0, 0])
 # ------------------------------------------------------------------ back
 L("Pull Ups", grip=.26, stance=.04, lat=[12, 12, 0, 0])

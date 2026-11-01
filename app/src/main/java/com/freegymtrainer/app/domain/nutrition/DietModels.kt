@@ -64,6 +64,25 @@ data class DietPrefs(
     }
 }
 
+/**
+ * Applies [change] to [current], then makes sure the pace still matches the (possibly new) goal -
+ * a goal switch starts from that goal's own sensible default pace instead of carrying over the
+ * previous goal's number, and goals that don't move the scale (Maintain, Recomposition) always
+ * pin pace to zero. Shared by every place that lets the person edit [DietPrefs] - the quick
+ * switcher at the top of the Nutrition screen and the full customize card on the Plan tab - so
+ * both stay consistent with a single rule instead of two copies that could drift apart.
+ */
+fun reconcileDietPrefsChange(current: DietPrefs, change: (DietPrefs) -> DietPrefs): DietPrefs {
+    var next = change(current)
+    val goalChanged = next.goal != current.goal
+    next = when (next.goal) {
+        DietGoal.LOSE_FAT -> next.copy(paceKgPerWeek = if (!goalChanged && next.paceKgPerWeek in DietPrefs.PACES_LOSE) next.paceKgPerWeek else 0.5f)
+        DietGoal.BUILD_MUSCLE -> next.copy(paceKgPerWeek = if (!goalChanged && next.paceKgPerWeek in DietPrefs.PACES_GAIN) next.paceKgPerWeek else 0.25f)
+        else -> next.copy(paceKgPerWeek = 0f)
+    }
+    return next
+}
+
 // ---- food classification helpers --------------------------------------------------------------
 
 private val EGG_WORDS = listOf("egg", "omelette")

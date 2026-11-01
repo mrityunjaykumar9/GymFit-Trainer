@@ -6,10 +6,10 @@ import com.freegymtrainer.app.data.local.entity.WeightEntry
 import com.freegymtrainer.app.data.repository.ResolvedNutrition
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.SettingsDataStore
-import com.freegymtrainer.app.domain.nutrition.DietGoal
 import com.freegymtrainer.app.domain.nutrition.DietPlan
 import com.freegymtrainer.app.domain.nutrition.DietPrefs
 import com.freegymtrainer.app.domain.nutrition.NutritionInsights
+import com.freegymtrainer.app.domain.nutrition.reconcileDietPrefsChange
 import com.freegymtrainer.app.domain.nutrition.PlanDay
 import com.freegymtrainer.app.domain.nutrition.PlanMeal
 import com.freegymtrainer.app.domain.nutrition.ShoppingGroup
@@ -70,16 +70,7 @@ class DietPlanViewModel(private val container: AppContainer, private val setting
     /** Applies [change] to the current diet choices and saves them; the plan and targets rebuild automatically. */
     fun updatePrefs(change: (DietPrefs) -> DietPrefs) {
         val current = _uiState.value.resolved?.prefs ?: return
-        var next = change(current)
-        // Choosing a different goal starts from that goal's own sensible pace (not the previous goal's);
-        // otherwise the pace must be one of the offered steps, and it is zero for goals that keep weight.
-        val goalChanged = next.goal != current.goal
-        next = when (next.goal) {
-            DietGoal.LOSE_FAT -> next.copy(paceKgPerWeek = if (!goalChanged && next.paceKgPerWeek in DietPrefs.PACES_LOSE) next.paceKgPerWeek else 0.5f)
-            DietGoal.BUILD_MUSCLE -> next.copy(paceKgPerWeek = if (!goalChanged && next.paceKgPerWeek in DietPrefs.PACES_GAIN) next.paceKgPerWeek else 0.25f)
-            else -> next.copy(paceKgPerWeek = 0f)
-        }
-        viewModelScope.launch { settings.saveDietPrefs(next) }
+        viewModelScope.launch { settings.saveDietPrefs(reconcileDietPrefsChange(current, change)) }
     }
 
     fun logMeal(meal: PlanMeal) {

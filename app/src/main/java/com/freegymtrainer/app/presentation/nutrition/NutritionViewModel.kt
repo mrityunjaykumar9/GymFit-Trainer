@@ -14,6 +14,7 @@ import com.freegymtrainer.app.domain.nutrition.NutritionInsights
 import com.freegymtrainer.app.domain.nutrition.PlanDay
 import com.freegymtrainer.app.domain.nutrition.PlanMeal
 import com.freegymtrainer.app.domain.nutrition.Tip
+import com.freegymtrainer.app.domain.nutrition.reconcileDietPrefsChange
 import com.freegymtrainer.app.domain.usecase.NutritionTargets
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -199,6 +200,13 @@ class NutritionViewModel(private val container: AppContainer, private val settin
 
     fun setFastingProtocol(p: FastingProtocol) {
         viewModelScope.launch { settings.setFastingProtocol(p) }
+    }
+
+    /** Backs the quick goal/diet-style switcher at the top of the Nutrition screen - same
+     * mechanism as the Plan tab's full customize card, just reachable without leaving Today. */
+    fun updatePrefs(change: (DietPrefs) -> DietPrefs) {
+        val current = _uiState.value.prefs ?: return
+        viewModelScope.launch { settings.saveDietPrefs(reconcileDietPrefsChange(current, change)) }
     }
 
     fun shiftFastingStart(deltaMinutes: Int) {

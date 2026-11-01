@@ -220,19 +220,17 @@ private fun SummaryPill(text: String) {
 private fun PlanSetupCard(prefs: DietPrefs, currentWeightKg: Float, onChange: ((DietPrefs) -> DietPrefs) -> Unit) {
     ElevatedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text("Customize your plan", style = MaterialTheme.typography.titleMedium)
+            // Goal and diet style themselves are set from the quick switcher at the top of the
+            // Nutrition screen now (visible before ever reaching this tab) - this card is the
+            // deeper, less-often-touched settings that go with whichever goal is already chosen.
+            Text("Fine-tune your plan", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "${prefs.goal.label} · ${prefs.goal.blurb}",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(Modifier.height(10.dp))
 
-            SetupLabel("Goal")
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DietGoal.values().forEach { g ->
-                    FilterChip(selected = prefs.goal == g, onClick = { onChange { it.copy(goal = g) } }, label = { Text(g.label) })
-                }
-            }
-            Text(prefs.goal.blurb, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
             if (prefs.goal == DietGoal.LOSE_FAT || prefs.goal == DietGoal.BUILD_MUSCLE) {
-                Spacer(Modifier.height(12.dp))
                 SetupLabel(if (prefs.goal == DietGoal.LOSE_FAT) "How fast?" else "How fast?")
                 val paces = if (prefs.goal == DietGoal.LOSE_FAT) DietPrefs.PACES_LOSE else DietPrefs.PACES_GAIN
                 val names = if (prefs.goal == DietGoal.LOSE_FAT) listOf("Gentle", "Steady", "Faster") else listOf("Lean gain", "Standard")
@@ -250,14 +248,6 @@ private fun PlanSetupCard(prefs: DietPrefs, currentWeightKg: Float, onChange: ((
                         "A faster pace is harder to stick to and can cost muscle. Steady is the best choice for most people.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-            SetupLabel("What do you eat?")
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DietStyle.values().reversed().forEach { s ->
-                    FilterChip(selected = prefs.style == s, onClick = { onChange { it.copy(style = s) } }, label = { Text(s.label) })
                 }
             }
 

@@ -17,9 +17,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.*
@@ -40,6 +42,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.freegymtrainer.app.ads.AdBanner
 import com.freegymtrainer.app.ads.InterstitialAdManager
 import com.freegymtrainer.app.data.local.entity.Food
+import com.freegymtrainer.app.domain.nutrition.DietGoal
+import com.freegymtrainer.app.domain.nutrition.DietPrefs
+import com.freegymtrainer.app.domain.nutrition.DietStyle
 import com.freegymtrainer.app.domain.usecase.NutritionTargets
 import com.freegymtrainer.app.di.AppContainer
 import com.freegymtrainer.app.di.GenericViewModelFactory
@@ -84,6 +89,18 @@ fun NutritionScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             NutritionHeroBanner(consumedCalories = state.consumedCalories, consumedProtein = state.consumedProtein, targets = state.targets)
+            // Goal and diet style both exist as full editors already (pace, macro style, meals/day
+            // live on the Plan tab), but changing just these two - the choices that matter most,
+            // and the ones "what should I actually eat today" hinges on - used to require digging
+            // into the second of three tabs first. Right below the hero banner, above the tabs,
+            // means it's the first thing anyone sees on opening Nutrition, and it's visible no
+            // matter which tab they're on, instead of being easy to miss entirely.
+            val currentPrefs = state.prefs
+            if (currentPrefs != null) {
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    DietQuickSetupCard(prefs = currentPrefs, onChange = { viewModel.updatePrefs(it) })
+                }
+            }
             NutritionTabBar(selected = tab, onSelect = { tab = it })
             when (tab) {
                 0 -> TodayTab(
@@ -390,6 +407,49 @@ private fun HeroProteinRing(consumed: Int, target: Int) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(Icons.Filled.FitnessCenter, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
             Text("${(progress * 100).toInt()}%", style = MaterialTheme.typography.labelSmall, color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+        }
+    }
+}
+
+/**
+ * The quick goal/diet switcher: two rows of chips (Goal, Diet) right below the hero banner, above
+ * the Today/Plan/Insights tabs - the first thing on the page, visible on every tab. Switching
+ * either immediately re-saves [DietPrefs] through the same mechanism the Plan tab's full
+ * customize card uses, which cascades to Today's plan, the 7-day Plan tab and Insights
+ * automatically (they all collect the same saved-prefs flow) - no separate "apply" step.
+ */
+@Composable
+private fun DietQuickSetupCard(prefs: DietPrefs, onChange: ((DietPrefs) -> DietPrefs) -> Unit) {
+    ElevatedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Flag, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("GOAL", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DietGoal.values().forEach { g ->
+                    FilterChip(selected = prefs.goal == g, onClick = { onChange { it.copy(goal = g) } }, label = { Text(g.label) })
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Restaurant, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("DIET", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DietStyle.values().reversed().forEach { s ->
+                    FilterChip(selected = prefs.style == s, onClick = { onChange { it.copy(style = s) } }, label = { Text(s.label) })
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "Your plan, suggestions and recipes all follow these automatically.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

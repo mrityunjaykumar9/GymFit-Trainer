@@ -1,5 +1,6 @@
 package com.freegymtrainer.app.presentation.exercises
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -226,12 +227,35 @@ fun BodyPartWorkoutScreen(
             }
             item {
                 Text("Your level", style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(6.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Spacer(Modifier.height(8.dp))
+                // Picking a level is the one choice that actually changes the routine below, so it
+                // gets the same colour-coded treatment as the difficulty badge on the exercise detail
+                // page (green/amber/red) instead of a same-as-everything-else filter chip - full-width,
+                // bold and in color so it reads as "the button to press", not just another label.
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                     TrainingLevel.values().forEach { lvl ->
-                        FilterChip(selected = state.level == lvl, onClick = { vm.setLevel(lvl) }, label = { Text(lvl.label) })
+                        val color = levelColor(lvl)
+                        val selected = state.level == lvl
+                        Surface(
+                            onClick = { vm.setLevel(lvl) },
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (selected) color else color.copy(alpha = 0.12f),
+                            contentColor = if (selected) Color.White else color,
+                            border = BorderStroke(if (selected) 0.dp else 1.5.dp, color.copy(alpha = 0.5f)),
+                            tonalElevation = if (selected) 4.dp else 0.dp,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                lvl.label,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+                            )
+                        }
                     }
                 }
+                Spacer(Modifier.height(8.dp))
                 Text(state.level.blurb, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             item { Text("Your routine", style = MaterialTheme.typography.titleLarge) }
@@ -252,6 +276,13 @@ fun BodyPartWorkoutScreen(
             item { AdBanner(); Spacer(Modifier.height(8.dp)) }
         }
     }
+}
+
+/** Same green/amber/red convention as the difficulty badge on the exercise detail page. */
+private fun levelColor(level: TrainingLevel): Color = when (level) {
+    TrainingLevel.BEGINNER -> Color(0xFF3DDC84)
+    TrainingLevel.INTERMEDIATE -> Color(0xFFFFB300)
+    TrainingLevel.ADVANCED -> Color(0xFFFF5252)
 }
 
 @Composable

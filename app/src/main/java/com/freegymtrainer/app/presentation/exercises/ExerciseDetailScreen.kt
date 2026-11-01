@@ -77,9 +77,14 @@ fun ExerciseDetailScreen(container: AppContainer, exerciseId: Long, onBack: () -
             ExerciseDemoCard(exercise = ex)
             FactRow(ex)
             CoachCard(ex)
+            // Mid-page, not trailing: a banner stuck after every other card only gets seen by
+            // whoever scrolls all the way to the bottom, and most people checking an exercise
+            // don't - they get what they need from the demo, facts and coaching cues above and
+            // stop there. Between those and the (more skippable) key-positions/muscles detail
+            // puts it somewhere a normal read of the page actually passes through.
+            AdBanner()
             KeyPositions(ex)
             MusclesWorked(ex)
-            AdBanner()
             Spacer(Modifier.height(8.dp))
         }
     }

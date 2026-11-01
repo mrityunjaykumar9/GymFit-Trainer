@@ -72,6 +72,7 @@ object BodyPartPlans {
                     s("Barbell Bench Press", 4, "5-8", 150, "Add weight only when every rep is clean."),
                     s("Incline Barbell Bench Press", 4, "6-10", 120, "Bar to the upper chest."),
                     s("Dumbbell Bench Press", 3, "8-12", 90, "A deeper stretch than the barbell."),
+                    s("Decline Bench Press", 3, "8-12", 90, "Head lower than hips, bar to your lower chest."),
                     s("Cable Fly", 3, "12-15", 60, "Slow and controlled."),
                     s("Pec Deck (Machine Fly)", 3, "12-15", 60, "Last set: add a 10-second hold at the squeeze."),
                     s("Push Ups", 2, "To failure", 60, "Finish with a burnout.")
@@ -89,7 +90,9 @@ object BodyPartPlans {
             levels(
                 listOf(
                     s("Lat Pulldown", 3, "10-12", 90, "Pull the bar to your upper chest and lead with your elbows."),
+                    s("Chin-Ups", 3, "5-10", 90, "Underhand grip - a bit easier than Pull Ups while you build strength."),
                     s("Seated Cable Row", 3, "10-12", 90, "Sit tall, squeeze your shoulder blades together."),
+                    s("Rowing Machine", 1, "5-10 min", 30, "Legs drive first, then lean back, then pull with your arms."),
                     s("Face Pull", 3, "12-15", 60, "Rope to your face with elbows high - great for posture.")
                 ),
                 listOf(
@@ -101,6 +104,7 @@ object BodyPartPlans {
                 ),
                 listOf(
                     s("Deadlift", 4, "4-6", 180, "The king of back lifts. Neutral spine, bar close to your shins."),
+                    s("Sumo Deadlift", 3, "5-8", 150, "Wide stance, grip inside your knees, chest up."),
                     s("Pull Ups", 4, "6-10", 120, "Add weight when you can do 10 clean reps."),
                     s("Barbell Row", 4, "6-10", 120, "Row hard, lower slowly."),
                     s("T-Bar Row", 3, "8-12", 90, "Chest supported if your lower back is tired."),
@@ -121,10 +125,12 @@ object BodyPartPlans {
                 listOf(
                     s("Dumbbell Shoulder Press", 3, "10-12", 90, "Press straight up, wrists stacked over elbows."),
                     s("Lateral Raise", 3, "12-15", 60, "Lift to shoulder height, lead with your elbows."),
+                    s("Cable Lateral Raise", 2, "12-15", 60, "Constant tension the whole way up, unlike a dumbbell."),
                     s("Rear Delt Fly", 3, "12-15", 60, "Hinge forward and open your arms like wings.")
                 ),
                 listOf(
                     s("Overhead Press", 4, "6-10", 120, "Squeeze your glutes and keep your ribs down."),
+                    s("Upright Row", 3, "10-12", 75, "Elbows lead and stay high, bar close to your body."),
                     s("Lateral Raise", 4, "12-15", 60, "Light weight, perfect form."),
                     s("Rear Delt Fly", 3, "12-15", 60, "Squeeze your shoulder blades."),
                     s("Face Pull", 3, "12-15", 60, "Great for rear delts and posture.")
@@ -156,6 +162,7 @@ object BodyPartPlans {
                 listOf(
                     s("Barbell Curl", 3, "8-12", 75, "Do not lean back."),
                     s("Preacher Curl", 3, "10-12", 75, "Keep your upper arms flat on the pad."),
+                    s("Concentration Curl", 3, "10-12", 60, "Elbow braced on your inner thigh - no swinging allowed."),
                     s("Hammer Curl", 3, "10-12", 60, "Alternate arms if you like."),
                     s("Cable Curl", 3, "12-15", 60, "Squeeze hard at the top.")
                 ),
@@ -206,10 +213,12 @@ object BodyPartPlans {
             ),
             levels(
                 listOf(
+                    s("Goblet Squat", 3, "10-12", 75, "Dumbbell at your chest, elbows brush your knees at the bottom."),
                     s("Leg Press", 3, "10-12", 90, "Feet shoulder-width, do not lock your knees at the top."),
                     s("Walking Lunges", 3, "10 each leg", 75, "Long steps, torso upright."),
                     s("Leg Extension", 3, "12-15", 60, "Squeeze at the top for a second."),
                     s("Romanian Deadlift", 3, "10-12", 75, "Hips back, soft knees, feel the hamstring stretch."),
+                    s("Stationary Cycling", 1, "10-15 min", 30, "Steady pace - a low-impact way to warm up the legs."),
                     s("Calf Raise", 3, "15-20", 45, "Full stretch at the bottom, pause at the top.")
                 ),
                 listOf(
@@ -217,12 +226,14 @@ object BodyPartPlans {
                     s("Romanian Deadlift", 3, "8-10", 120, "Hips back, soft knees, feel the hamstring stretch."),
                     s("Leg Press", 3, "10-12", 90, "Do not let your lower back round."),
                     s("Leg Extension", 3, "12-15", 60, "Pause at the top."),
+                    s("Seated Calf Raise", 3, "15-20", 45, "Bent-knee position hits the soleus harder than standing."),
                     s("Calf Raise", 4, "12-20", 45, "Slow and with a full range.")
                 ),
                 listOf(
                     s("Barbell Back Squat", 5, "5-8", 180, "Heavy and deep. Use safety bars."),
                     s("Front Squat", 3, "6-10", 120, "Elbows high, upright torso."),
                     s("Romanian Deadlift", 4, "6-10", 120, "Keep the bar close to your legs."),
+                    s("Good Morning", 3, "8-10", 120, "Light weight - push your hips back with a flat back."),
                     s("Bulgarian Split Squat", 3, "8-10 each leg", 90, "Stay tall and control the descent."),
                     s("Calf Raise", 4, "12-20", 45, "Finish with burning calves.")
                 )
@@ -240,7 +251,8 @@ object BodyPartPlans {
                 listOf(
                     s("Glute Bridge", 3, "12-15", 60, "Drive through your heels and squeeze at the top."),
                     s("Walking Lunges", 3, "10 each leg", 75, "Take a long step to bring in the glutes."),
-                    s("Leg Press", 3, "12-15", 90, "Feet high on the platform to emphasise the glutes.")
+                    s("Leg Press", 3, "12-15", 90, "Feet high on the platform to emphasise the glutes."),
+                    s("Stair Climbing", 1, "10 min", 30, "Stand tall, don't lean on the rails.")
                 ),
                 listOf(
                     s("Hip Thrust", 4, "8-12", 90, "Chin tucked, ribs down, pause at the top."),
@@ -268,6 +280,7 @@ object BodyPartPlans {
             levels(
                 listOf(
                     s("Crunch", 3, "15-20", 45, "Curl your ribs toward your hips, do not pull your neck."),
+                    s("Sit-Ups", 2, "15-20", 45, "A bigger range of motion than the crunch - control the whole way up."),
                     s("Plank", 3, "30-45 sec", 45, "Body in a straight line, squeeze glutes and abs."),
                     s("Mountain Climbers", 3, "30 sec", 45, "Drive your knees to your chest quickly with hips low.")
                 ),
@@ -341,6 +354,8 @@ object BodyPartPlans {
                     s("Barbell Bench Press", 4, "5-8", 150, "Press."),
                     s("Pull Ups", 3, "6-10", 120, "Pull."),
                     s("Overhead Press", 3, "6-10", 120, "Press overhead."),
+                    s("Kettlebell/Barbell Clean and Press", 3, "5-8", 120, "Technical - learn the pull, catch and press separately first."),
+                    s("Burpees", 3, "10-15", 60, "A full-body conditioning finisher - pace yourself."),
                     s("Hanging Leg Raise", 3, "10-12", 60, "Core finisher.")
                 )
             )

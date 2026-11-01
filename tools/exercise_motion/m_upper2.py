@@ -127,7 +127,10 @@ reg("Overhead Press", [
 
 _dsp = shoulder_of((-.06, .27), 0)
 reg("Dumbbell Shoulder Press", [
-    key(0.0, (-.06, .27), 0, foot(.22, .04), hand(.03, _dsp[1] + .04), label="Start", cue="Dumbbells at ear height, wrists over elbows"),
+    # The old start (.03 forward) only barely cleared the head (0.005 margin), and the straight-line
+    # path to "Press overhead" dipped even closer at the start of the rep (down to -0.035, a real
+    # overlap) before swinging clear. .12 gives the whole path real clearance, not just the keyframe.
+    key(0.0, (-.06, .27), 0, foot(.22, .04), hand(.12, _dsp[1] + .04), label="Start", cue="Dumbbells at ear height, wrists over elbows"),
     key(0.5, (-.06, .27), 0, foot(.22, .04), hand(-.02, _dsp[1] + .35), label="Press overhead", cue="Lock out without arching your back"),
 ], SEAT + [db("wristN", .05)], [ELB()], ["shoulder", "uarm"], dur=3000, view=[-0.65, 0.65, -0.08, 1.35])
 
@@ -195,7 +198,10 @@ def curl_keys(top_f, bottom_f, alternate=False, legs=FLAT, u=182, cue_top="Elbow
             key(0.5, (0, .5295), 0, legs, near_t, armF=far_t, label="Squeeze", cue=cue_top)]
 
 
-reg("Barbell Curl", curl_keys(28, 178), [plate("wristN", .08)], [ELB()], ["uarm"], dur=2800)
+# top_f=28 put the bar exactly at the overlap threshold with the head (an 0.08-radius plate is bigger
+# than the dumbbells the other curls use, so the same curl depth that's fine for them clips here).
+# 36 keeps a real squeeze without the bar reaching the chin.
+reg("Barbell Curl", curl_keys(36, 178), [plate("wristN", .08)], [ELB()], ["uarm"], dur=2800)
 reg("Dumbbell Curl", curl_keys(25, 178), [db("wristN", .045), db("wristF", .045)], [ELB()], ["uarm"], dur=2800)
 #  22 put the dumbbell's forearm bearing close enough to vertical that it curled up past the chin
 #  almost into the face/behind the head - fixed to stop level with the upper chest instead.
@@ -204,8 +210,11 @@ reg("Cable Curl", curl_keys(30, 170), [cable([.52, .08], "wristN", g="bar")],
     [ELB()], ["uarm"], dur=2800, view=[-0.5, 0.8, -0.08, 1.2])
 
 reg("Preacher Curl", [
+    # f=-25 at the squeeze curled the dumbbell up to within 0.067 pose units of the head (need 0.112) -
+    # a real overlap with the face/chin. f=18 stops the curl a bit short of that, still a deep
+    # contraction (123deg at the elbow, vs the old 163deg) without the dumbbell reaching the face.
     key(0.0, (-.12, .27), 14, foot(.16, .04), fkarm(138, 150), label="Lower slowly", cue="Almost straight - don't hyperextend the elbow"),
-    key(0.5, (-.12, .27), 14, foot(.16, .04), fkarm(138, -25), label="Squeeze", cue="Upper arms stay flat on the pad"),
+    key(0.5, (-.12, .27), 14, foot(.16, .04), fkarm(138, 18), label="Squeeze", cue="Upper arms stay flat on the pad"),
 ], [prop_line((-.26, .20), (.04, .20), .05), prop_line((-.10, .17), (-.10, 0), .03), prop_line((-.01, .47), (.17, .30), .07), prop_line((.12, .34), (.12, 0), .03), db("wristN", .05)],
     [ELB()], ["uarm"], dur=3000, view=[-0.5, 0.6, -0.08, 0.9])
 

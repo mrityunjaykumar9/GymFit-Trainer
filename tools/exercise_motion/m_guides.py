@@ -37,7 +37,6 @@ G("Decline Bench Press", plumb("elbowN", "Wrist over elbow"), tilt("hip", "shoul
 G("Cable Fly", level("shoulder", "Hands at chest height"), ring("elbowN", "Soft, fixed elbow"))
 G("Pec Deck", level("shoulder", "Elbows shoulder-high"))
 G("Push Ups", line("shoulder", "ankleN", "Straight line"), plumb("wristN", "Hands under shoulders"))
-G("Dips", plumb("shoulder", "Body stays upright"), ring("elbowN", "Elbows to ~90°"))
 # ------------------------------------------------------------------ back
 G("Pull Ups", level("wristN", "Chin over the bar"), ring("shoulder", "Shoulders down"))
 G("Chin-Ups", level("wristN", "Chin over the bar"), ring("shoulder", "Shoulders down"))

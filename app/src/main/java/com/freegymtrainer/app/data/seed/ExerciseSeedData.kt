@@ -77,12 +77,6 @@ object ExerciseSeedData {
                 "Unrack and lower the bar to your lower chest.", "Press back up until arms are extended."),
             listOf("Bouncing the bar off the chest", "Sliding up the bench between reps"),
             "Use a spotter and make sure your feet are securely hooked before unracking."),
-        ex("Dips", "Chest", listOf("Triceps", "Shoulders"), "Bodyweight", "Intermediate",
-            "Push", listOf("Muscle gain", "Strength"),
-            listOf("Support your body on parallel bars with arms straight.", "Lower yourself by bending your elbows until they reach about 90°.",
-                "Lean forward slightly to emphasize the chest.", "Press back up to full lockout."),
-            listOf("Going too low and straining the shoulders", "Flaring elbows out wide"),
-            "Stop the descent once you feel a stretch in the front of the shoulder - don't force extra depth."),
 
         // ---------------- BACK ----------------
         ex("Pull Ups", "Back", listOf("Biceps", "Forearms"), "Bodyweight", "Intermediate",

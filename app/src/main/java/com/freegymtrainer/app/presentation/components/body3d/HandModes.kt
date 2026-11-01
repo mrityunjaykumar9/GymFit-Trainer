@@ -21,7 +21,7 @@ internal object HandModes {
         "cable_fly", "pec_deck", "t_bar_row", "seated_cable_row", "rear_delt_fly", "face_pull", "hammer_curl",
         "tricep_pushdown", "overhead_tricep_extension", "walking_lunges", "bulgarian_split_squat", "calf_raise",
         "farmers_carry", "cable_crunch", "crunch", "leg_press", "leg_extension",
-        "dips", "goblet_squat", "seated_calf_raise", "concentration_curl", "sit_ups"
+        "goblet_squat", "seated_calf_raise", "concentration_curl", "sit_ups"
     )
     private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing", "cable_lateral_raise")
 
@@ -47,7 +47,7 @@ internal object HandModes {
                 else -> false
             }
         } || (exerciseName?.let {
-            it.contains("Pull Up", true) || it.contains("Hanging", true) || it.contains("Dip", true) || it.contains("Chin-Up", true)
+            it.contains("Pull Up", true) || it.contains("Hanging", true) || it.contains("Chin-Up", true)
         } == true)
         val mode = modeOf(exerciseName)
         val fist = if (holds) 1f else 0.2f

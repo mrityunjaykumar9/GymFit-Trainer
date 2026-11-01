@@ -43,7 +43,6 @@ L("Decline Bench Press", grip=.20, stance=.11, lat=[35, 35, 0, 0])
 L("Cable Fly", stance=.08, lat=[[82, 82, 0, 0], [-26, -26, 0, 0]])
 L("Pec Deck", stance=.09, lat=[[82, 82, 0, 0], [-20, -20, 0, 0]])
 L("Push Ups", grip=.17, stance=.06, lat=[30, 30, 0, 0])
-L("Dips", grip=.15, lat=[8, 8, 0, 0])
 # ------------------------------------------------------------------ back
 L("Pull Ups", grip=.26, stance=.04, lat=[12, 12, 0, 0])
 L("Chin-Ups", grip=.14, stance=.04, lat=[8, 8, 0, 0])
@@ -62,9 +61,12 @@ L("Rear Delt Fly", stance=.085, lat=[[0, 0, 0, 0], [60, 60, 0, 0]])
 L("Face Pull", grip=[.06, .17], stance=.075, lat=[[10, 10, 0, 0], [60, 60, 0, 0]])
 L("Barbell Shrug", grip=.19, stance=.075)
 L("Upright Row", grip=.10, stance=.075, lat=[10, 10, 0, 0])
-# grip kept tight (not left unset) so the resting far hand doesn't drift past the renderer's
-# "apart" threshold and spawn a second cable/tower - this is a single-arm, single-cable exercise.
-L("Cable Lateral Raise", grip=.02, stance=.075, frontal=True)
+# grip=.02 (almost zero) avoided the cable "apart" bug but also starved the frontal 3D lift of
+# the lateral spread it needs to extend the arm properly, so the elbow read as sharply bent
+# instead of the same soft near-straight line as Lateral Raise. .12 matches Lateral Raise's own
+# grip exactly (well under the (n-f) > 0.5 "apart" threshold on its own, so the double-cable
+# bug was never really about the grip value being "too wide" - .02 was an overcorrection).
+L("Cable Lateral Raise", grip=.12, stance=.075, frontal=True)
 # ------------------------------------------------------------------ arms
 L("Barbell Curl", grip=.11, stance=.075, lat=[8, 8, 0, 0])
 L("Dumbbell Curl", grip=.13, stance=.075)

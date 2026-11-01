@@ -31,8 +31,6 @@ object ExerciseCoach {
             "Body in one straight line", "Hands under shoulders, elbows about 45°", "Chest to the floor, then push away"),
         "decline_bench_press" to c("Lower-chest fullness, less front-shoulder strain than flat.",
             "Feet secured, head lower than hips", "Bar to lower chest, no bouncing", "Press up and slightly back"),
-        "dips" to c("Chest, triceps and shoulders - a powerful bodyweight push.",
-            "Arms straight at the top, shoulders down", "Lower to about 90° at the elbow", "Lean forward slightly for chest"),
         // ------------------------------------------------------------------ back
         "pull_ups" to c("A wide, strong back and powerful arms.",
             "Start from a full hang, shoulders down", "Lead with your chest, elbows drive down", "Chin over the bar, lower slowly"),

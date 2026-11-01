@@ -38,18 +38,3 @@ press_family("Close Grip Bench Press", 0, False, "Lockout", "Bar to lower chest"
 # cleanly to a decline angle without any special-casing - verified visually, bench and bar path
 # both slope the right way.
 press_family("Decline Bench Press", -15, False, "Lockout", "Bar to lower chest", "Head lower than hips, bar drifts toward your ribs", ["chest"])
-
-# ---------------------------------------------------------------- DIPS
-# Same "fixed hand, hip translates" trick as Pull Ups, just upright instead of hanging: the bars
-# are fixed in world space, and the body rises/sinks between them as the elbow bends. The IK elbow
-# angle is very non-linear near full extension (a shoulder-to-hand distance of 94% of max reach
-# only gave a 141deg elbow, not the near-180deg lockout it looks like at first glance) - like Pull
-# Ups' dead hang, the fix is to target slightly PAST max reach so the IK clamps to a fully straight
-# arm instead of trying to hit an exact soft-lockout distance. The bottom targets ~95-100deg instead.
-_dip_hand = hand(0.0, 0.50)
-_dip_legs = fkleg(185, 205)
-reg("Dips", [
-    key(0.0, (0.0, 0.60), -4, _dip_legs, _dip_hand, label="Lockout", cue="Arms straight, shoulders down, body tall"),
-    key(0.5, (0.0, 0.45), -22, _dip_legs, _dip_hand, label="Lower to ~90°", cue="Lean forward slightly, elbows drive back"),
-], [prop_line((-0.4, 0.50), (0.4, 0.50), .03, "metal"), prop_line((-0.4, 0.50), (-0.4, 0), .03), prop_line((0.4, 0.50), (0.4, 0), .03)],
-    [ELBOW()], ["chest", "uarm"], dur=3000, view=[-0.6, 0.6, -0.08, 1.0])

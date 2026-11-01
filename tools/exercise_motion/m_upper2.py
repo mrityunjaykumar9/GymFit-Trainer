@@ -59,7 +59,14 @@ reg("Push Ups", [
 ], [], [ELB(), meas("Body line", "shoulder", "hip", "ankleN")], ["chest", "uarm"], dur=2800, view=[-0.8, 0.8, -0.08, 0.8])
 
 # ---------------------------------------------------------------- BACK
-_hang_hand = hand(0.05, 1.40)
+# b is the IK elbow-bend-direction flag - it isn't just a style choice at the dead hang, it's
+# interpolated frame-by-frame like any other number. Bottom used the default b=-1 while the top
+# explicitly set b=1; smoothly lerping between them passes through b=0 mid-rep, which the IK solver
+# reads as "elbow sits exactly on the straight shoulder-to-hand line" - no sideways bend at all -
+# and on a close/narrow grip that showed up as the elbows suddenly flaring out wide mid-pull. The
+# dead hang is a near-straight arm either way (d is close to max reach, so b barely changes it
+# visually), so matching the top's b=1 here removes the discontinuity for free.
+_hang_hand = hand(0.05, 1.40, b=1)
 _hang_legs = fkleg(188, 212)
 reg("Pull Ups", [
     key(0.0, (0.0, 0.74), 2, _hang_legs, _hang_hand, label="Dead hang", cue="Arms fully straight, shoulders packed down"),
@@ -157,10 +164,17 @@ reg("Lateral Raise", [
 # Same arm path as Lateral Raise, done one arm at a time against a low cable pulley instead of a
 # dumbbell - a very common gym-floor variant people specifically look for. armF is pinned at the
 # side throughout (unlike Lateral Raise, which raises both arms together) since this is unilateral.
+# cable()'s own auto-drawn tower only reaches a short way above its attachment point, so a LOW
+# pulley (correct for this exercise) came out as a stubby, unconvincing post. tower=False plus an
+# explicit full-height column (with a small carriage marking where the cable actually exits, low
+# down) reads as a real adjustable cable station instead - same pattern Rowing Machine uses for
+# its own non-generic equipment.
+_clr_tower_x = -.5
 reg("Cable Lateral Raise", [
     key(0.0, (0, .5295), 0, FLAT, fkarm(184, 182), armF=fkarm(184, 182), label="Arm crosses the body", cue="Cable pulls your hand toward your other hip"),
     key(0.5, (0, .5295), 0, FLAT, fkarm(98, 94), armF=fkarm(184, 182), label="Raise to shoulder height", cue="Lead with your elbow, stop at shoulder level"),
-], [cable([-.5, .15], "wristN", g="handle")], [], ["shoulder"], dur=3000)
+], [prop_line((_clr_tower_x, 0), (_clr_tower_x, .95), .045), prop_circle((_clr_tower_x, .15), .045, "metal", True, 0),
+    cable([_clr_tower_x, .15], "wristN", g="handle", tower=False)], [], ["shoulder"], dur=3000)
 
 reg("Front Raise", [
     # u and f were equal (zero relative bend) at both keys, so the elbow sat exactly on the
@@ -216,7 +230,10 @@ reg("Barbell Shrug", [
 # lifted straight - the bar finishes near the collarbone so the elbows end up leading well above it.
 reg("Upright Row", [
     key(0.0, (0, .5295), 0, FLAT, handrel(.07, -.31), label="Arms straight", cue="Bar at thighs, shoulder-width grip"),
-    key(0.5, (0, .5295), 0, FLAT, handrel(.02, -.07), label="Pull up", cue="Elbows lead, bar stays close to your body"),
+    # .02 forward of the shoulder point wasn't enough clearance from the chest itself (which
+    # extends forward of that point) - the bar sank into the torso. .11 keeps it close to the
+    # body like a real upright row without clipping through it.
+    key(0.5, (0, .5295), 0, FLAT, handrel(.11, -.05), label="Pull up", cue="Elbows lead, bar stays close to your body"),
 ], [plate("wristN", .07)], [], ["shoulder", "traps"], dur=2600)
 
 

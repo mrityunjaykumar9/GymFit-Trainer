@@ -31,7 +31,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -184,6 +184,22 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v13 -> v14: Dips was added and shipped in the previous commit, then dropped again here
+         * after a closer look at the pose - same cleanup pattern as every other same-session
+         * removal (Leg Curl/Jump Rope, Running): a device that already seeded it needs the row
+         * gone, not just the seed source edited.
+         */
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "DELETE FROM workout_template_exercises WHERE exerciseId IN " +
+                        "(SELECT id FROM exercises WHERE name = 'Dips')"
+                )
+                db.execSQL("DELETE FROM exercises WHERE name = 'Dips'")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -191,7 +207,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
                 )
-                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
                     // Only installs older than v7 (before schema export began) may still be wiped.
                     // Every newer schema change MUST ship a real Migration above - a missing one
                     // fails loudly in testing instead of silently deleting users' data.

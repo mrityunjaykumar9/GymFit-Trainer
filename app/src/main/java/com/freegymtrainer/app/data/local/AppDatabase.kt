@@ -31,7 +31,7 @@ import com.freegymtrainer.app.data.local.entity.*
         ReminderSettings::class,
         DailyOverride::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -200,6 +200,22 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v14 -> v15: Sit-Ups dropped - its hand position tracked the head across a much bigger
+         * torso sweep than Crunch uses, and even after switching to a torso-relative crossed-arm
+         * position, asked to be removed rather than kept. Same cleanup pattern as every other
+         * same-session removal: a device that already seeded it needs the row gone.
+         */
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "DELETE FROM workout_template_exercises WHERE exerciseId IN " +
+                        "(SELECT id FROM exercises WHERE name = 'Sit-Ups')"
+                )
+                db.execSQL("DELETE FROM exercises WHERE name = 'Sit-Ups'")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -207,7 +223,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "free_gym_trainer.db"
                 )
-                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
+                    .addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                     // Only installs older than v7 (before schema export began) may still be wiped.
                     // Every newer schema change MUST ship a real Migration above - a missing one
                     // fails loudly in testing instead of silently deleting users' data.

@@ -121,8 +121,6 @@ object ExerciseCoach {
             "Straight line from head to heels", "Elbows under shoulders", "Squeeze glutes, don't sag or pike"),
         "crunch" to c("Upper abs.",
             "Lower back stays on the floor", "Lift only your shoulder blades", "Don't pull on your neck"),
-        "sit_ups" to c("Abs and hip flexors through a full range of motion.",
-            "Knees bent, feet flat on the floor", "Curl all the way up to your knees", "Lower slowly, don't yank your neck"),
         "hanging_leg_raise" to c("Lower abs and grip strength.",
             "Shoulders active, no swinging", "Curl your pelvis up as the legs rise", "Lower slowly"),
         "cable_crunch" to c("Abs under heavy, controlled load.",

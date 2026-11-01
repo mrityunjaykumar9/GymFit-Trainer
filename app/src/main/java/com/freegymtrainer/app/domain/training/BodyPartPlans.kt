@@ -280,7 +280,6 @@ object BodyPartPlans {
             levels(
                 listOf(
                     s("Crunch", 3, "15-20", 45, "Curl your ribs toward your hips, do not pull your neck."),
-                    s("Sit-Ups", 2, "15-20", 45, "A bigger range of motion than the crunch - control the whole way up."),
                     s("Plank", 3, "30-45 sec", 45, "Body in a straight line, squeeze glutes and abs."),
                     s("Mountain Climbers", 3, "30 sec", 45, "Drive your knees to your chest quickly with hips low.")
                 ),

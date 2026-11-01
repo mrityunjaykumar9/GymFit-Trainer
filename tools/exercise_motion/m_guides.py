@@ -84,7 +84,6 @@ G("Glute Bridge", line("shoulder", "kneeN", "Straight line"), ring("hip", "Squee
 # ------------------------------------------------------------------ core & cardio
 G("Plank", line("shoulder", "ankleN", "Straight line"), plumb("shoulder", "Elbow under shoulder"))
 G("Crunch", ring("hip", "Back stays down"), ring("head", "Don't pull neck"))
-G("Sit-Ups", ring("hip", "Feet stay flat"), ring("head", "Don't pull neck"))
 G("Hanging Leg Raise", ring("shoulder", "No swinging"))
 G("Cable Crunch", ring("hip", "Hips stay still"))
 G("Farmer's Carry", plumb("shoulder", "Stand tall"))

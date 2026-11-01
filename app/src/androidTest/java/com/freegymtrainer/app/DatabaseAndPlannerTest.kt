@@ -261,6 +261,43 @@ class DatabaseAndPlannerTest {
     }
 
     @Test
+    fun migrationFrom14DropsSitUpsButKeepsEverythingElse() {
+        helper.createDatabase("migration-test-14-15", 14).apply {
+            execSQL(
+                "INSERT INTO exercises (id, name, primaryMuscle, secondaryMuscles, equipment, difficulty, category, goalTags, instructions, commonMistakes, safetyNotes, mediaUrl, isHeldPose) VALUES " +
+                    "(1, 'Sit-Ups', 'Abs', 'Hip Flexors', 'Bodyweight', 'Beginner', 'Core', 'Endurance;;Strength', 'Lie back and curl up', 'Yanking neck', 'Control it', NULL, 0), " +
+                    "(2, 'Keep Me', 'Abs', '', 'Bodyweight', 'Beginner', 'Core', 'Endurance', 'Curl', 'Momentum', 'Control it', NULL, 0)"
+            )
+            execSQL(
+                "INSERT INTO workout_templates (id, name, description, daysPerWeek, level, goalTag, isCustom, isYoga) VALUES " +
+                    "(1, 'Beginner Full Body', 'desc', 3, 'Beginner', 'General fitness', 0, 0)"
+            )
+            execSQL(
+                "INSERT INTO workout_template_days (id, templateId, orderIndex, title, muscleGroupsSummary) VALUES " +
+                    "(1, 1, 1, 'Full Body A', 'Chest, Back, Legs, Core')"
+            )
+            execSQL(
+                "INSERT INTO workout_template_exercises (id, templateDayId, exerciseId, orderIndex, sets, reps, restSeconds) VALUES " +
+                    "(1, 1, 1, 1, 1, '10', 10), (2, 1, 2, 2, 1, '10', 10)"
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate("migration-test-14-15", 15, true, AppDatabase.MIGRATION_14_15)
+
+        db.query("SELECT name FROM exercises ORDER BY name").use { c ->
+            val names = generateSequence { if (c.moveToNext()) c.getString(0) else null }.toList()
+            assertEquals(listOf("Keep Me"), names)
+        }
+        db.query("SELECT COUNT(*) FROM workout_template_exercises").use { c ->
+            c.moveToFirst(); assertEquals(1, c.getInt(0))
+        }
+        db.query("SELECT exerciseId FROM workout_template_exercises").use { c ->
+            c.moveToFirst(); assertEquals(2, c.getInt(0))
+        }
+    }
+
+    @Test
     fun plannerBuildsTargetsAPlanAndAReminderMeal() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()

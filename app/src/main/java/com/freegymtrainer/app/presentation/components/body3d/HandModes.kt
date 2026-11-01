@@ -21,7 +21,7 @@ internal object HandModes {
         "cable_fly", "pec_deck", "t_bar_row", "seated_cable_row", "rear_delt_fly", "face_pull", "hammer_curl",
         "tricep_pushdown", "overhead_tricep_extension", "walking_lunges", "bulgarian_split_squat", "calf_raise",
         "farmers_carry", "cable_crunch", "crunch", "leg_press", "leg_extension",
-        "goblet_squat", "seated_calf_raise", "concentration_curl", "sit_ups"
+        "goblet_squat", "seated_calf_raise", "concentration_curl"
     )
     private val palmsDown = setOf("lateral_raise", "front_raise", "stationary_cycling", "stair_climbing", "cable_lateral_raise")
 

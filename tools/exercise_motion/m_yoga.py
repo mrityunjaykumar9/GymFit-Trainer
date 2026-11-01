@@ -32,18 +32,34 @@ reg("Warrior II (Virabhadrasana II)", [
 ], [MAT], [meas("Front knee", "hip", "kneeN", "ankleN")], ["thigh", "shoulder"], dur=4600, view=[-0.8, 0.8, -0.08, 1.2])
 
 # ---------------------------------------------------------------- FLOOR: HANDS & KNEES
-_tab_hip, _tab_T = (-.035, .285), 71.6
+# T=71.6 put the shoulder-to-hand distance at 0.3497 pose units against a 0.35 max reach - 99.9%
+# of max, a hair's-width IK margin. Both authored keyframes that use it happened to render fine,
+# but any 3D-only perturbation on top (the spine curve this shares with Cat-Cow bends the shoulder
+# chain in the 3D rig even though the 2D reference model doesn't) could push the true 3D distance
+# just past max reach and flip the hand to an unstable, near-vertical IK solution - which is
+# exactly what showed up at in-between frames despite both endpoints looking correct. 78 (back a
+# little flatter/more horizontal - still a normal tabletop) drops the shoulder closer to the floor
+# and gives a real 0.0325 margin instead.
+_tab_hip, _tab_T = (-.035, .285), 78
 _tab_legs = fkleg(180, 270, ft=270)
 _HAND = hand(.25, .03)
 
 reg("Downward-Facing Dog (Adho Mukha Svanasana)", [
     key(0.0, _tab_hip, _tab_T, _tab_legs, _HAND, head=8, label="Tabletop", cue="Wrists under shoulders, knees under hips"),
-    key(0.5, (-.19, .494), 121, fkleg(205.3, 205.3, ft=105), _HAND, head=45, label="Lift hips up & back", cue="Press the floor away, heels reach down, spine long"),
+    # The down-dog shoulder was 0.3595 from the (shared, fixed) hand point - actually PAST max
+    # reach - so the IK clamped the wrist short of the true floor target instead of placing it
+    # there, which is why the hand didn't look like it was properly planted. Hips brought in from
+    # -.19 to -.13 (still clearly lifted up and back, just not quite as far) restores a real margin
+    # without moving the hand itself - a real down dog doesn't walk the hands during the lift.
+    key(0.5, (-.13, .494), 121, fkleg(205.3, 205.3, ft=105), _HAND, head=45, label="Lift hips up & back", cue="Press the floor away, heels reach down, spine long"),
 ], [MAT], [HIPANG()], ["back", "shoulder", "shin"], dur=4600, view=[-0.6, 0.55, -0.08, 0.8])
 
 reg("Child's Pose (Balasana)", [
     key(0.0, _tab_hip, _tab_T, _tab_legs, _HAND, head=8, label="Tabletop", cue="Big toes together, knees wide as comfortable"),
-    key(0.5, (-.20, .11), 80, fkleg(107, 270, ft=270), hand(.46, .03), spine=-.025, head=20, label="Sit back, fold forward", cue="Hips to heels, forehead down, breathe into your back"),
+    # Same over-reach bug as Down Dog's second key, found during that fix: .46 put the hand 0.3878
+    # from the shoulder, well past the 0.35 max reach. .39 keeps the arms genuinely extended in the
+    # fold without the IK clamping short of the floor.
+    key(0.5, (-.20, .11), 80, fkleg(107, 270, ft=270), hand(.39, .03), spine=-.025, head=20, label="Sit back, fold forward", cue="Hips to heels, forehead down, breathe into your back"),
 ], [MAT], [], ["back"], dur=5000, view=[-0.5, 0.65, -0.08, 0.7])
 
 reg("Cat-Cow Stretch (Marjaryasana-Bitilasana)", [

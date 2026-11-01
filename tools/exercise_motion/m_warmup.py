@@ -50,19 +50,3 @@ reg("Standing Toe Touch", [
         label="Hinge and reach", cue="Soft knees, hinge from the hips, reach toward your toes"),
 ], [MAT], [meas("Hip", "shoulder", "hip", "kneeN")], ["hamstrings", "back"], dur=3600, view=[-0.55, 0.6, -0.08, 1.35],
     tip="A dynamic hamstring stretch - bend your knees as much as you need to.")
-
-# walked-out plank: the feet stay where the fold left them, the body is one straight line at ~21 degrees
-_iw_a = 21.6
-_iw_ankle = (-.05, .0866)
-_iw_hip = (_iw_ankle[0] + .49 * math.cos(math.radians(_iw_a)), _iw_ankle[1] + .49 * math.sin(math.radians(_iw_a)))
-_iw_T = 90 - _iw_a
-_iw_sh = shoulder_of(_iw_hip, _iw_T)
-_iw_leg = fkleg(270 - _iw_a, 270 - _iw_a, ft=150)
-
-reg("Inchworm", [
-    key(0.00, (-.05, .42), 75, fkleg(170, 190, ft=90), hand(.30, .04), legF=fkleg(170, 190, ft=90), armF=hand(.26, .04), head=18,
-        label="Fold, hands to floor", cue="Bend your knees as much as needed to reach the floor"),
-    key(0.50, _iw_hip, _iw_T, _iw_leg, hand(_iw_sh[0], .03), legF=_iw_leg, armF=hand(_iw_sh[0] - .04, .03), head=5,
-        label="Walk out to plank", cue="Walk your hands forward, keep your core braced, then walk back in"),
-], [MAT], [], ["abs", "shoulder"], dur=4200, view=[-0.45, 0.85, -0.08, 1.0],
-    tip="A full-body warm-up: stretches the hamstrings and activates the shoulders and core.")

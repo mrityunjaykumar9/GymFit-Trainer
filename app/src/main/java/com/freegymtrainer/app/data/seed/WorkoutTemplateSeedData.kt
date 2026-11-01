@@ -121,7 +121,6 @@ object WorkoutTemplateSeedData {
                     te("Leg Swings", 1, "10-12/leg", 10),
                     te("High Knees", 1, "20-30s", 15),
                     te("Jumping Jacks", 1, "30-45s", 15),
-                    te("Inchworm", 1, "6-8", 15),
                     te("Standing Toe Touch", 1, "8-10", 10)
                 )),
                 SeedTemplateDay("Full-Body Mobility Flow", "Balance, Flexibility, Full Body", listOf(

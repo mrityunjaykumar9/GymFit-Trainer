@@ -509,12 +509,5 @@ object ExerciseSeedData {
                 "Hinge forward from your hips and reach toward your toes.",
                 "Rise back up to standing. Repeat for 8-10 slow reps."),
             listOf("Rounding aggressively through the lower back to reach further", "Locking the knees completely"),
-            "Bend your knees as much as you need to - this is a dynamic stretch, not a flexibility test."),
-        ex("Inchworm", "Full Body", listOf("Hamstrings", "Shoulders", "Core"), "Bodyweight", "Beginner",
-            "Mobility", listOf("Mobility"),
-            listOf("Stand tall, then hinge forward and place your hands on the floor.",
-                "Walk your hands forward until you're in a plank position.",
-                "Hold briefly, then walk your hands back toward your feet.", "Stand back up. Repeat for 6-8 reps."),
-            listOf("Letting the hips sag in the plank position", "Taking huge steps instead of small, controlled ones"),
-            "Bend your knees as much as needed on the way down and up - keep the core braced throughout the walk-out."))
+            "Bend your knees as much as you need to - this is a dynamic stretch, not a flexibility test."))
 }

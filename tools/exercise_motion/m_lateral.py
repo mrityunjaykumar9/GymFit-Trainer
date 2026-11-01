@@ -117,8 +117,14 @@ L("Seated Forward Bend (Paschimottanasana)", stance=.06)
 L("Relaxation Pose", grip=.15, stance=.09)
 # ------------------------------------------------------------------ warm-up & mobility
 L("Leg Swings", stance=.08)
-L("Jumping Jacks", stance=.09, lat=[[0, 0, 0, 0], [70, 70, 55, 55]])
+# The free-swing "lat" degrees rotate the arm's existing 2D direction toward the side - at 70deg
+# that takes the authored "pointing straight up" sagittal arm and turns it into pointing straight
+# OUT TO THE SIDE (a T-pose), the same mechanism Lateral Raise uses on purpose. For jumping jacks
+# the arms need to stay mostly vertical (overhead) with only a slight outward V, so the arm swing
+# has to be small - 18deg keeps the "up" direction while adding a believable bit of spread. Legs
+# don't have this problem (their 2D direction is already forward/down, not straight up), so a
+# bigger swing still reads as a wide jump-out stance rather than flipping direction entirely.
+L("Jumping Jacks", stance=.09, lat=[[0, 0, 0, 0], [18, 18, 55, 55]])
 L("High Knees", stance=.07, lat=[15, 15, 0, 0])
 L("Standing Side Bend", grip=.09, stance=.075, frontal=True)
 L("Standing Toe Touch", grip=.09, stance=.08)
-L("Inchworm", grip=.14, stance=.08)

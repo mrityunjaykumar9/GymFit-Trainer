@@ -151,8 +151,6 @@ object ExerciseCoach {
             "Reach straight overhead first", "Lean away from the reaching arm", "No bouncing - ease into it"),
         "standing_toe_touch" to c("A dynamic hamstring stretch to start a session.",
             "Soft bend in the knees", "Hinge from the hips, not the lower back", "Rise back up under control"),
-        "inchworm" to c("A full-body warm-up for the hamstrings, shoulders and core.",
-            "Small, controlled steps with the hands", "Keep the core braced in the plank", "Bend the knees as needed"),
         "mountain_pose" to c("Posture, balance and body awareness.",
             "Feet together, weight even", "Ribs stacked over hips", "Reach the crown of your head up"),
         "warrior_i" to c("Strong legs, open hips and chest.",

@@ -16,21 +16,26 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
  * just sits in the layout), AdMob does not insert interstitials automatically - they must be
  * explicitly loaded ahead of time and shown at a moment the app chooses.
  *
- * Two timing guards keep this from feeling naggy on top of only ever being called from natural
- * break points (see call site), never mid-workout:
- * - [MIN_SESSION_ENGAGEMENT_MS]: nothing shows in the first couple minutes after the app is
- *   opened, so the ad never intercepts someone who just launched the app. This is also the #1
- *   reason it looks "broken" while testing - finishing a quick workout within 2 minutes of
- *   opening the app is a silent, intentional skip, not a bug. See [GymFitAds] logs below.
- * - [MIN_INTERVAL_BETWEEN_ADS_MS]: a cooldown after each shown ad, so someone finishing several
- *   short workouts back to back doesn't get one every single time.
+ * Shown from two kinds of call sites: specific break points (workout finished, meal logged - see
+ * those call sites) and the general one in [MainActivity]'s bottom-nav tab switch, which is what
+ * actually delivers "roughly every 5-10 minutes of continuous use" - most sessions hit a tab
+ * switch far more often than they hit a workout-finished/meal-logged moment, so without it,
+ * someone who just browses exercises or nutrition info would never see an interstitial no matter
+ * how long they stayed. The two timing guards below are what turn "every tab switch" into "about
+ * every 5-10 minutes" and keep it from feeling naggy:
+ * - [MIN_SESSION_ENGAGEMENT_MS]: nothing shows in the first few minutes after the app is opened,
+ *   so the ad never intercepts someone who just launched the app. This is also the #1 reason it
+ *   looks "broken" while testing - switching tabs within 5 minutes of opening the app is a
+ *   silent, intentional skip, not a bug. See [GymFitAds] logs below.
+ * - [MIN_INTERVAL_BETWEEN_ADS_MS]: a cooldown after each shown ad, so rapid tab-switching doesn't
+ *   turn into one every single time.
  * Both are silent skips - [showIfReady] still calls [onDismissed] immediately, never blocking
  * navigation waiting on an ad that isn't going to show.
  */
 object InterstitialAdManager {
     private const val TAG = "GymFitAds"
-    private const val MIN_SESSION_ENGAGEMENT_MS = 2 * 60 * 1000L
-    private const val MIN_INTERVAL_BETWEEN_ADS_MS = 5 * 60 * 1000L
+    private const val MIN_SESSION_ENGAGEMENT_MS = 5 * 60 * 1000L
+    private const val MIN_INTERVAL_BETWEEN_ADS_MS = 7 * 60 * 1000L
 
     private var interstitialAd: InterstitialAd? = null
     private var isLoading = false

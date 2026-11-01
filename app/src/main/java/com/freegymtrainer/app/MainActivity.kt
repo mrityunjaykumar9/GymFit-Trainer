@@ -105,9 +105,14 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
     }
 
     val navController = rememberNavController()
+    // Bottom-nav tab switches are the one navigation event that happens constantly across every
+    // kind of session (browsing exercises, logging food, checking warm-ups...), which is what
+    // makes them the right general hook for "roughly every 5-10 minutes of continuous use" -
+    // InterstitialAdManager's own timing guards do the actual pacing, this just calls it often
+    // enough that those guards have something to let through when enough time has passed.
+    val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
     if (BuildConfig.DEBUG) {
         // Developer shortcut: adb shell am start -n ...debug/...MainActivity --es debug_exercise "Barbell Curl" --ef debug_yaw -35 --ef debug_t 0.5
-        val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
         LaunchedEffect(destination) {
             val extras = activity?.intent?.extras ?: return@LaunchedEffect
             val name = extras.getString("debug_exercise") ?: return@LaunchedEffect
@@ -143,10 +148,17 @@ private fun AppRoot(container: AppContainer, settings: SettingsDataStore, seedin
                         NavigationBarItem(
                             selected = currentRoute == screen.route,
                             onClick = {
-                                navController.navigate(screen.route) {
+                                fun go() = navController.navigate(screen.route) {
                                     popUpTo(navController.graph.startDestinationId) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
+                                }
+                                // Only an actual tab switch counts as a "break point" - re-tapping
+                                // the tab you're already on isn't a pause in what you're doing.
+                                if (currentRoute != screen.route && activity != null) {
+                                    InterstitialAdManager.showIfReady(activity, onDismissed = { go() })
+                                } else {
+                                    go()
                                 }
                             },
                             icon = { Icon(icon, contentDescription = label) },

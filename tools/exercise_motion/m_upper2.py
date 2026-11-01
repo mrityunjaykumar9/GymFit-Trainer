@@ -16,17 +16,15 @@ reg("Cable Fly", [
     [], ["chest"], dur=3000, view=[-0.75, 0.75, -0.08, 1.3])
 
 reg("Pec Deck", [
-    # The old "Open" target (an IK target only .03 pose units from the shoulder) was so close that
-    # the elbow folded almost in half to reach it, and dropped 0.14 units below the shoulder doing
-    # it - the opposite of the "elbows level with shoulders" cue - while the hand itself landed only
-    # 0.075 below the head and the pad bar (which extends further up from the hand) actually reached
-    # above the top of the head. Switched to FK so the elbow height is set directly: u=90 puts the
-    # elbow exactly level with the shoulder, and f=80 brings the hand forward and just low enough to
-    # clear the head by a real margin.
-    key(0.0, (-.06, .27), 0, foot(.22, .04), fkarm(90, 80), label="Open", cue="Elbows level with shoulders, chest tall"),
-    # Converted to FK too (matches the old IK-driven position almost exactly) so both keys use the
-    # same arm representation - the build rejects mixing FK and IK targets within one exercise.
-    key(0.5, (-.06, .27), 0, foot(.22, .04), fkarm(119, 57), label="Squeeze", cue="Bring the pads together, pause 1 second"),
+    # A real fly/pec-deck keeps the arm close to straight throughout - the whole rep is rotation at
+    # the shoulder (and, in 3D, the grip width collapsing from wide to narrow), not an elbow hinge.
+    # The old "Squeeze" (u=119, f=57) bent 62 degrees at the elbow, which read as a sharp, closed-in
+    # angle instead of the arms staying extended. Both keys now use a 6-degree u/f gap (the same soft-
+    # elbow margin used elsewhere, e.g. Lateral Raise) instead of a real hinge: "Open" at u=90 (level
+    # with the shoulder) and "Squeeze" at u=100 (swung slightly forward-and-down as the hands come
+    # together), with grip width (m_lateral.py) doing the actual opening/closing in 3D.
+    key(0.0, (-.06, .27), 0, foot(.22, .04), fkarm(90, 84), label="Open", cue="Elbows level with shoulders, chest tall"),
+    key(0.5, (-.06, .27), 0, foot(.22, .04), fkarm(100, 94), label="Squeeze", cue="Bring the pads together, pause 1 second"),
 ], SEAT + [prop_line(at("wristN", (0, -.10)), at("wristN", (0, .14)), .045, "metal", 1)],
     [], ["chest"], dur=3000, view=[-0.65, 0.65, -0.08, 1.15])
 

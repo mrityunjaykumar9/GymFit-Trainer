@@ -103,10 +103,26 @@ reg("Deadlift", [
 ], [plate("wristN", .12)], [meas("Knee", "hip", "kneeN", "ankleN"), meas("Back lean", "lean")], ["back", "glutes", "thigh"], dur=3600)
 
 # ---------------------------------------------------------------- SHOULDERS
+# Same situation as Clean and Press: the rack position itself (.06 forward of the shoulder) was
+# already too close to the head for an 0.085-radius plate, and the straight line from there to the
+# overhead lockout passes right through the head at the midpoint - the cue already said "head
+# through the window" but nothing actually moved the head out of the way. Pushed the rack position
+# forward for real clearance at rest, and added a "drive past your face" key that tips the head back
+# (matching the cue) instead of swinging the bar out around the face.
+#
+# This used to be a 2-key exercise relying on the player auto-mirroring 0.5->1.0 back to the start,
+# but the mirror's easing doesn't retrace the forward path's timing exactly - the head tilt and the
+# bar position ended up out of sync on the way down, so the bar still clipped the head for part of
+# the lowering phase even with the tilt in place. Spelling out the lowering phase explicitly (instead
+# of relying on the mirror) keeps the head tilted back for exactly as long as the bar is near the face
+# in both directions.
 _ohp_sh = shoulder_of((0.0, .5295), 0)
 reg("Overhead Press", [
-    key(0.0, (0, .5295), 0, FLAT, hand(.06, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
-    key(0.5, (0, .5295), -3, FLAT, hand(.0, _ohp_sh[1] + .35), label="Lockout overhead", cue="Head through the window, bar over mid-foot"),
+    key(0.0, (0, .5295), 0, FLAT, hand(.20, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
+    key(0.2, (0, .5295), -1.5, FLAT, hand(.14, _ohp_sh[1] + .19), head=-30, label="Drive past your face", cue="Tip your head back slightly, press the bar straight up"),
+    key(0.4, (0, .5295), -3, FLAT, hand(.0, _ohp_sh[1] + .35), label="Lockout overhead", cue="Head through the window, bar over mid-foot"),
+    key(0.6, (0, .5295), -1.5, FLAT, hand(.14, _ohp_sh[1] + .19), head=-30, label="Lower past your face", cue="Control the bar down, head tipped back"),
+    key(0.8, (0, .5295), 0, FLAT, hand(.20, _ohp_sh[1] + .03), label="Rack position", cue="Squeeze glutes, ribs down"),
 ], [plate("wristN", .085)], [ELB()], ["shoulder", "uarm"], dur=3000)
 
 _dsp = shoulder_of((-.06, .27), 0)
